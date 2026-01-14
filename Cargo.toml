@@ -1,0 +1,10 @@
+[package]
+name = "magg"
+authors = ["Dariusz Depta <depta@engos.de>"]
+description = "Sophisticated tooling for developers"
+version = "0.0.1"
+license = "MIT OR Apache-2.0"
+edition = "2024"
+
+[dependencies]
+clap = "4.5.54"

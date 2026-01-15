@@ -14,24 +14,24 @@
 
 [crates-badge]: https://img.shields.io/crates/v/magg.svg
 [crates-url]: https://crates.io/crates/magg
-[cov-badge]: https://img.shields.io/badge/coverage-0%25-f52020.svg
+[cov-badge]: https://img.shields.io/badge/coverage-0%25-21b577.svg
 [cov-url]: https://crates.io/crates/coverio
 [build-badge-linux]: https://github.com/EngosSoftware/magg/actions/workflows/build-linux.yml/badge.svg
 [build-badge-windows]: https://github.com/EngosSoftware/magg/actions/workflows/build-windows.yml/badge.svg
 [build-badge-macos]: https://github.com/EngosSoftware/magg/actions/workflows/build-macos.yml/badge.svg
 [build-badge-macos-arm64]: https://github.com/EngosSoftware/magg/actions/workflows/build-macos-arm64.yml/badge.svg
-[mit-badge]: https://img.shields.io/badge/License-MIT-blue.svg
+[mit-badge]: https://img.shields.io/badge/License-MIT-4169E1.svg
 [mit-url]: https://opensource.org/licenses/MIT
 [mit-license-url]: https://github.com/EngosSoftware/magg/blob/main/LICENSE-MIT
-[apache-badge]: https://img.shields.io/badge/License-Apache%202.0-blue.svg
+[apache-badge]: https://img.shields.io/badge/License-Apache%202.0-4169E1.svg
 [apache-url]: https://www.apache.org/licenses/LICENSE-2.0
 [apache-license-url]: https://github.com/EngosSoftware/magg/blob/main/LICENSE
 [apache-notice-url]: https://github.com/EngosSoftware/magg/blob/main/NOTICE
-[cc-badge]: https://img.shields.io/badge/Contributor%20Covenant-2.1-blue.svg
+[cc-badge]: https://img.shields.io/badge/Contributor%20Covenant-2.1-4169E1.svg
 [cc-url]: https://github.com/EngosSoftware/magg/blob/main/CODE_OF_CONDUCT.md
-[mbh-badge]: https://img.shields.io/badge/Made_by-HUMAN-D81B60.svg
+[mbh-badge]: https://img.shields.io/badge/Made_by-HUMAN-C71585.svg
 [mbh-url]: https://github.com/DariuszDepta
-[es-badge]: https://img.shields.io/badge/Brought_to_you_by-Engos_Software-43A047.svg
+[es-badge]: https://img.shields.io/badge/Brought_to_you_by-Engos_Software-006400.svg
 [es-url]: https://engos.de
 [repository-url]: https://github.com/EngosSoftware/magg
 
@@ -59,3 +59,4 @@ at your option.
 Any contributions to [magg][repository-url] are greatly appreciated.
 All contributions intentionally submitted for inclusion in the work by you,
 shall be dual licensed as above, without any additional terms or conditions.
+

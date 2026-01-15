@@ -7,6 +7,10 @@ use std::path::Path;
 
 const TWO_SPACES: &str = "  ";
 
+const LICENSE_COLOR: &str = "4169E1";
+const HUMAN_COLOR: &str = "C71585";
+const ENGOS_COLOR: &str = "006400";
+
 pub fn scaffold_readme(file_name: impl AsRef<Path>) -> String {
   let mut output = String::new();
   let body = read_file(file_name);
@@ -39,18 +43,18 @@ pub fn scaffold_readme(file_name: impl AsRef<Path>) -> String {
   _ = writeln!(&mut output, "[build-badge-windows]: {repository_url}/actions/workflows/build-windows.yml/badge.svg");
   _ = writeln!(&mut output, "[build-badge-macos]: {repository_url}/actions/workflows/build-macos.yml/badge.svg");
   _ = writeln!(&mut output, "[build-badge-macos-arm64]: {repository_url}/actions/workflows/build-macos-arm64.yml/badge.svg");
-  _ = writeln!(&mut output, "[mit-badge]: https://img.shields.io/badge/License-MIT-blue.svg");
+  _ = writeln!(&mut output, "[mit-badge]: https://img.shields.io/badge/License-MIT-{LICENSE_COLOR}.svg");
   _ = writeln!(&mut output, "[mit-url]: https://opensource.org/licenses/MIT");
   _ = writeln!(&mut output, "[mit-license-url]: {repository_url}/blob/main/LICENSE-MIT");
-  _ = writeln!(&mut output, "[apache-badge]: https://img.shields.io/badge/License-Apache%202.0-blue.svg");
+  _ = writeln!(&mut output, "[apache-badge]: https://img.shields.io/badge/License-Apache%202.0-{LICENSE_COLOR}.svg");
   _ = writeln!(&mut output, "[apache-url]: https://www.apache.org/licenses/LICENSE-2.0");
   _ = writeln!(&mut output, "[apache-license-url]: {repository_url}/blob/main/LICENSE");
   _ = writeln!(&mut output, "[apache-notice-url]: {repository_url}/blob/main/NOTICE");
-  _ = writeln!(&mut output, "[cc-badge]: https://img.shields.io/badge/Contributor%20Covenant-2.1-blue.svg");
+  _ = writeln!(&mut output, "[cc-badge]: https://img.shields.io/badge/Contributor%20Covenant-2.1-{LICENSE_COLOR}.svg");
   _ = writeln!(&mut output, "[cc-url]: {repository_url}/blob/main/CODE_OF_CONDUCT.md");
-  _ = writeln!(&mut output, "[mbh-badge]: https://img.shields.io/badge/Made_by-HUMAN-D81B60.svg");
+  _ = writeln!(&mut output, "[mbh-badge]: https://img.shields.io/badge/Made_by-HUMAN-{HUMAN_COLOR}.svg");
   _ = writeln!(&mut output, "[mbh-url]: https://github.com/DariuszDepta");
-  _ = writeln!(&mut output, "[es-badge]: https://img.shields.io/badge/Brought_to_you_by-Engos_Software-43A047.svg");
+  _ = writeln!(&mut output, "[es-badge]: https://img.shields.io/badge/Brought_to_you_by-Engos_Software-{ENGOS_COLOR}.svg");
   _ = writeln!(&mut output, "[es-url]: https://engos.de");
   _ = writeln!(&mut output, "[repository-url]: {repository_url}");
   // Write the content.

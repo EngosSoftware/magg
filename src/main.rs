@@ -56,7 +56,9 @@ fn main() {
   println!("[es-badge]: https://img.shields.io/badge/Brought_to_you_by-Engos_Software-43A047.svg");
   println!("[es-url]: https://engos.de");
   println!("[repository-url]: {repository}");
-  println!("\n\n\n");
+  println!();
+  // here comes the README body
+  println!();
   println!("## License\n");
   println!("Licensed under either of\n");
   println!("- [MIT license][mit-url] (see [LICENSE-MIT][mit-license-url]) or");

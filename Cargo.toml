@@ -2,6 +2,7 @@
 name = "magg"
 authors = ["Dariusz Depta <depta@engos.de>"]
 description = "Sophisticated tooling for developers"
+repository = "https://github.com/EngosSoftware/magg.git"
 version = "0.0.1"
 license = "MIT OR Apache-2.0"
 edition = "2024"

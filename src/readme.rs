@@ -1,54 +1,69 @@
 //! # Composer for README.md files
 
+use crate::utils;
+use crate::utils::read_file;
+use std::fmt::Write;
+use std::path::Path;
+
 const TWO_SPACES: &str = "  ";
 
-pub fn scaffold_readme(package_name: &str, repository_url: &str, body: &str) {
-  println!("### {}", package_name);
-  println!();
-  println!("[![crates.io][crates-badge]][crates-url]");
-  println!("[![coverage][cov-badge]][cov-url]{TWO_SPACES}");
-  println!("![build Linux][build-badge-linux]");
-  println!("![build Windows][build-badge-windows]");
-  println!("![build macOs][build-badge-macos]");
-  println!("![build macOs arm64][build-badge-macos-arm64]{TWO_SPACES}");
-  println!("[![mit-license][mit-badge]][mit-license-url]");
-  println!("[![apache-license][apache-badge]][apache-license-url]");
-  println!("[![cc][cc-badge]][cc-url]{TWO_SPACES}");
-  println!("[![mbh][mbh-badge]][mbh-url]");
-  println!("[![es][es-badge]][es-url]");
-  println!();
-  println!("[crates-badge]: https://img.shields.io/crates/v/{package_name}.svg");
-  println!("[crates-url]: https://crates.io/crates/{package_name}");
-  println!("[cov-badge]: https://img.shields.io/badge/coverage-0%25-21b577.svg");
-  println!("[cov-url]: https://crates.io/crates/coverio");
-  println!("[build-badge-linux]: {repository_url}/actions/workflows/build-linux.yml/badge.svg");
-  println!("[build-badge-windows]: {repository_url}/actions/workflows/build-windows.yml/badge.svg");
-  println!("[build-badge-macos]: {repository_url}/actions/workflows/build-macos.yml/badge.svg");
-  println!("[build-badge-macos-arm64]: {repository_url}/actions/workflows/build-macos-arm64.yml/badge.svg");
-  println!("[mit-badge]: https://img.shields.io/badge/License-MIT-blue.svg");
-  println!("[mit-url]: https://opensource.org/licenses/MIT");
-  println!("[mit-license-url]: {repository_url}/blob/main/LICENSE-MIT");
-  println!("[apache-badge]: https://img.shields.io/badge/License-Apache%202.0-blue.svg");
-  println!("[apache-url]: https://www.apache.org/licenses/LICENSE-2.0");
-  println!("[apache-license-url]: {repository_url}/blob/main/LICENSE");
-  println!("[apache-notice-url]: {repository_url}/blob/main/NOTICE");
-  println!("[cc-badge]: https://img.shields.io/badge/Contributor%20Covenant-2.1-blue.svg");
-  println!("[cc-url]: {repository_url}/blob/main/CODE_OF_CONDUCT.md");
-  println!("[mbh-badge]: https://img.shields.io/badge/Made_by-HUMAN-D81B60.svg");
-  println!("[mbh-url]: https://github.com/DariuszDepta");
-  println!("[es-badge]: https://img.shields.io/badge/Brought_to_you_by-Engos_Software-43A047.svg");
-  println!("[es-url]: https://engos.de");
-  println!("[repository-url]: {repository_url}");
-  println!();
-  print!("{body}");
-  println!();
-  println!("## License\n");
-  println!("Licensed under either of\n");
-  println!("- [MIT license][mit-url] (see [LICENSE-MIT][mit-license-url]) or");
-  println!("- [Apache License, Version 2.0][apache-url] (see [LICENSE][apache-license-url] and [NOTICE][apache-notice-url])\n");
-  println!("at your option.\n");
-  println!("## Contribution\n");
-  println!("Any contributions to [{package_name}][repository-url] are greatly appreciated.");
-  println!("All contributions intentionally submitted for inclusion in the work by you,");
-  println!("shall be dual licensed as above, without any additional terms or conditions.");
+pub fn scaffold_readme(file_name: impl AsRef<Path>) -> String {
+  let mut output = String::new();
+  let body = read_file(file_name);
+  let parsed_toml = utils::parse_toml("Cargo.toml");
+  let package_name = utils::get_package_name(&parsed_toml);
+  let repository_url = utils::get_repository(&parsed_toml)
+    .strip_suffix(".git")
+    .expect("repository name does not end with '.git' suffix");
+  _ = writeln!(&mut output, "### {}", package_name);
+  _ = writeln!(&mut output);
+  _ = writeln!(&mut output, "[![crates.io][crates-badge]][crates-url]");
+  _ = writeln!(&mut output, "[![coverage][cov-badge]][cov-url]{TWO_SPACES}");
+  _ = writeln!(&mut output, "![build Linux][build-badge-linux]");
+  _ = writeln!(&mut output, "![build Windows][build-badge-windows]");
+  _ = writeln!(&mut output, "![build macOs][build-badge-macos]");
+  _ = writeln!(&mut output, "![build macOs arm64][build-badge-macos-arm64]{TWO_SPACES}");
+  _ = writeln!(&mut output, "[![mit-license][mit-badge]][mit-license-url]");
+  _ = writeln!(&mut output, "[![apache-license][apache-badge]][apache-license-url]");
+  _ = writeln!(&mut output, "[![cc][cc-badge]][cc-url]{TWO_SPACES}");
+  _ = writeln!(&mut output, "[![mbh][mbh-badge]][mbh-url]");
+  _ = writeln!(&mut output, "[![es][es-badge]][es-url]\n");
+  _ = writeln!(&mut output, "[crates-badge]: https://img.shields.io/crates/v/{package_name}.svg");
+  _ = writeln!(&mut output, "[crates-url]: https://crates.io/crates/{package_name}");
+  _ = writeln!(&mut output, "[cov-badge]: https://img.shields.io/badge/coverage-0%25-21b577.svg");
+  _ = writeln!(&mut output, "[cov-url]: https://crates.io/crates/coverio");
+  _ = writeln!(&mut output, "[build-badge-linux]: {repository_url}/actions/workflows/build-linux.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-windows]: {repository_url}/actions/workflows/build-windows.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-macos]: {repository_url}/actions/workflows/build-macos.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-macos-arm64]: {repository_url}/actions/workflows/build-macos-arm64.yml/badge.svg");
+  _ = writeln!(&mut output, "[mit-badge]: https://img.shields.io/badge/License-MIT-blue.svg");
+  _ = writeln!(&mut output, "[mit-url]: https://opensource.org/licenses/MIT");
+  _ = writeln!(&mut output, "[mit-license-url]: {repository_url}/blob/main/LICENSE-MIT");
+  _ = writeln!(&mut output, "[apache-badge]: https://img.shields.io/badge/License-Apache%202.0-blue.svg");
+  _ = writeln!(&mut output, "[apache-url]: https://www.apache.org/licenses/LICENSE-2.0");
+  _ = writeln!(&mut output, "[apache-license-url]: {repository_url}/blob/main/LICENSE");
+  _ = writeln!(&mut output, "[apache-notice-url]: {repository_url}/blob/main/NOTICE");
+  _ = writeln!(&mut output, "[cc-badge]: https://img.shields.io/badge/Contributor%20Covenant-2.1-blue.svg");
+  _ = writeln!(&mut output, "[cc-url]: {repository_url}/blob/main/CODE_OF_CONDUCT.md");
+  _ = writeln!(&mut output, "[mbh-badge]: https://img.shields.io/badge/Made_by-HUMAN-D81B60.svg");
+  _ = writeln!(&mut output, "[mbh-url]: https://github.com/DariuszDepta");
+  _ = writeln!(&mut output, "[es-badge]: https://img.shields.io/badge/Brought_to_you_by-Engos_Software-43A047.svg");
+  _ = writeln!(&mut output, "[es-url]: https://engos.de");
+  _ = writeln!(&mut output, "[repository-url]: {repository_url}");
+  _ = writeln!(&mut output);
+  _ = write!(&mut output, "{body}");
+  _ = writeln!(&mut output);
+  _ = writeln!(&mut output, "## License\n");
+  _ = writeln!(&mut output, "Licensed under either of\n");
+  _ = writeln!(&mut output, "- [MIT license][mit-url] (see [LICENSE-MIT][mit-license-url]) or");
+  _ = writeln!(
+    &mut output,
+    "- [Apache License, Version 2.0][apache-url] (see [LICENSE][apache-license-url] and [NOTICE][apache-notice-url])\n"
+  );
+  _ = writeln!(&mut output, "at your option.\n");
+  _ = writeln!(&mut output, "## Contribution\n");
+  _ = writeln!(&mut output, "Any contributions to [{package_name}][repository-url] are greatly appreciated.");
+  _ = writeln!(&mut output, "All contributions intentionally submitted for inclusion in the work by you,");
+  _ = writeln!(&mut output, "shall be dual licensed as above, without any additional terms or conditions.");
+  output
 }

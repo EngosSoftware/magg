@@ -8,8 +8,8 @@ use std::path::Path;
 const TWO_SPACES: &str = "  ";
 
 const LICENSE_COLOR: &str = "4169E1";
-const HUMAN_COLOR: &str = "C71585";
-const ENGOS_COLOR: &str = "006400";
+const HUMAN_COLOR: &str = "DC143C";
+const ENGOS_COLOR: &str = "32CD32";
 
 pub fn scaffold_readme(file_name: impl AsRef<Path>) -> String {
   let mut output = String::new();

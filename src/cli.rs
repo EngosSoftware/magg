@@ -1,11 +1,16 @@
+use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
 use crate::{readme, utils};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
 
 enum Action {
+  /// Generate README.md file
   Readme(
     /// Name of the file containing the body text of scaffolded README.md file.
     String,
   ),
+  /// Generate license files.
+  Licenses,
+  /// Do nothing.
   Nothing,
 }
 
@@ -16,13 +21,14 @@ fn get_matches() -> ArgMatches {
     .disable_version_flag(true)
     // handle the version flag in a custom way
     .arg(Arg::new("version").short('V').long("version").help("Print version").action(ArgAction::SetTrue))
-    // pfe - Parse FEEL Expression
+    // Generate README.md file.
     .subcommand(
       Command::new("readme")
-        .about("Scaffolds README.md file")
+        .about("Generates README.md file")
         .display_order(1)
         .arg(arg!(<README_BODY>).help("File containing the body of the scaffolded README.md").required(true).index(1)),
     )
+    .subcommand(Command::new("licenses").about("Generates MIT and Apache 2.0 license files").display_order(2))
     .get_matches()
 }
 
@@ -40,6 +46,9 @@ fn get_cli_action() -> Action {
     Some(("readme", matches)) => {
       return Action::Readme(match_string(matches, "README_BODY"));
     }
+    Some(("licenses", _matches)) => {
+      return Action::Licenses;
+    }
     _ => {}
   }
   Action::Nothing
@@ -51,6 +60,11 @@ pub fn do_action() {
     Action::Readme(file_name) => {
       let contents = readme::scaffold_readme(file_name);
       utils::write_file("README.md", &contents);
+    }
+    Action::Licenses => {
+      utils::write_file("LICENSE", &get_apache_2());
+      utils::write_file("NOTICE", &get_apache_notice());
+      utils::write_file("LICENSE-MIT", &get_mit());
     }
     Action::Nothing => {
       // No specific action was requested.

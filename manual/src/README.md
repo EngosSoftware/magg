@@ -1,9 +1,1 @@
-# Sophisticated tooling for Rust developers
-
-## Overview
-
-(tbd)
-
-## Usage
-
-(tbd)
+{{#include ../../docs/README.md}}

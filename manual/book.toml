@@ -1,0 +1,5 @@
+[book]
+title = "magg"
+authors = ["Dariusz Depta <depta@engos.de>"]
+description = "Sophisticated tooling for Rust developers"
+language = "en"

@@ -14,7 +14,7 @@
 
 [crates-badge]: https://img.shields.io/crates/v/magg.svg
 [crates-url]: https://crates.io/crates/magg
-[cov-badge]: https://img.shields.io/badge/coverage-0%25-21b577.svg
+[cov-badge]: https://img.shields.io/badge/coverage-0%25-f52020.svg
 [cov-url]: https://crates.io/crates/coverio
 [build-badge-linux]: https://github.com/EngosSoftware/magg/actions/workflows/build-linux.yml/badge.svg
 [build-badge-windows]: https://github.com/EngosSoftware/magg/actions/workflows/build-windows.yml/badge.svg
@@ -43,7 +43,7 @@
 
 ## Usage
 
-(tbd)
+(work in progress)
 
 ## License
 

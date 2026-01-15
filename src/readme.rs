@@ -1,4 +1,4 @@
-//! # Composer for README.md files
+//! # README.md file generator
 
 use crate::utils;
 use crate::utils::read_file;
@@ -15,8 +15,10 @@ pub fn scaffold_readme(file_name: impl AsRef<Path>) -> String {
   let repository_url = utils::get_repository(&parsed_toml)
     .strip_suffix(".git")
     .expect("repository name does not end with '.git' suffix");
+  // Write the name of the package.
   _ = writeln!(&mut output, "### {}", package_name);
   _ = writeln!(&mut output);
+  // Write badges.
   _ = writeln!(&mut output, "[![crates.io][crates-badge]][crates-url]");
   _ = writeln!(&mut output, "[![coverage][cov-badge]][cov-url]{TWO_SPACES}");
   _ = writeln!(&mut output, "![build Linux][build-badge-linux]");
@@ -28,6 +30,7 @@ pub fn scaffold_readme(file_name: impl AsRef<Path>) -> String {
   _ = writeln!(&mut output, "[![cc][cc-badge]][cc-url]{TWO_SPACES}");
   _ = writeln!(&mut output, "[![mbh][mbh-badge]][mbh-url]");
   _ = writeln!(&mut output, "[![es][es-badge]][es-url]\n");
+  // Write links to badges and files.
   _ = writeln!(&mut output, "[crates-badge]: https://img.shields.io/crates/v/{package_name}.svg");
   _ = writeln!(&mut output, "[crates-url]: https://crates.io/crates/{package_name}");
   _ = writeln!(&mut output, "[cov-badge]: https://img.shields.io/badge/coverage-0%25-21b577.svg");
@@ -50,20 +53,29 @@ pub fn scaffold_readme(file_name: impl AsRef<Path>) -> String {
   _ = writeln!(&mut output, "[es-badge]: https://img.shields.io/badge/Brought_to_you_by-Engos_Software-43A047.svg");
   _ = writeln!(&mut output, "[es-url]: https://engos.de");
   _ = writeln!(&mut output, "[repository-url]: {repository_url}");
+  // Write the content.
   _ = writeln!(&mut output);
   _ = write!(&mut output, "{body}");
   _ = writeln!(&mut output);
-  _ = writeln!(&mut output, "## License\n");
-  _ = writeln!(&mut output, "Licensed under either of\n");
+  // Write license section.
+  _ = writeln!(&mut output, "## License");
+  _ = writeln!(&mut output);
+  _ = writeln!(&mut output, "Licensed under either of");
+  _ = writeln!(&mut output);
   _ = writeln!(&mut output, "- [MIT license][mit-url] (see [LICENSE-MIT][mit-license-url]) or");
   _ = writeln!(
     &mut output,
-    "- [Apache License, Version 2.0][apache-url] (see [LICENSE][apache-license-url] and [NOTICE][apache-notice-url])\n"
+    "- [Apache License, Version 2.0][apache-url] (see [LICENSE][apache-license-url] and [NOTICE][apache-notice-url])"
   );
-  _ = writeln!(&mut output, "at your option.\n");
-  _ = writeln!(&mut output, "## Contribution\n");
+  _ = writeln!(&mut output);
+  _ = writeln!(&mut output, "at your option.");
+  _ = writeln!(&mut output);
+  // Write contribution section.
+  _ = writeln!(&mut output, "## Contribution");
+  _ = writeln!(&mut output);
   _ = writeln!(&mut output, "Any contributions to [{package_name}][repository-url] are greatly appreciated.");
   _ = writeln!(&mut output, "All contributions intentionally submitted for inclusion in the work by you,");
   _ = writeln!(&mut output, "shall be dual licensed as above, without any additional terms or conditions.");
+  _ = writeln!(&mut output);
   output
 }

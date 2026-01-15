@@ -1,7 +1,5 @@
-mod cli;
-mod readme;
-mod utils;
+use magg::do_action;
 
 fn main() {
-  cli::do_action()
+  do_action()
 }

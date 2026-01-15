@@ -1,0 +1,92 @@
+version: '3'
+
+silent: true
+
+tasks:
+
+  build:
+    desc: Builds in debug mode
+    cmds:
+      - cmd: cargo +stable build
+
+  clean:
+    desc: Cleans all targets
+    cmds:
+      - cmd: cargo +stable clean
+      - cmd: rm -rf ./manual/book
+
+  clippy:
+    desc: Runs clippy for all targets
+    cmds:
+      - cmd: cargo +stable clippy --all-targets
+
+  cov:
+    desc: Generates code coverage report in text format
+    cmds:
+      - cmd: cargo +stable llvm-cov clean
+      - cmd: cargo +stable llvm-cov --no-cfg-coverage
+
+  cov-html:
+    desc: Generates code coverage report in HTML format
+    cmds:
+      - cmd: cargo +stable llvm-cov clean
+      - cmd: cargo +stable llvm-cov --no-cfg-coverage --html --open
+
+  cov-badge:
+    desc: Generates the detailed code coverage badge
+    cmds:
+      - cmd: cargo +stable llvm-cov clean
+      - cmd: cargo +stable llvm-cov --no-cfg-coverage --json --summary-only | coverio -l coverage -c --tag cov-badge
+
+  doc:
+    desc: Generates documentation
+    cmds:
+      - cmd: cargo +stable doc
+
+  doc-private:
+    desc: Generates documentation
+    cmds:
+      - cmd: cargo +stable doc --document-private-items
+
+  doc-open:
+    desc: Generates documentation and opens in browser
+    cmds:
+      - cmd: cargo +stable doc --open
+
+  doc-private-open:
+    desc: Generates documentation and opens in browser
+    cmds:
+      - cmd: cargo +stable doc --open --document-private-items
+
+  fmt:
+    desc: Runs code formatter
+    cmds:
+      - cmd: cargo +nightly fmt
+
+  manual:
+    desc: Builds the manual from its markdown files
+    cmds:
+      - cmd: cd manual && mdbook build
+
+  readme:
+    desc: Regenerates README.md file
+    cmds:
+      - cmd: magg readme docs/README.md
+      - task: cov-badge
+
+  serve:
+    desc: Serves the manual locally and rebuilds on changes
+    silent: true
+    ignore_error: true
+    cmds:
+      - cmd: cd manual && mdbook serve || true
+
+  test:
+    desc: Runs tests in debug mode
+    cmds:
+      - cmd: cargo +stable test
+
+  testn:
+    desc: Runs tests in debug mode
+    cmds:
+      - cmd: cargo +stable nextest run

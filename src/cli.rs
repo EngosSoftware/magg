@@ -1,3 +1,4 @@
+use crate::code_of_conduct::get_code_of_conduct;
 use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
 use crate::{readme, utils};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
@@ -10,6 +11,8 @@ enum Action {
   ),
   /// Generate license files.
   Licenses,
+  /// Generate code of conduct file.
+  CodeOfConduct,
   /// Do nothing.
   Nothing,
 }
@@ -29,6 +32,7 @@ fn get_matches() -> ArgMatches {
         .arg(arg!(<README_BODY>).help("File containing the body of the scaffolded README.md").required(true).index(1)),
     )
     .subcommand(Command::new("licenses").about("Generates MIT and Apache 2.0 license files").display_order(2))
+    .subcommand(Command::new("code-of-conduct").about("Generates code of conduct file").display_order(3))
     .get_matches()
 }
 
@@ -49,6 +53,9 @@ fn get_cli_action() -> Action {
     Some(("licenses", _matches)) => {
       return Action::Licenses;
     }
+    Some(("code-of-conduct", _matches)) => {
+      return Action::CodeOfConduct;
+    }
     _ => {}
   }
   Action::Nothing
@@ -65,6 +72,9 @@ pub fn do_action() {
       utils::write_file("LICENSE", &get_apache_2());
       utils::write_file("NOTICE", &get_apache_notice());
       utils::write_file("LICENSE-MIT", &get_mit());
+    }
+    Action::CodeOfConduct => {
+      utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct());
     }
     Action::Nothing => {
       // No specific action was requested.

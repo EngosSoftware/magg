@@ -25,4 +25,5 @@ path = "src/main.rs"
 
 [dependencies]
 clap = { version = "4.5.54", features = ["cargo"] }
+time = "0.3.45"
 toml = "0.9.8"

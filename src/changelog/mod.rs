@@ -194,7 +194,7 @@ fn get_commits(dir: impl AsRef<Path>, start_revision: impl AsRef<str>, end_revis
 }
 
 fn execute_command(program: &str, args: &[&str], dir: impl AsRef<Path>) -> Result<String> {
-  println!("Executing command:\n{} {}", program, args.join(" "));
+  println!("Executing command: {} {}", program, args.join(" "));
   let mut command = std::process::Command::new(program);
   let child = command
     .args(args)

@@ -1,3 +1,4 @@
+use crate::changelog::get_changelog;
 use crate::code_of_conduct::get_code_of_conduct;
 use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
 use crate::{readme, utils};
@@ -13,6 +14,10 @@ enum Action {
   Licenses,
   /// Generate code of conduct file.
   CodeOfConduct,
+  /// Generate changelog.
+  Changelog(
+    //
+  ),
   /// Do nothing.
   Nothing,
 }
@@ -33,6 +38,7 @@ fn get_matches() -> ArgMatches {
     )
     .subcommand(Command::new("licenses").about("Generates MIT and Apache 2.0 license files").display_order(2))
     .subcommand(Command::new("code-of-conduct").about("Generates code of conduct file").display_order(3))
+    .subcommand(Command::new("changelog").about("Generates changelog").display_order(4))
     .get_matches()
 }
 
@@ -56,6 +62,9 @@ fn get_cli_action() -> Action {
     Some(("code-of-conduct", _matches)) => {
       return Action::CodeOfConduct;
     }
+    Some(("changelog", _matches)) => {
+      return Action::Changelog();
+    }
     _ => {}
   }
   Action::Nothing
@@ -76,6 +85,14 @@ pub fn do_action() {
     Action::CodeOfConduct => {
       utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct());
     }
+    Action::Changelog() => match get_changelog() {
+      Ok(changelog) => {
+        println!("{}", changelog)
+      }
+      Err(reason) => {
+        eprintln!("ERROR: {}", reason)
+      }
+    },
     Action::Nothing => {
       // No specific action was requested.
     }

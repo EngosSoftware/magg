@@ -3,6 +3,7 @@
 mod changelog;
 mod cli;
 mod code_of_conduct;
+mod errors;
 mod licenses;
 mod readme;
 mod utils;

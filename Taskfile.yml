@@ -63,6 +63,11 @@ tasks:
     cmds:
       - cmd: cargo +nightly fmt
 
+  install:
+    desc: Builds and installs release version from local sources
+    cmds:
+      - cmd: cargo +stable install magg --path . --force
+
   manual:
     desc: Builds the manual from its markdown files
     cmds:
@@ -90,3 +95,8 @@ tasks:
     desc: Runs tests in debug mode
     cmds:
       - cmd: cargo +stable nextest run
+
+  uninstall:
+    desc: Uninstalls previously installed local version
+    cmds:
+      - cmd: cargo +stable uninstall magg

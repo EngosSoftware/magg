@@ -19,12 +19,12 @@ pub fn get_changelog() -> Result<String> {
   let commits = get_commits("/Users/ddepta/Work/CosmWasm/wasmvm", "v2.2.3", "v2.2.4")?;
   let pull_requests = get_pull_requests("2.2.4", "cosmwasm/wasmvm")?;
 
-  for commit in commits {
+  for commit in &commits {
     println!("{} | {}", commit.hash, commit.subject);
   }
-  for pull_request in pull_requests {
+  for pull_request in &pull_requests {
     println!("{} | {} | {}", pull_request.number, pull_request.title, pull_request.url);
-    for commit in pull_request.commits {
+    for commit in &pull_request.commits {
       println!("  {} | {}", commit.hash, commit.subject);
     }
   }

@@ -16,7 +16,16 @@ enum Action {
   CodeOfConduct,
   /// Generate changelog.
   Changelog(
-    //
+    /// Start revision.
+    String,
+    /// End revision.
+    String,
+    /// Milestone.
+    String,
+    /// Organization/Repository name.
+    String,
+    /// Current directory.
+    String,
   ),
   /// Do nothing.
   Nothing,
@@ -38,7 +47,56 @@ fn get_matches() -> ArgMatches {
     )
     .subcommand(Command::new("licenses").about("Generates MIT and Apache 2.0 license files").display_order(2))
     .subcommand(Command::new("code-of-conduct").about("Generates code of conduct file").display_order(3))
-    .subcommand(Command::new("changelog").about("Generates changelog").display_order(4))
+    .subcommand(
+      Command::new("changelog")
+        .about("Generates changelog")
+        .display_order(4)
+        .arg(
+          Arg::new("start-revision")
+            .short('s')
+            .long("start")
+            .help("Start revision for searching commits")
+            .action(ArgAction::Set)
+            .required(true)
+            .display_order(1),
+        )
+        .arg(
+          Arg::new("end-revision")
+            .short('e')
+            .long("end")
+            .help("End revision for searching commits")
+            .action(ArgAction::Set)
+            .required(true)
+            .display_order(2),
+        )
+        .arg(
+          Arg::new("milestone")
+            .short('m')
+            .long("milestone")
+            .help("GitHub milestone name for searching issues and pull requests")
+            .action(ArgAction::Set)
+            .required(true)
+            .display_order(3),
+        )
+        .arg(
+          Arg::new("repository")
+            .short('r')
+            .long("repo")
+            .help("GitHub organization/repository name for searching issues and pull requests")
+            .action(ArgAction::Set)
+            .required(true)
+            .display_order(4),
+        )
+        .arg(
+          Arg::new("directory")
+            .short('d')
+            .long("dir")
+            .help("Directory of a Git repository for searching commits")
+            .action(ArgAction::Set)
+            .default_missing_value(".")
+            .display_order(5),
+        ),
+    )
     .get_matches()
 }
 
@@ -62,8 +120,13 @@ fn get_cli_action() -> Action {
     Some(("code-of-conduct", _matches)) => {
       return Action::CodeOfConduct;
     }
-    Some(("changelog", _matches)) => {
-      return Action::Changelog();
+    Some(("changelog", matches)) => {
+      let start_revision = match_string(matches, "start-revision");
+      let end_revision = match_string(matches, "end-revision");
+      let milestone = match_string(matches, "milestone");
+      let repository = match_string(matches, "repository");
+      let dir = match_string(matches, "dir");
+      return Action::Changelog(start_revision, end_revision, milestone, repository, dir);
     }
     _ => {}
   }
@@ -85,9 +148,8 @@ pub fn do_action() {
     Action::CodeOfConduct => {
       utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct());
     }
-    Action::Changelog() => match get_changelog() {
+    Action::Changelog(start_revision, end_revision, milestone, repository, dir) => match get_changelog(&start_revision, &end_revision, &milestone, &repository, &dir) {
       Ok(changelog) => {
-        println!("\nCHANGELOG:");
         println!("{}", changelog)
       }
       Err(reason) => {

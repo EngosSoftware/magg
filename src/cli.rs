@@ -92,8 +92,9 @@ fn get_matches() -> ArgMatches {
             .short('d')
             .long("dir")
             .help("Directory of a Git repository for searching commits")
-            .action(ArgAction::Set)
+            .default_value(".")
             .default_missing_value(".")
+            .num_args(0..=1)
             .display_order(5),
         ),
     )

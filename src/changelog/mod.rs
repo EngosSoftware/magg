@@ -52,23 +52,17 @@ pub fn get_changelog() -> Result<String> {
 
   // Prepare the string buffer for the changelog content.
   let mut changelog = String::new();
-  // Write a list of pull requests.
+  // Write requests.
   for pull_request in pull_request_tree.values().rev() {
     let _ = writeln!(&mut changelog, "- {} ([#{}])", pull_request.title, pull_request.number);
+    let _ = writeln!(&mut changelog, "[#{}]: {}", pull_request.number, pull_request.url);
+    let _ = writeln!(&mut changelog);
   }
-  // Write a list of commits.
+  // Write commits.
   for commit in commit_map.values() {
     let _ = writeln!(&mut changelog, "- {} ([0x{}])", commit.subject, &commit.hash[..7]);
-  }
-  // Separate the list of changes from links.
-  let _ = writeln!(&mut changelog);
-  // Write links to pull requests.
-  for pull_request in pull_request_tree.values().rev() {
-    let _ = writeln!(&mut changelog, "[#{}]: {}", pull_request.number, pull_request.url);
-  }
-  // Write links to commits.
-  for commit in commit_map.values() {
     let _ = writeln!(&mut changelog, "[0x{}]: https://github.com/{repository}/commit/{}", &commit.hash[..7], commit.hash);
+    let _ = writeln!(&mut changelog);
   }
   Ok(changelog)
 }

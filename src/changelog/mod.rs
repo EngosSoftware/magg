@@ -1,6 +1,8 @@
 //! # Changelog generator
 
 use crate::errors::{MaggError, Result, error_execute_command, error_obtain_output, error_spawn_command};
+use std::collections::{BTreeMap, HashMap};
+use std::fmt::Write;
 use std::path::Path;
 
 struct Commit {
@@ -16,12 +18,15 @@ struct PullRequest {
 }
 
 pub fn get_changelog() -> Result<String> {
-  let commits = get_commits("/Users/ddepta/Work/CosmWasm/wasmvm", "v2.2.3", "v2.2.4")?;
-  let pull_requests = get_pull_requests("2.2.4", "cosmwasm/wasmvm")?;
+  let repository = "CosmWasm/wasmvm";
+  let mut commits = get_commits("/Users/ddepta/Work/CosmWasm/wasmvm", "v2.2.3", "v2.2.4")?;
+  let mut pull_requests = get_pull_requests("2.2.4", repository)?;
 
+  println!("COMMITS:");
   for commit in &commits {
     println!("{} | {}", commit.hash, commit.subject);
   }
+  println!("PULL REQUESTS:");
   for pull_request in &pull_requests {
     println!("{} | {} | {}", pull_request.number, pull_request.title, pull_request.url);
     for commit in &pull_request.commits {
@@ -29,7 +34,43 @@ pub fn get_changelog() -> Result<String> {
     }
   }
 
-  Ok("CHANGELOG".to_string())
+  // Move all commits to the map.
+  let mut commit_map: HashMap<String, Commit> = HashMap::new();
+  for commit in commits.drain(..) {
+    commit_map.insert(commit.hash.clone(), commit);
+  }
+
+  // Move all pull requests to sorted map.
+  let mut pull_request_tree: BTreeMap<String, PullRequest> = BTreeMap::new();
+  for pull_request in pull_requests.drain(..) {
+    // From commit map remove commits that are included in pull request.
+    for commit in &pull_request.commits {
+      commit_map.remove(&commit.hash);
+    }
+    pull_request_tree.insert(pull_request.number.clone(), pull_request);
+  }
+
+  // Prepare the string buffer for the changelog content.
+  let mut changelog = String::new();
+  // Write a list of pull requests.
+  for pull_request in pull_request_tree.values().rev() {
+    let _ = writeln!(&mut changelog, "- {} ([#{}])", pull_request.title, pull_request.number);
+  }
+  // Write a list of commits.
+  for commit in commit_map.values() {
+    let _ = writeln!(&mut changelog, "- {} ([0x{}])", commit.subject, &commit.hash[..7]);
+  }
+  // Separate the list of changes from links.
+  let _ = writeln!(&mut changelog);
+  // Write links to pull requests.
+  for pull_request in pull_request_tree.values().rev() {
+    let _ = writeln!(&mut changelog, "[#{}]: {}", pull_request.number, pull_request.url);
+  }
+  // Write links to commits.
+  for commit in commit_map.values() {
+    let _ = writeln!(&mut changelog, "[0x{}]: https://github.com/{repository}/commit/{}", &commit.hash[..7], commit.hash);
+  }
+  Ok(changelog)
 }
 
 fn get_pull_request_commits(number: &str, repository: &str) -> Result<Vec<Commit>> {

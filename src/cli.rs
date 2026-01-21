@@ -87,6 +87,7 @@ pub fn do_action() {
     }
     Action::Changelog() => match get_changelog() {
       Ok(changelog) => {
+        println!("\nCHANGELOG:");
         println!("{}", changelog)
       }
       Err(reason) => {

@@ -125,7 +125,7 @@ fn get_cli_action() -> Action {
       let end_revision = match_string(matches, "end-revision");
       let milestone = match_string(matches, "milestone");
       let repository = match_string(matches, "repository");
-      let dir = match_string(matches, "dir");
+      let dir = match_string(matches, "directory");
       return Action::Changelog(start_revision, end_revision, milestone, repository, dir);
     }
     _ => {}

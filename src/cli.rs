@@ -149,7 +149,7 @@ pub fn do_action() {
     Action::CodeOfConduct => {
       utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct());
     }
-    Action::Changelog(start_revision, end_revision, milestone, repository, dir) => match get_changelog(&start_revision, &end_revision, &milestone, &repository, &dir) {
+    Action::Changelog(start_revision, end_revision, milestone, repository, dir) => match get_changelog(false, &start_revision, &end_revision, &milestone, &repository, &dir) {
       Ok(changelog) => {
         println!("{}", changelog)
       }

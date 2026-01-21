@@ -1,20 +1,28 @@
 //! # Changelog generator
 
 use crate::errors::{MaggError, Result, error_execute_command, error_obtain_output, error_spawn_command};
+use regex::Regex;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::Write;
+use std::sync::LazyLock;
 
+const PULL_REQUEST_NUMBER_PATTERN: &str = r#"#\d+"#;
+pub static RE_PULL_REQUEST_NUMBER: LazyLock<Regex> = LazyLock::new(|| Regex::new(PULL_REQUEST_NUMBER_PATTERN).unwrap());
+
+#[derive(Clone)]
 struct Commit {
   hash: String,
   subject: String,
 }
 
+#[derive(Clone)]
 struct Issue {
   number: String,
   title: String,
   url: String,
 }
 
+#[derive(Clone)]
 struct PullRequest {
   number: String,
   title: String,
@@ -22,50 +30,69 @@ struct PullRequest {
   commits: Vec<Commit>,
 }
 
-pub fn get_changelog(start_revision: &str, end_revision: &str, milestone: &str, repository: &str, dir: &str) -> Result<String> {
+pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, milestone: &str, repository: &str, dir: &str) -> Result<String> {
   // Retrieve issues with specified milestone from GitHub repository.
-  let mut issues = get_issues(milestone, repository)?;
+  let issues = get_issues(verbose, milestone, repository)?;
   // Retrieve pull requests with specified milestone from GitHub repository.
-  let mut pull_requests = get_pull_requests(milestone, repository)?;
+  let pull_requests = get_pull_requests(verbose, milestone, repository)?;
   // Retrieve commits in specified recision range.
-  let mut commits = get_commits(dir, start_revision, end_revision)?;
+  let commits = get_commits(verbose, dir, start_revision, end_revision)?;
 
-  println!("ISSUES:");
-  for issue in &issues {
-    println!("{} | {} | {}", issue.number, issue.title, issue.url);
-  }
-  println!("PULL REQUESTS:");
-  for pull_request in &pull_requests {
-    println!("{} | {} | {}", pull_request.number, pull_request.title, pull_request.url);
-    for commit in &pull_request.commits {
-      println!("  {} | {}", commit.hash, commit.subject);
+  if verbose {
+    println!("ISSUES:");
+    for issue in &issues {
+      println!("{} | {} | {}", issue.number, issue.title, issue.url);
     }
-  }
-  println!("COMMITS:");
-  for commit in &commits {
-    println!("{} | {}", commit.hash, commit.subject);
+    println!("PULL REQUESTS:");
+    for pull_request in &pull_requests {
+      println!("{} | {} | {}", pull_request.number, pull_request.title, pull_request.url);
+      for commit in &pull_request.commits {
+        println!("  {} | {}", commit.hash, commit.subject);
+      }
+    }
+    println!("COMMITS:");
+    for commit in &commits {
+      println!("{} | {}", commit.hash, commit.subject);
+    }
   }
 
   // Move all commits to the map.
   let mut commit_map: HashMap<String, Commit> = HashMap::new();
-  for commit in commits.drain(..) {
-    commit_map.insert(commit.hash.clone(), commit);
+  for commit in &commits {
+    if !commit.subject.contains("[skip ci]") {
+      commit_map.insert(commit.hash.clone(), commit.clone());
+    }
   }
 
   // Move all issues to the sorted map.
   let mut issue_sorted_map: BTreeMap<String, Issue> = BTreeMap::new();
-  for issue in issues.drain(..) {
-    issue_sorted_map.insert(issue.number.clone(), issue);
+  for issue in &issues {
+    issue_sorted_map.insert(issue.number.clone(), issue.clone());
   }
 
   // Move all pull requests to sorted map.
   let mut pull_request_tree: BTreeMap<String, PullRequest> = BTreeMap::new();
-  for pull_request in pull_requests.drain(..) {
+  for pull_request in &pull_requests {
     // From commit map remove commits that are included in pull request.
     for commit in &pull_request.commits {
       commit_map.remove(&commit.hash);
     }
-    pull_request_tree.insert(pull_request.number.clone(), pull_request);
+    pull_request_tree.insert(pull_request.number.clone(), pull_request.clone());
+  }
+
+  // Check if there are commits, that contain the PR number,
+  // if such PR exists in the map, then remove the commit,
+  // otherwise display warning with PR number.
+  let mut warnings = vec![];
+  for commit in &commits {
+    if let Some(captures) = RE_PULL_REQUEST_NUMBER.captures(&commit.subject) {
+      let number = captures[0][1..].to_string();
+      if pull_request_tree.contains_key(&number) {
+        commit_map.remove(&commit.hash);
+      } else {
+        warnings.push(format!("PR: #{} not in milestone {} | {}", number, milestone, commit.subject));
+      }
+    }
   }
 
   // Prepare the string buffer for the changelog content.
@@ -91,6 +118,14 @@ pub fn get_changelog(start_revision: &str, end_revision: &str, milestone: &str, 
     let _ = writeln!(&mut changelog, "[0x{}]: https://github.com/{repository}/commit/{}", &commit.hash[..7], commit.hash);
     let _ = writeln!(&mut changelog);
   }
+
+  if !warnings.is_empty() {
+    let _ = writeln!(&mut changelog, "\nWARNINGS:");
+    for warning in warnings {
+      let _ = writeln!(&mut changelog, "{}", warning);
+    }
+  }
+
   Ok(changelog)
 }
 
@@ -107,7 +142,7 @@ fn parse_issues(input: String) -> Result<Vec<Issue>> {
   Ok(issues)
 }
 
-fn get_issues(milestone: &str, repository: &str) -> Result<Vec<Issue>> {
+fn get_issues(verbose: bool, milestone: &str, repository: &str) -> Result<Vec<Issue>> {
   let search = format!(r#"--search=milestone:{}"#, milestone);
   let repo = format!("--repo={}", repository);
   let args = &[
@@ -115,15 +150,16 @@ fn get_issues(milestone: &str, repository: &str) -> Result<Vec<Issue>> {
     "list",
     search.as_str(),
     "--state=all",
+    "--limit=9999",
     repo.as_str(),
     "--json=number,title,url",
     r#"--template='{{range .}}{{printf "%v ||| %s ||| %s\n" .number .title .url}}{{end}}'"#,
   ];
-  let stdout = execute_command("gh", args, ".")?;
+  let stdout = execute_command(verbose, "gh", args, ".")?;
   parse_issues(stdout)
 }
 
-fn get_pull_request_commits(number: &str, repository: &str) -> Result<Vec<Commit>> {
+fn get_pull_request_commits(verbose: bool, number: &str, repository: &str) -> Result<Vec<Commit>> {
   // gh pr view 661 --repo=cosmwasm/wasmvm --json=commits --jq='.commits[] | "\(.oid) ||| \(.messageHeadline)"'
   let repo = format!("--repo={}", repository);
   let args = &[
@@ -134,16 +170,16 @@ fn get_pull_request_commits(number: &str, repository: &str) -> Result<Vec<Commit
     "--json=commits",
     r#"--jq=.commits[]|"\(.oid) ||| \(.messageHeadline)""#,
   ];
-  let stdout = execute_command("gh", args, ".")?;
+  let stdout = execute_command(verbose, "gh", args, ".")?;
   parse_commits(stdout)
 }
 
-fn parse_pull_requests(input: String, repository: &str) -> Result<Vec<PullRequest>> {
+fn parse_pull_requests(verbose: bool, input: String, repository: &str) -> Result<Vec<PullRequest>> {
   let mut pull_requests = vec![];
   let rows = parse_columns(input, 3)?;
   for columns in rows {
     let number = columns[0].to_string();
-    let commits = get_pull_request_commits(&number, repository)?;
+    let commits = get_pull_request_commits(verbose, &number, repository)?;
     pull_requests.push(PullRequest {
       number,
       title: columns[1].to_string(),
@@ -154,7 +190,7 @@ fn parse_pull_requests(input: String, repository: &str) -> Result<Vec<PullReques
   Ok(pull_requests)
 }
 
-fn get_pull_requests(milestone: &str, repository: &str) -> Result<Vec<PullRequest>> {
+fn get_pull_requests(verbose: bool, milestone: &str, repository: &str) -> Result<Vec<PullRequest>> {
   let search = format!(r#"--search=milestone:{}"#, milestone);
   let repo = format!("--repo={}", repository);
   let args = &[
@@ -162,12 +198,13 @@ fn get_pull_requests(milestone: &str, repository: &str) -> Result<Vec<PullReques
     "list",
     search.as_str(),
     "--state=all",
+    "--limit=9999",
     repo.as_str(),
     "--json=number,title,url",
     r#"--template='{{range .}}{{printf "%v ||| %s ||| %s\n" .number .title .url}}{{end}}'"#,
   ];
-  let stdout = execute_command("gh", args, ".")?;
-  parse_pull_requests(stdout, repository)
+  let stdout = execute_command(verbose, "gh", args, ".")?;
+  parse_pull_requests(verbose, stdout, repository)
 }
 
 fn parse_commits(input: String) -> Result<Vec<Commit>> {
@@ -182,15 +219,17 @@ fn parse_commits(input: String) -> Result<Vec<Commit>> {
   Ok(commits)
 }
 
-fn get_commits(dir: &str, start_revision: &str, end_revision: &str) -> Result<Vec<Commit>> {
+fn get_commits(verbose: bool, dir: &str, start_revision: &str, end_revision: &str) -> Result<Vec<Commit>> {
   let revisions = format!("{}...{}", start_revision, end_revision);
   let args = &["log", r#"--format="%H ||| %s""#, revisions.as_str(), "--"];
-  let stdout = execute_command("git", args, dir)?;
+  let stdout = execute_command(verbose, "git", args, dir)?;
   parse_commits(stdout)
 }
 
-fn execute_command(program: &str, args: &[&str], dir: &str) -> Result<String> {
-  println!("COMMAND: {} {}", program, args.join(" "));
+fn execute_command(verbose: bool, program: &str, args: &[&str], dir: &str) -> Result<String> {
+  if verbose {
+    println!("COMMAND: {} {}", program, args.join(" "));
+  }
   let mut command = std::process::Command::new(program);
   let child = command
     .args(args)

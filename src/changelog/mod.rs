@@ -97,26 +97,30 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
 
   // Prepare the string buffer for the changelog content.
   let mut changelog = String::new();
-  // Write issues.
-  let _ = writeln!(&mut changelog, "ISSUES:");
+  // Write issue names.
   for issue in issue_sorted_map.values().rev() {
     let _ = writeln!(&mut changelog, "- {} ([#{}])", issue.title, issue.number);
-    let _ = writeln!(&mut changelog, "[#{}]: {}", issue.number, issue.url);
-    let _ = writeln!(&mut changelog);
   }
-  // Write pull requests.
-  let _ = writeln!(&mut changelog, "PULL REQUESTS:");
+  // Write pull request names.
   for pull_request in pull_request_tree.values().rev() {
     let _ = writeln!(&mut changelog, "- {} ([#{}])", pull_request.title, pull_request.number);
-    let _ = writeln!(&mut changelog, "[#{}]: {}", pull_request.number, pull_request.url);
-    let _ = writeln!(&mut changelog);
   }
-  // Write commits.
-  let _ = writeln!(&mut changelog, "COMMITS:");
+  // Write commit names.
   for commit in commit_map.values() {
     let _ = writeln!(&mut changelog, "- {} ([0x{}])", commit.subject, &commit.hash[..7]);
+  }
+  let _ = writeln!(&mut changelog);
+  // Write issue links.
+  for issue in issue_sorted_map.values().rev() {
+    let _ = writeln!(&mut changelog, "[#{}]: {}", issue.number, issue.url);
+  }
+  // Write pull request links.
+  for pull_request in pull_request_tree.values().rev() {
+    let _ = writeln!(&mut changelog, "[#{}]: {}", pull_request.number, pull_request.url);
+  }
+  // Write commit links.
+  for commit in commit_map.values() {
     let _ = writeln!(&mut changelog, "[0x{}]: https://github.com/{repository}/commit/{}", &commit.hash[..7], commit.hash);
-    let _ = writeln!(&mut changelog);
   }
 
   if !warnings.is_empty() {

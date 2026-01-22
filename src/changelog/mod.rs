@@ -1,4 +1,7 @@
 //! # Changelog generator
+//!
+//! Generates kind of reasonable changelog based on Git commits between revisions,
+//! GitHub pull requests and GitHub issues belonging to the same milestone.
 
 use crate::errors::{MaggError, Result, error_execute_command, error_obtain_output, error_spawn_command};
 use regex::Regex;
@@ -6,27 +9,42 @@ use std::collections::{BTreeMap, HashMap};
 use std::fmt::Write;
 use std::sync::LazyLock;
 
+/// Pattern for matching pull request numbers with the preceding hash.
 const PULL_REQUEST_NUMBER_PATTERN: &str = r#"#\d+"#;
+
+/// Regular expression for matching pull request numbers with the preceding hash.
 pub static RE_PULL_REQUEST_NUMBER: LazyLock<Regex> = LazyLock::new(|| Regex::new(PULL_REQUEST_NUMBER_PATTERN).unwrap());
 
+/// The commit.
 #[derive(Clone)]
 struct Commit {
+  /// Full commit hash.
   hash: String,
+  /// Commit title (subject).
   subject: String,
 }
 
+/// The issue.
 #[derive(Clone)]
 struct Issue {
+  /// Issue number.
   number: String,
+  /// Issue title.
   title: String,
+  /// Issue URL on GitHub.
   url: String,
 }
 
+/// The pull request.
 #[derive(Clone)]
 struct PullRequest {
+  /// Pull request number.
   number: String,
+  /// Pull request title.
   title: String,
+  /// Pull request URL on GitHub.
   url: String,
+  /// List of commits that constitute this pull request.
   commits: Vec<Commit>,
 }
 
@@ -39,25 +57,25 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
   let commits = get_commits(verbose, dir, start_revision, end_revision)?;
 
   if verbose {
-    println!("ISSUES:");
+    println!("\nISSUES:");
     for issue in &issues {
       println!("{} | {} | {}", issue.number, issue.title, issue.url);
     }
-    println!("PULL REQUESTS:");
+    println!("\nPULL REQUESTS:");
     for pull_request in &pull_requests {
       println!("{} | {} | {}", pull_request.number, pull_request.title, pull_request.url);
       for commit in &pull_request.commits {
         println!("  {} | {}", commit.hash, commit.subject);
       }
     }
-    println!("COMMITS:");
+    println!("\nCOMMITS:");
     for commit in &commits {
       println!("{} | {}", commit.hash, commit.subject);
     }
   }
 
   // Move all commits to the map.
-  let mut commit_map: HashMap<String, Commit> = HashMap::new();
+  let mut commit_map = HashMap::new();
   for commit in &commits {
     if !commit.subject.contains("[skip ci]") {
       commit_map.insert(commit.hash.clone(), commit.clone());
@@ -65,32 +83,32 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
   }
 
   // Move all issues to the sorted map.
-  let mut issue_sorted_map: BTreeMap<String, Issue> = BTreeMap::new();
+  let mut issue_sorted_map = BTreeMap::new();
   for issue in &issues {
     issue_sorted_map.insert(issue.number.clone(), issue.clone());
   }
 
   // Move all pull requests to sorted map.
-  let mut pull_request_tree: BTreeMap<String, PullRequest> = BTreeMap::new();
+  let mut pull_request_map = BTreeMap::new();
   for pull_request in &pull_requests {
     // From commit map remove commits that are included in pull request.
     for commit in &pull_request.commits {
       commit_map.remove(&commit.hash);
     }
-    pull_request_tree.insert(pull_request.number.clone(), pull_request.clone());
+    pull_request_map.insert(pull_request.number.clone(), pull_request.clone());
   }
 
-  // Check if there are commits, that contain the PR number,
-  // if such PR exists in the map, then remove the commit,
-  // otherwise display warning with PR number.
-  let mut warnings = vec![];
+  // Check if there are commits, that contain a pull request number,
+  // if such pull request exists in the map, then remove the commit,
+  // otherwise display a warning with the pull request number.
+  let mut warnings = BTreeMap::new();
   for commit in &commits {
     if let Some(captures) = RE_PULL_REQUEST_NUMBER.captures(&commit.subject) {
       let number = captures[0][1..].to_string();
-      if pull_request_tree.contains_key(&number) {
+      if pull_request_map.contains_key(&number) {
         commit_map.remove(&commit.hash);
       } else {
-        warnings.push(format!("PR: #{} not in milestone {} | {}", number, milestone, commit.subject));
+        warnings.insert(number.clone(), format!("PR: #{} not in milestone {} | {}", number, milestone, commit.subject));
       }
     }
   }
@@ -102,7 +120,7 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
     let _ = writeln!(&mut changelog, "- {} ([#{}])", issue.title, issue.number);
   }
   // Write pull request names.
-  for pull_request in pull_request_tree.values().rev() {
+  for pull_request in pull_request_map.values().rev() {
     let _ = writeln!(&mut changelog, "- {} ([#{}])", pull_request.title, pull_request.number);
   }
   // Write commit names.
@@ -115,7 +133,7 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
     let _ = writeln!(&mut changelog, "[#{}]: {}", issue.number, issue.url);
   }
   // Write pull request links.
-  for pull_request in pull_request_tree.values().rev() {
+  for pull_request in pull_request_map.values().rev() {
     let _ = writeln!(&mut changelog, "[#{}]: {}", pull_request.number, pull_request.url);
   }
   // Write commit links.
@@ -125,11 +143,10 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
 
   if !warnings.is_empty() {
     let _ = writeln!(&mut changelog, "\nWARNINGS:");
-    for warning in warnings {
+    for warning in warnings.values().rev() {
       let _ = writeln!(&mut changelog, "{}", warning);
     }
   }
-
   Ok(changelog)
 }
 
@@ -243,7 +260,6 @@ fn execute_command(verbose: bool, program: &str, args: &[&str], dir: &str) -> Re
     .stderr(std::process::Stdio::piped())
     .spawn()
     .map_err(|e| error_spawn_command(program, e.to_string()))?;
-
   let output = child.wait_with_output().map_err(|e| error_obtain_output(e.to_string()))?;
   let stdout = String::from_utf8_lossy(&output.stdout).to_string();
   let stderr = String::from_utf8_lossy(&output.stderr).to_string();

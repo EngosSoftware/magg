@@ -26,6 +26,8 @@ enum Action {
     String,
     /// Current directory.
     String,
+    /// Verbose flag.
+    bool,
   ),
   /// Do nothing.
   Nothing,
@@ -92,10 +94,21 @@ fn get_matches() -> ArgMatches {
             .short('d')
             .long("dir")
             .help("Directory of a Git repository for searching commits")
+            .action(ArgAction::Set)
             .default_value(".")
             .default_missing_value(".")
             .num_args(0..=1)
             .display_order(5),
+        )
+        .arg(
+          Arg::new("verbose")
+            .long("verbose")
+            .help("Set this flag to display more detailed report")
+            .action(ArgAction::SetTrue)
+            .default_value("false")
+            .default_missing_value("false")
+            .num_args(0..=1)
+            .display_order(6),
         ),
     )
     .get_matches()
@@ -127,7 +140,8 @@ fn get_cli_action() -> Action {
       let milestone = match_string(matches, "milestone");
       let repository = match_string(matches, "repository");
       let dir = match_string(matches, "directory");
-      return Action::Changelog(start_revision, end_revision, milestone, repository, dir);
+      let verbose = match_boolean(matches, "verbose");
+      return Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose);
     }
     _ => {}
   }
@@ -149,14 +163,16 @@ pub fn do_action() {
     Action::CodeOfConduct => {
       utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct());
     }
-    Action::Changelog(start_revision, end_revision, milestone, repository, dir) => match get_changelog(false, &start_revision, &end_revision, &milestone, &repository, &dir) {
-      Ok(changelog) => {
-        println!("{}", changelog)
+    Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose) => {
+      match get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir) {
+        Ok(changelog) => {
+          println!("{}", changelog)
+        }
+        Err(reason) => {
+          eprintln!("ERROR: {}", reason)
+        }
       }
-      Err(reason) => {
-        eprintln!("ERROR: {}", reason)
-      }
-    },
+    }
     Action::Nothing => {
       // No specific action was requested.
     }
@@ -166,4 +182,9 @@ pub fn do_action() {
 /// Matches a mandatory string argument.
 fn match_string(matches: &ArgMatches, name: &str) -> String {
   matches.get_one::<String>(name).unwrap().to_string()
+}
+
+/// Matches a mandatory boolean argument.
+fn match_boolean(matches: &ArgMatches, name: &str) -> bool {
+  matches.get_flag(name)
 }

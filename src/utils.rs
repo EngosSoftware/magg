@@ -1,6 +1,9 @@
 use std::fs;
 use std::path::Path;
 
+/// Separator line.
+pub const SEPARATOR_LINE: &str = "────────────────────────────────────────────────────────────────────────────────";
+
 pub fn read_file(file_name: impl AsRef<Path>) -> String {
   fs::read_to_string(file_name).expect("failed to read file")
 }

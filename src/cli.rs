@@ -1,6 +1,7 @@
 use crate::changelog::get_changelog;
 use crate::code_of_conduct::get_code_of_conduct;
 use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
+use crate::utils::SEPARATOR_LINE;
 use crate::{readme, utils};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
 
@@ -106,8 +107,7 @@ fn get_matches() -> ArgMatches {
             .help("Set this flag to display more detailed report")
             .action(ArgAction::SetTrue)
             .default_value("false")
-            .default_missing_value("false")
-            .num_args(0..=1)
+            .default_missing_value("true")
             .display_order(6),
         ),
     )
@@ -166,6 +166,8 @@ pub fn do_action() {
     Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose) => {
       match get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir) {
         Ok(changelog) => {
+          println!("\nCHANGELOG");
+          println!("{SEPARATOR_LINE}");
           println!("{}", changelog)
         }
         Err(reason) => {

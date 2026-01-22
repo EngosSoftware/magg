@@ -4,6 +4,7 @@
 //! GitHub pull requests and GitHub issues belonging to the same milestone.
 
 use crate::errors::{MaggError, Result, error_execute_command, error_obtain_output, error_spawn_command};
+use crate::utils::SEPARATOR_LINE;
 use regex::Regex;
 use std::collections::{BTreeMap, HashMap};
 use std::fmt::Write;
@@ -49,6 +50,10 @@ struct PullRequest {
 }
 
 pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, milestone: &str, repository: &str, dir: &str) -> Result<String> {
+  if verbose {
+    println!("\nCOMMANDS");
+    println!("{SEPARATOR_LINE}");
+  }
   // Retrieve issues with specified milestone from GitHub repository.
   let issues = get_issues(verbose, milestone, repository)?;
   // Retrieve pull requests with specified milestone from GitHub repository.
@@ -57,18 +62,21 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
   let commits = get_commits(verbose, dir, start_revision, end_revision)?;
 
   if verbose {
-    println!("\nISSUES:");
+    println!("\nISSUES");
+    println!("{SEPARATOR_LINE}");
     for issue in &issues {
       println!("{} | {} | {}", issue.number, issue.title, issue.url);
     }
-    println!("\nPULL REQUESTS:");
+    println!("\nPULL REQUESTS");
+    println!("{SEPARATOR_LINE}");
     for pull_request in &pull_requests {
       println!("{} | {} | {}", pull_request.number, pull_request.title, pull_request.url);
       for commit in &pull_request.commits {
         println!("  {} | {}", commit.hash, commit.subject);
       }
     }
-    println!("\nCOMMITS:");
+    println!("\nCOMMITS");
+    println!("{SEPARATOR_LINE}");
     for commit in &commits {
       println!("{} | {}", commit.hash, commit.subject);
     }
@@ -249,7 +257,13 @@ fn get_commits(verbose: bool, dir: &str, start_revision: &str, end_revision: &st
 
 fn execute_command(verbose: bool, program: &str, args: &[&str], dir: &str) -> Result<String> {
   if verbose {
-    println!("COMMAND: {} {}", program, args.join(" "));
+    println!("{} {}", program, args.join(" "));
+  } else {
+    {
+      use std::io::{self, Write};
+      print!("•");
+      io::stdout().flush().unwrap();
+    }
   }
   let mut command = std::process::Command::new(program);
   let child = command

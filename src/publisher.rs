@@ -1,7 +1,31 @@
 #![doc = include_str!("../docs/PUBLISHER.md")]
 
+use crate::errors::*;
+use std::ffi::OsStr;
+use std::path::Path;
+
+fn execute_command<S, A, P>(program: S, args: A, dir: P) -> Result<()>
+where
+  S: AsRef<OsStr>,
+  A: IntoIterator<Item = S>,
+  P: AsRef<Path>,
+{
+  let mut command = std::process::Command::new(program);
+  let mut child = command
+    .args(args)
+    .current_dir(dir)
+    .stdin(std::process::Stdio::inherit())
+    .stdout(std::process::Stdio::inherit())
+    .stderr(std::process::Stdio::inherit())
+    .spawn()
+    .map_err(|e| MaggError::new(e.to_string()))?;
+  child.wait().map_err(|e| MaggError::new(e.to_string()))?;
+  Ok(())
+}
+
 #[cfg(test)]
 mod tests {
+  use crate::publisher::execute_command;
   use crate::utils::parse_toml;
 
   const TOML_FILE: &str = "../../CosmWasm/cosmwasm/Cargo.toml";
@@ -39,5 +63,10 @@ mod tests {
       _ = (key, value);
       //println!("{} {}", key, value);
     }
+  }
+
+  #[test]
+  fn a() {
+    execute_command("cargo", ["publish", "--dry-run", "--color=always"], ".").unwrap();
   }
 }

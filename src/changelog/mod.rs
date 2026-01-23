@@ -3,7 +3,7 @@
 //! Generates kind of reasonable changelog based on Git commits between revisions,
 //! GitHub pull requests and GitHub issues belonging to the same milestone.
 
-use crate::errors::{MaggError, Result, error_execute_command, error_obtain_output, error_spawn_command};
+use crate::errors::*;
 use crate::utils::SEPARATOR_LINE;
 use regex::Regex;
 use std::collections::{BTreeMap, HashMap};

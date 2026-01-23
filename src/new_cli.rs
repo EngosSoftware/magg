@@ -3,11 +3,11 @@ use crate::{readme, utils};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const NAME: &str = env!("CARGO_PKG_NAME");
-const SUBCOMMAND_README: &str = "readme";
-const SUBCOMMAND_LICENSES: &str = "licenses";
-const SUBCOMMAND_CODE_OF_CONDUCT: &str = "code-of-conduct";
-const SUBCOMMAND_CHANGELOG: &str = "changelog";
-const SUBCOMMAND_PUBLISH: &str = "publish";
+const COMMAND_README: &str = "readme";
+const COMMAND_LICENSES: &str = "licenses";
+const COMMAND_CODE_OF_CONDUCT: &str = "code-of-conduct";
+const COMMAND_CHANGELOG: &str = "changelog";
+const COMMAND_PUBLISH: &str = "publish";
 
 type Args = Vec<String>;
 
@@ -20,29 +20,29 @@ pub fn new_do_action() {
       "-h" => action(args, do_help_short),
       "--help" => action(args, do_help_long),
       "-v" | "--version" => action(args, do_version),
-      other => parse_subcommand(args, other),
+      other => parse_command(args, other),
     }
   }
 }
 
-fn parse_subcommand(args: Args, subcommand: &str) {
-  match subcommand {
-    SUBCOMMAND_README => parse_subcommand_readme(args),
-    SUBCOMMAND_LICENSES => parse_subcommand_licenses(args),
-    SUBCOMMAND_CODE_OF_CONDUCT => {
+fn parse_command(args: Args, command: &str) {
+  match command {
+    COMMAND_README => parse_command_readme(args),
+    COMMAND_LICENSES => parse_command_licenses(args),
+    COMMAND_CODE_OF_CONDUCT => {
       println!("> code-of-conduct");
     }
-    SUBCOMMAND_CHANGELOG => {
+    COMMAND_CHANGELOG => {
       println!("> changelog");
     }
-    SUBCOMMAND_PUBLISH => {
+    COMMAND_PUBLISH => {
       println!("> publish");
     }
-    other => suggest_subcommand(other),
+    other => suggest_command(other),
   }
 }
 
-fn parse_subcommand_readme(mut args: Args) {
+fn parse_command_readme(mut args: Args) {
   if args.is_empty() {
     println!("error");
     do_help_readme();
@@ -50,25 +50,33 @@ fn parse_subcommand_readme(mut args: Args) {
     match args.pop().unwrap().as_str() {
       "-h" | "--help" => action(args, do_help_readme),
       file_name => {
-        if args.is_empty() {
-          do_subcommand_readme(file_name)
-        } else {
-          println!("unexpected argument: {}", args.last().unwrap())
-        }
+        action(args, || {
+          do_command_readme(file_name);
+        });
       }
     }
   }
 }
 
-fn parse_subcommand_licenses(args: Args) {
-  action_or_help(args, do_subcommand_licenses, do_help_licenses);
+fn parse_command_licenses(mut args: Args) {
+  if args.is_empty() {
+    do_command_licenses();
+  } else {
+    match args.pop().unwrap().as_str() {
+      "-h" | "--help" => action(args, do_help_licenses),
+      other => println!("unexpected argument: {other}"),
+    }
+  }
 }
 
-fn suggest_subcommand(_other: &str) {
+fn suggest_command(_other: &str) {
   //
 }
 
-fn action(args: Args, action: fn()) {
+fn action<F>(args: Args, action: F)
+where
+  F: Fn(),
+{
   if args.is_empty() {
     action();
   } else {
@@ -76,18 +84,7 @@ fn action(args: Args, action: fn()) {
   }
 }
 
-fn action_or_help(mut args: Args, fn_action: fn(), fn_help: fn()) {
-  if args.is_empty() {
-    fn_action();
-  } else {
-    match args.pop().unwrap().as_str() {
-      "-h" | "--help" => action(args, fn_help),
-      other => println!("unexpected argument: {other}"),
-    }
-  }
-}
-
-fn do_subcommand_readme(file_name: &str) {
+fn do_command_readme(file_name: &str) {
   let contents = readme::scaffold_readme(file_name);
   utils::write_file("README.md", &contents);
 }
@@ -97,7 +94,7 @@ fn do_help_readme() {
 }
 
 /// Executes `licenses` subcommand.
-fn do_subcommand_licenses() {
+fn do_command_licenses() {
   utils::write_file("LICENSE", &get_apache_2());
   utils::write_file("NOTICE", &get_apache_notice());
   utils::write_file("LICENSE-MIT", &get_mit());

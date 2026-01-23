@@ -32,9 +32,7 @@ fn parse_command(args: Args, command: &str) {
     COMMAND_CODE_OF_CONDUCT => {
       println!("> code-of-conduct");
     }
-    COMMAND_CHANGELOG => {
-      println!("> changelog");
-    }
+    COMMAND_CHANGELOG => parse_command_changelog(args),
     COMMAND_PUBLISH => {
       println!("> publish");
     }
@@ -65,6 +63,31 @@ fn parse_command_licenses(mut args: Args) {
     match args.pop().unwrap().as_str() {
       "-h" | "--help" => action(args, do_help_licenses),
       other => println!("unexpected argument: {other}"),
+    }
+  }
+}
+
+fn parse_command_changelog(mut args: Args) {
+  if args.is_empty() {
+    println!("error");
+    do_help_changelog();
+  } else {
+    match args.pop().unwrap().as_str() {
+      "-h" | "--help" => action(args, do_help_changelog),
+      other => {
+        args.push(other.to_string());
+        for arg in args {
+          match arg.as_str() {
+            "-s" | "--start" => {}
+            "-e" | "--end" => {}
+            "-m" | "--milestone" => {}
+            "-r" | "--repo" => {}
+            "-d" | "--dir" => {}
+            "--verbose" => {}
+            _ => {}
+          }
+        }
+      }
     }
   }
 }
@@ -102,6 +125,10 @@ fn do_command_licenses() {
 
 fn do_help_licenses() {
   println!("> help licenses");
+}
+
+fn do_help_changelog() {
+  println!("> help changelog");
 }
 
 fn do_version() {

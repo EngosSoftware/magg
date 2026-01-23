@@ -1,5 +1,5 @@
-use magg::do_action;
+use magg::new_do_action;
 
 fn main() {
-  do_action()
+  new_do_action()
 }

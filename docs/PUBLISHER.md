@@ -25,7 +25,9 @@
 - For each dependency with `path` check if in the specified directory:
   - exists `Cargo.toml`,
   - name of the package is the same as the dependency name,
-  - version in the package points to the version in workspace.
+  - version in the package points to the version in workspace,
+  - all `[dependencies]` and `[dev-dependencies]` in the package that point to other packages
+    in the workspace use the `{ workspace = true }` clause.
 - Validate, if after publishing and text substitution, the updated workspace `Cargo.toml` contains
   dependency with the proper version set.
 
@@ -36,7 +38,8 @@
 ## Publishing process
 
 1. Run validations.
-2. Publish crates:
+2. Ask if the version to be published is correct. 
+3. Publish crates:
    - Change current directory to the one specified in `Cargo.toml`.
    - Execute `cargo publish --dry-run`.
    - Ask if proceed with publishing.

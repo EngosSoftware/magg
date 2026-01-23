@@ -5,6 +5,7 @@ mod cli;
 mod code_of_conduct;
 mod errors;
 mod licenses;
+mod publisher;
 mod readme;
 mod utils;
 

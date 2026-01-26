@@ -1,12 +1,15 @@
 #![doc = include_str!("../docs/PUBLISHER.md")]
 
 use crate::errors::*;
+use crate::utils::parse_toml;
 use std::ffi::OsStr;
 use std::path::Path;
 
 pub fn publish_crates(file_name: &str, dir: &str) -> Result<()> {
   let workspace_manifest_path = Path::new(dir).join(Path::new(file_name));
   println!("{}", workspace_manifest_path.display());
+  let toml_value = parse_toml(workspace_manifest_path);
+  assert!(toml_value.get("workspace").is_some());
   Ok(())
 }
 

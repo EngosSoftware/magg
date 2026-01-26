@@ -1,3 +1,5 @@
+mod test_structure;
+
 #[test]
 fn short_file_name_option_should_work() {
   cli_assert::command!()

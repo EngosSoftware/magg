@@ -23,12 +23,13 @@ struct CrateToPublish {
 pub fn publish_crates(file_name: &str, dir: &str) -> Result<()> {
   let file_path = Path::new(file_name);
   let working_dir = utils::canonicalize(Path::new(dir))?;
-  let workspace_manifest_file = utils::canonicalize(working_dir.join(file_path))?.as_path();
-  let mut workspace_maifest_content = utils::read_file(workspace_manifest_file.clone())?;
-  let workspace_manifest_toml = parse_toml(workspace_manifest_file.as_path())?;
+  let workspace_manifest_file = utils::canonicalize(working_dir.join(file_path))?;
+  let workspace_manifest_path = workspace_manifest_file.as_path();
+  let mut workspace_maifest_content = utils::read_file(workspace_manifest_path)?;
+  let workspace_manifest_toml = parse_toml(workspace_manifest_path)?;
   // Check if the manifest file is a Rust workspace.
   let Some(workspace) = workspace_manifest_toml.get("workspace") else {
-    return Err(MaggError::new(format!("not a workspace manifest: {}", workspace_manifest_file.display())));
+    return Err(MaggError::new(format!("not a workspace manifest: {}", workspace_manifest_path.display())));
   };
   // Check if the workspace manifest has defined the publish version.
   let Some(workspace_package) = workspace.get("package") else {
@@ -119,7 +120,7 @@ pub fn publish_crates(file_name: &str, dir: &str) -> Result<()> {
 
     // After publishing the crate, replace the 'path' with 'version'.
     workspace_maifest_content = workspace_maifest_content.replace(&crate_to_publish.prefix, &crate_to_publish.published_prefix);
-    utils::write_file(workspace_manifest_file, &workspace_maifest_content);
+    utils::write_file(workspace_manifest_path, &workspace_maifest_content);
   }
   Ok(())
 }

@@ -1,5 +1,6 @@
 //! # README.md file generator
 
+use crate::errors::*;
 use crate::utils;
 use crate::utils::read_file;
 use std::fmt::Write;
@@ -11,10 +12,10 @@ const LICENSE_COLOR: &str = "4169E1";
 const HUMAN_COLOR: &str = "DC143C";
 const ENGOS_COLOR: &str = "32CD32";
 
-pub fn scaffold_readme(file_name: impl AsRef<Path>) -> String {
+pub fn scaffold_readme(file_name: impl AsRef<Path>) -> Result<String> {
   let mut output = String::new();
-  let body = read_file(file_name);
-  let parsed_toml = utils::parse_toml("Cargo.toml");
+  let body = read_file(file_name)?;
+  let parsed_toml = utils::parse_toml("Cargo.toml")?;
   let package_name = utils::get_package_name(&parsed_toml);
   let repository_url = utils::get_repository(&parsed_toml)
     .strip_suffix(".git")
@@ -81,5 +82,5 @@ pub fn scaffold_readme(file_name: impl AsRef<Path>) -> String {
   _ = writeln!(&mut output, "All contributions intentionally submitted for inclusion in the work by you,");
   _ = writeln!(&mut output, "shall be dual licensed as above, without any additional terms or conditions.");
   _ = writeln!(&mut output);
-  output
+  Ok(output)
 }

@@ -188,10 +188,14 @@ fn get_cli_action() -> Action {
 pub fn do_action() {
   //
   match get_cli_action() {
-    Action::Readme(file_name) => {
-      let contents = readme::scaffold_readme(file_name);
-      utils::write_file("README.md", &contents);
-    }
+    Action::Readme(file_name) => match readme::scaffold_readme(file_name) {
+      Ok(contents) => {
+        utils::write_file("README.md", &contents);
+      }
+      Err(reason) => {
+        eprintln!("ERROR: {}", reason)
+      }
+    },
     Action::Licenses => {
       utils::write_file("LICENSE", &get_apache_2());
       utils::write_file("NOTICE", &get_apache_notice());

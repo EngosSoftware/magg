@@ -1,3 +1,4 @@
+use crate::errors::*;
 use std::fs;
 use std::path::Path;
 
@@ -7,16 +8,17 @@ pub const SEPARATOR_LINE: &str = "───────────────�
 /// Default name of the Rust manifest file.
 pub const RUST_MANIFEST_FILE_NAME: &str = "Cargo.toml";
 
-pub fn read_file(file_name: impl AsRef<Path>) -> String {
-  fs::read_to_string(file_name).expect("failed to read file")
+pub fn read_file(file_name: impl AsRef<Path>) -> Result<String> {
+  let path = file_name.as_ref();
+  fs::read_to_string(path).map_err(|e| error_read_file(path, e))
 }
 
 pub fn write_file(file_name: impl AsRef<Path>, contents: &str) {
   fs::write(file_name, contents).expect("failed to write file")
 }
 
-pub fn parse_toml(file_name: impl AsRef<Path>) -> toml::Value {
-  toml::from_str(&read_file(file_name)).expect("failed to parse TOML file")
+pub fn parse_toml(file_name: impl AsRef<Path>) -> Result<toml::Value> {
+  toml::from_str(&read_file(file_name)?).map_err(|e| MaggError::new(e.to_string()))
 }
 
 pub fn get_package_name(parsed: &toml::Value) -> &str {

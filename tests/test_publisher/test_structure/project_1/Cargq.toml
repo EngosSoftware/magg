@@ -18,6 +18,7 @@ cosmwasm-vm = { path = "./packages/vm" }
 cosmwasm-vm-derive = { path = "./packages/vm-derive" }
 cw-schema = { path = "./packages/cw-schema" }
 cw-schema-derive = { path = "./packages/cw-schema-derive" }
+cosmwasm-check = { path = "./packages/check" }
 
 schemars = "0.8.4"
 serde = { version = "1.0.192", default-features = false, features = ["alloc", "derive"] }

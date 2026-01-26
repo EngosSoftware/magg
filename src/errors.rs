@@ -1,5 +1,6 @@
 //! # Definition of result and errors
 
+use std::path::Path;
 use std::process::ExitStatus;
 
 /// Common result type.
@@ -21,6 +22,10 @@ impl MaggError {
   pub fn new(message: impl AsRef<str>) -> Self {
     Self(message.as_ref().to_string())
   }
+}
+
+pub fn error_read_file(file_name: impl AsRef<Path>, reason: impl ToString) -> MaggError {
+  MaggError::new(format!("failed to read file: {}, with reason: {}", file_name.as_ref().display(), reason.to_string()))
 }
 
 pub fn error_spawn_command(program: impl AsRef<str>, reason: impl AsRef<str>) -> MaggError {

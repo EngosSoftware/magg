@@ -216,6 +216,9 @@ fn validate_crate_dependencies(package: &toml::Value, dependencies: &str, crate_
       }
     }
   };
+
+  // TODO Read the workspace manifest from disk and check is all paths are replaces by versions.
+
   Ok(())
 }
 

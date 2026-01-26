@@ -5,6 +5,11 @@ use crate::publisher;
 use crate::utils::{RUST_MANIFEST_FILE_NAME, SEPARATOR_LINE};
 use crate::{readme, utils};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
+use std::ffi::{OsStr, OsString};
+
+/// Default timeout in seconds.
+const DEFAULT_TIMEOUT: u64 = 30;
+const DEFAULT_TIMEOUT_STR: &str = stringify!(DEFAULT_TIMEOUT);
 
 enum Action {
   /// Generate README.md file
@@ -36,6 +41,8 @@ enum Action {
     String,
     /// Path to the workspace manifest file.
     String,
+    /// Number of seconds to wait after publishing a crate.
+    u64,
   ),
   /// Do nothing.
   Nothing,
@@ -141,6 +148,16 @@ fn get_matches() -> ArgMatches {
             .num_args(1)
             .action(ArgAction::Set)
             .display_order(2),
+        )
+        .arg(
+          Arg::new("timeout")
+            .short('t')
+            .long("timeout")
+            .help("Number of seconds to wait after publishing a crate")
+            .default_value(DEFAULT_TIMEOUT_STR)
+            .num_args(1)
+            .action(ArgAction::Set)
+            .display_order(3),
         ),
     )
     .get_matches()
@@ -178,7 +195,8 @@ fn get_cli_action() -> Action {
     Some(("publish", matches)) => {
       let dir = match_string(matches, "dir");
       let file_name = match_string(matches, "file-name");
-      return Action::Publish(file_name, dir);
+      let timeout = match_string(matches, "timeout").parse::<u64>().unwrap_or(DEFAULT_TIMEOUT).clamp(0, 60);
+      return Action::Publish(file_name, dir, timeout);
     }
     _ => {}
   }
@@ -216,9 +234,9 @@ pub fn do_action() {
         }
       }
     }
-    Action::Publish(file_name, dir) => {
+    Action::Publish(file_name, dir, timeout) => {
       //
-      match publisher::publish_crates(&file_name, &dir) {
+      match publisher::publish_crates(&file_name, &dir, timeout) {
         Ok(()) => {}
         Err(reason) => {
           eprintln!("ERROR: {}", reason)

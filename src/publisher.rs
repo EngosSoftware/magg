@@ -22,7 +22,7 @@ struct CrateToPublish {
   dir: PathBuf,
 }
 
-pub fn publish_crates(file_name: &str, dir: &str) -> Result<()> {
+pub fn publish_crates(file_name: &str, dir: &str, timeout: u64) -> Result<()> {
   let file_path = Path::new(file_name);
   let working_dir = utils::canonicalize(Path::new(dir))?;
   let workspace_manifest_file = utils::canonicalize(working_dir.join(file_path))?;
@@ -152,8 +152,10 @@ pub fn publish_crates(file_name: &str, dir: &str) -> Result<()> {
     if ask_for_choice("Publish this crate?")? {
       execute_command("cargo", ["publish", "--color=always"], crate_to_publish.dir.clone())?;
     }
-    // Give crates.io some time to publish the crate.
-    // sleep a timeout
+    if timeout > 0 {
+      // Wait a timeout, just to make sure the crate is fully published.
+      std::thread::sleep(std::time::Duration::new(timeout, 0));
+    }
 
     // After publishing the crate, replace the 'path' with the published 'version'.
     workspace_maifest_content = workspace_maifest_content.replace(&crate_to_publish.prefix, &crate_to_publish.published_prefix);

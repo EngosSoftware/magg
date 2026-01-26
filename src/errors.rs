@@ -11,7 +11,7 @@ pub type Result<T, E = MaggError> = std::result::Result<T, E>;
 pub struct MaggError(String);
 
 impl std::fmt::Display for MaggError {
-  /// Implementation of [Display] trait for [MaggError].
+  /// Implementation of [Display](std::fmt::Display) trait for [MaggError].
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
     write!(f, "{}", self.0)
   }

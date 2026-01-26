@@ -29,7 +29,9 @@ enum Action {
     String,
     /// Verbose flag.
     bool,
-    /// Patterns for excluding pull requests.
+    /// String patterns for excluding commits by subject.
+    Vec<String>,
+    /// String patterns for excluding pull requests by title.
     Vec<String>,
   ),
   /// Do nothing.
@@ -113,11 +115,18 @@ fn get_matches() -> ArgMatches {
             .display_order(6),
         )
         .arg(
-          Arg::new("exclude-pr")
-            .long("exclude-pr")
-            .help("Exclude pull requests that contain this string in the title")
+          Arg::new("exclude-commit")
+            .long("exclude-commit")
+            .help("Exclude commits that contain this text in subject")
             .action(ArgAction::Append)
             .display_order(7),
+        )
+        .arg(
+          Arg::new("exclude-pr")
+            .long("exclude-pr")
+            .help("Exclude pull requests that contain this text in title")
+            .action(ArgAction::Append)
+            .display_order(8),
         ),
     )
     .get_matches()
@@ -150,8 +159,9 @@ fn get_cli_action() -> Action {
       let repository = match_string(matches, "repository");
       let dir = match_string(matches, "directory");
       let verbose = match_boolean(matches, "verbose");
+      let exclude_commit = match_strings(matches, "exclude-commit");
       let exclude_pr = match_strings(matches, "exclude-pr");
-      return Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_pr);
+      return Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_commit, exclude_pr);
     }
     _ => {}
   }
@@ -173,8 +183,8 @@ pub fn do_action() {
     Action::CodeOfConduct => {
       utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct());
     }
-    Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_pr) => {
-      match get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir, exclude_pr) {
+    Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_commit, exclude_pr) => {
+      match get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir, exclude_commit, exclude_pr) {
         Ok(changelog) => {
           println!("\nCHANGELOG");
           println!("{SEPARATOR_LINE}");

@@ -49,7 +49,17 @@ struct PullRequest {
   commits: Vec<Commit>,
 }
 
-pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, milestone: &str, repository: &str, dir: &str) -> Result<String> {
+#[allow(clippy::too_many_arguments)]
+pub fn get_changelog(
+  verbose: bool,
+  start_revision: &str,
+  end_revision: &str,
+  milestone: &str,
+  repository: &str,
+  dir: &str,
+  exclude_commit: Vec<String>,
+  exclude_pr: Vec<String>,
+) -> Result<String> {
   if verbose {
     println!("\nCOMMANDS");
     println!("{SEPARATOR_LINE}");
@@ -82,11 +92,25 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
     }
   }
 
-  // Move all commits to the map.
+  // Move all commits to the map skipping excluded commits.
   let mut commit_map = HashMap::new();
   for commit in &commits {
-    if !commit.subject.contains("[skip ci]") {
-      commit_map.insert(commit.hash.clone(), commit.clone());
+    commit_map.insert(commit.hash.clone(), commit.clone());
+  }
+
+  // Remove excluded commits from the map.
+  if verbose {
+    println!("\nEXCLUDED COMMITS:");
+    println!("{SEPARATOR_LINE}");
+  }
+  for commit in &commits {
+    for pattern in &exclude_commit {
+      if commit.subject.contains(pattern) {
+        if verbose {
+          println!("{} | {} | {}", commit.hash, commit.subject, pattern);
+        }
+        commit_map.remove(&commit.hash);
+      }
     }
   }
 
@@ -96,10 +120,10 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
     issue_sorted_map.insert(issue.number.clone(), issue.clone());
   }
 
-  // Move all pull requests to sorted map.
+  // Move all pull requests to a sorted map.
   let mut pull_request_map = BTreeMap::new();
   for pull_request in &pull_requests {
-    // From commit map remove commits that are included in pull request.
+    // From commit map remove commits that are included in this pull request.
     for commit in &pull_request.commits {
       commit_map.remove(&commit.hash);
     }
@@ -117,6 +141,22 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
         commit_map.remove(&commit.hash);
       } else {
         warnings.insert(number.clone(), format!("PR: #{} not in milestone {} | {}", number, milestone, commit.subject));
+      }
+    }
+  }
+
+  // Remove all excluded pull requests from the map.
+  if verbose {
+    println!("\nEXCLUDED PULL REQUESTS");
+    println!("{SEPARATOR_LINE}");
+  }
+  for pull_request in &pull_requests {
+    for pattern in &exclude_pr {
+      if pull_request.title.contains(pattern) {
+        if verbose {
+          println!("{} | {} | {} | {}", pull_request.number, pull_request.title, pull_request.url, pattern);
+        }
+        pull_request_map.remove(&pull_request.number);
       }
     }
   }

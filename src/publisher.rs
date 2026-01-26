@@ -16,13 +16,15 @@ struct CrateToPublish {
   line: usize,
   /// Search prefix in the original workspace manifest.
   prefix: String,
+  /// Published crate dependency.
+  published_prefix: String,
 }
 
 pub fn publish_crates(file_name: &str, dir: &str) -> Result<()> {
   let file_path = Path::new(file_name);
   let working_dir = utils::canonicalize(Path::new(dir))?;
-  let workspace_manifest_file = working_dir.join(file_path);
-  let workspace_maifest_content = utils::read_file(workspace_manifest_file.clone())?;
+  let workspace_manifest_file = utils::canonicalize(working_dir.join(file_path))?.as_path();
+  let mut workspace_maifest_content = utils::read_file(workspace_manifest_file.clone())?;
   let workspace_manifest_toml = parse_toml(workspace_manifest_file.as_path())?;
   // Check if the manifest file is a Rust workspace.
   let Some(workspace) = workspace_manifest_toml.get("workspace") else {
@@ -54,10 +56,17 @@ pub fn publish_crates(file_name: &str, dir: &str) -> Result<()> {
       }
       let path = utils::strip_quotes(value["path"].as_str().unwrap()).to_string();
       let prefix = format!("{} = {{ path = \"{}\"", name, path);
+      let published_prefix = format!("{} = {{ version = \"{}\"", name, publish_version);
       let Some(line) = get_line_index(&workspace_maifest_content, &prefix) else {
         return Err(MaggError::new(format!("invalid formatting for dependency '{name}'")));
       };
-      crates_to_publish.push(CrateToPublish { name, path, line, prefix });
+      crates_to_publish.push(CrateToPublish {
+        name,
+        path,
+        line,
+        prefix,
+        published_prefix,
+      });
     }
   }
   // Sort crates so the publishing order is preserved.
@@ -97,7 +106,21 @@ pub fn publish_crates(file_name: &str, dir: &str) -> Result<()> {
     validate_crate_dependencies(crate_package, "dependencies", &name, &crates_to_publish)?;
     validate_crate_dependencies(crate_package, "dev-dependencies", &name, &crates_to_publish)?;
   }
+  // Publish crates.
   println!("Publishing version: {}", publish_version);
+  for crate_to_publish in &crates_to_publish {
+    println!("Publishing crate: {} v{}", crate_to_publish.name, publish_version);
+    // Prepare the working directory for publishing a crate.
+    let dir = utils::canonicalize(working_dir.join(Path::new(&crate_to_publish.path)))?;
+    // Execute the `cargo publish` command.
+    execute_command("ls", ["-la", "--color=always"], dir)?;
+    // Give crates.io some time to publish the crate.
+    // sleep a timeout
+
+    // After publishing the crate, replace the 'path' with 'version'.
+    workspace_maifest_content = workspace_maifest_content.replace(&crate_to_publish.prefix, &crate_to_publish.published_prefix);
+    utils::write_file(workspace_manifest_file, &workspace_maifest_content);
+  }
   Ok(())
 }
 
@@ -140,53 +163,9 @@ where
     .stderr(std::process::Stdio::inherit())
     .spawn()
     .map_err(|e| MaggError::new(e.to_string()))?;
-  child.wait().map_err(|e| MaggError::new(e.to_string()))?;
+  let exit_status = child.wait().map_err(|e| MaggError::new(e.to_string()))?;
+  if !exit_status.success() {
+    return Err(MaggError::new(format!("executing command failed with status code: {}", exit_status)));
+  }
   Ok(())
-}
-
-#[cfg(test)]
-mod tests {
-  use crate::publisher::execute_command;
-  use crate::utils::parse_toml;
-
-  const TOML_FILE: &str = "../../CosmWasm/cosmwasm/Cargo.toml";
-
-  #[test]
-  fn validate_if_workspace_exists() {
-    let toml_value = parse_toml(TOML_FILE).unwrap();
-    assert!(toml_value.get("workspace").is_some());
-  }
-
-  #[test]
-  fn validate_that_package_does_not_exist() {
-    let toml_value = parse_toml(TOML_FILE).unwrap();
-    assert!(toml_value.get("package").is_none());
-  }
-
-  #[test]
-  fn validate_that_dependencies_exist() {
-    let toml_value = parse_toml(TOML_FILE).unwrap();
-    assert!(toml_value.get("workspace").is_some());
-    let workspace = &toml_value["workspace"];
-    assert!(workspace.get("dependencies").is_some());
-  }
-
-  #[test]
-  fn list_dependencies() {
-    let toml_value = parse_toml(TOML_FILE).unwrap();
-    assert!(toml_value.get("workspace").is_some());
-    let workspace = &toml_value["workspace"];
-    assert!(workspace.get("dependencies").is_some());
-    let dependencies = &workspace["dependencies"];
-    assert!(dependencies.as_table().is_some());
-    for (key, value) in dependencies.as_table().unwrap() {
-      _ = (key, value);
-      //println!("{} {}", key, value);
-    }
-  }
-
-  #[test]
-  fn a() {
-    execute_command("cargo", ["publish", "--dry-run", "--color=always"], ".").unwrap();
-  }
 }

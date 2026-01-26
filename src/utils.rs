@@ -1,5 +1,4 @@
 use crate::errors::*;
-use std::fs;
 use std::path::{Path, PathBuf};
 
 /// Separator line.
@@ -10,11 +9,11 @@ pub const RUST_MANIFEST_FILE_NAME: &str = "Cargo.toml";
 
 pub fn read_file(file_name: impl AsRef<Path>) -> Result<String> {
   let path = file_name.as_ref();
-  fs::read_to_string(path).map_err(|e| error_read_file(path, e))
+  std::fs::read_to_string(path).map_err(|e| error_read_file(path, e))
 }
 
 pub fn write_file(file_name: impl AsRef<Path>, contents: &str) {
-  fs::write(file_name, contents).expect("failed to write file")
+  std::fs::write(file_name, contents).expect("failed to write file")
 }
 
 pub fn parse_toml(file_name: impl AsRef<Path>) -> Result<toml::Value> {
@@ -51,4 +50,21 @@ pub fn canonicalize(path: impl AsRef<Path>) -> Result<PathBuf> {
     .as_ref()
     .canonicalize()
     .map_err(|e| MaggError::new(format!("failed to canonicalize path: {}, reason: {}", path.as_ref().display(), e)))
+}
+
+pub fn ask_for_choice(prompt: &str) -> Result<bool> {
+  loop {
+    use std::io::Write;
+    print!("{} [Y/n]: ", prompt);
+    std::io::stdout().flush().map_err(|e| MaggError::new(format!("failed to flush stdout, reason: {}", e)))?;
+    let mut input = String::new();
+    std::io::stdin()
+      .read_line(&mut input)
+      .map_err(|e| MaggError::new(format!("failed to read line, reason: {}", e)))?;
+    match input.trim().to_lowercase().as_str() {
+      "y" => return Ok(true),
+      "n" => return Ok(false),
+      _ => println!("Please enter 'Y' or 'n'"),
+    }
+  }
 }

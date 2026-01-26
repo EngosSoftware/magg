@@ -23,10 +23,10 @@
   ```
   It is crucial for text substitution after publishing.
 - For each dependency with `path` check if in the specified directory:
-  - exists `Cargo.toml`,
-  - name of the package is the same as the dependency name,
-  - version in the package points to the version in workspace,
-  - all `[dependencies]` and `[dev-dependencies]` in the package that point to other packages
+  - [x] exists `Cargo.toml`,
+  - [x] name of the package is the same as the dependency name,
+  - [x] version in the package points to the version in workspace,
+  - [x] all `[dependencies]` and `[dev-dependencies]` in the package that point to other packages
     in the workspace use the `{ workspace = true }` clause.
 - Validate, if after publishing and text substitution, the updated workspace `Cargo.toml` contains
   dependency with the proper version set.

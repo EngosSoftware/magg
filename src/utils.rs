@@ -50,5 +50,5 @@ pub fn canonicalize(path: impl AsRef<Path>) -> Result<PathBuf> {
   path
     .as_ref()
     .canonicalize()
-    .map_err(|e| MaggError::new(format!("failed to canonicalize path: {}", path.as_ref().display())))
+    .map_err(|e| MaggError::new(format!("failed to canonicalize path: {}, reason: {}", path.as_ref().display(), e)))
 }

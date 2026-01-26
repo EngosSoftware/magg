@@ -161,7 +161,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       if simulation {
         execute_command("echo", ["simulating <dry-run>"], crate_to_publish.dir.clone())?;
       } else {
-        execute_command("echo", ["<dry-run>"], crate_to_publish.dir.clone())?;
+        execute_command("cargo", ["publish", "--dry-run", "--color=always"], crate_to_publish.dir.clone())?;
       }
     }
     // Ask if publish the crate.
@@ -175,7 +175,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       if simulation {
         execute_command("echo", ["simulating <publish>"], crate_to_publish.dir.clone())?;
       } else {
-        execute_command("echo", ["<publish>"], crate_to_publish.dir.clone())?;
+        execute_command("cargo", ["publish", "--color=always"], crate_to_publish.dir.clone())?;
       }
     }
     // Wait a timeout, just to make sure that the crate is fully published.

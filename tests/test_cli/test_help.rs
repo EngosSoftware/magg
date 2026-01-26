@@ -9,6 +9,7 @@ Commands:
   licenses         Generates MIT and Apache 2.0 license files
   code-of-conduct  Generates code of conduct file
   changelog        Generates changelog
+  publish          Publish Rust crates
   help             Print this message or the help of the given subcommand(s)
 
 Options:

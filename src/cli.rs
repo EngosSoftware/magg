@@ -130,7 +130,7 @@ fn get_matches() -> ArgMatches {
     )
     .subcommand(
       Command::new("publish")
-        .about("Publishes Rust crates")
+        .about("Publish Rust crates")
         .display_order(5)
         .arg(
           Arg::new("file-name")

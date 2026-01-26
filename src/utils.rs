@@ -1,4 +1,5 @@
 use crate::errors::*;
+use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
 /// Separator line.
@@ -52,19 +53,27 @@ pub fn canonicalize(path: impl AsRef<Path>) -> Result<PathBuf> {
     .map_err(|e| MaggError::new(format!("failed to canonicalize path: {}, reason: {}", path.as_ref().display(), e)))
 }
 
-pub fn ask_for_choice(prompt: &str) -> Result<bool> {
-  loop {
-    use std::io::Write;
-    print!("{} [Y/n]: ", prompt);
-    std::io::stdout().flush().map_err(|e| MaggError::new(format!("failed to flush stdout, reason: {}", e)))?;
-    let mut input = String::new();
-    std::io::stdin()
-      .read_line(&mut input)
-      .map_err(|e| MaggError::new(format!("failed to read line, reason: {}", e)))?;
-    match input.trim().to_lowercase().as_str() {
-      "y" => return Ok(true),
-      "n" => return Ok(false),
-      _ => println!("Please enter 'Y' or 'n'"),
+pub fn step_progress() {
+  print!("·");
+  io::stdout().flush().unwrap();
+}
+
+pub fn ask_for_choice(prompt: &str, accept: bool) -> Result<bool> {
+  if accept {
+    Ok(true)
+  } else {
+    loop {
+      print!("{} [Y/n]: ", prompt);
+      io::stdout().flush().map_err(|e| MaggError::new(format!("failed to flush stdout, reason: {}", e)))?;
+      let mut input = String::new();
+      io::stdin()
+        .read_line(&mut input)
+        .map_err(|e| MaggError::new(format!("failed to read line, reason: {}", e)))?;
+      match input.trim().to_lowercase().as_str() {
+        "y" => return Ok(true),
+        "n" => return Ok(false),
+        _ => println!("Please enter 'Y' or 'n'"),
+      }
     }
   }
 }

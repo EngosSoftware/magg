@@ -42,6 +42,10 @@ enum Action {
     String,
     /// Number of seconds to wait after publishing a crate.
     u64,
+    /// Flag indicating if all questions should be answered with 'Y'.
+    bool,
+    /// Flag indicating if only simulate publishing crates.
+    bool,
   ),
   /// Do nothing.
   Nothing,
@@ -157,6 +161,26 @@ fn get_matches() -> ArgMatches {
             .num_args(1)
             .action(ArgAction::Set)
             .display_order(3),
+        )
+        .arg(
+          Arg::new("accept-all")
+            .short('y')
+            .long("accept-all")
+            .help("Answer all questions with 'Y'")
+            .action(ArgAction::SetTrue)
+            .default_value("false")
+            .default_missing_value("true")
+            .display_order(4),
+        )
+        .arg(
+          Arg::new("simulation")
+            .short('s')
+            .long("simulation")
+            .help("Perform only a simulation, no crates will be published")
+            .action(ArgAction::SetTrue)
+            .default_value("false")
+            .default_missing_value("true")
+            .display_order(5),
         ),
     )
     .get_matches()
@@ -195,7 +219,9 @@ fn get_cli_action() -> Action {
       let dir = match_string(matches, "dir");
       let file_name = match_string(matches, "file-name");
       let timeout = match_string(matches, "timeout").parse::<u64>().unwrap_or(DEFAULT_TIMEOUT).clamp(0, 60);
-      return Action::Publish(file_name, dir, timeout);
+      let accept_all = match_boolean(matches, "accept-all");
+      let simulation = match_boolean(matches, "simulation");
+      return Action::Publish(file_name, dir, timeout, accept_all, simulation);
     }
     _ => {}
   }
@@ -233,9 +259,9 @@ pub fn do_action() {
         }
       }
     }
-    Action::Publish(file_name, dir, timeout) => {
-      //
-      match publisher::publish_crates(&file_name, &dir, timeout) {
+    Action::Publish(file_name, dir, timeout, accept_all, simulation) => {
+      // Publish crates.
+      match publisher::publish_crates(&file_name, &dir, timeout, accept_all, simulation) {
         Ok(()) => {}
         Err(reason) => {
           eprintln!("ERROR: {}", reason)

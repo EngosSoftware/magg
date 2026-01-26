@@ -49,7 +49,7 @@ struct PullRequest {
   commits: Vec<Commit>,
 }
 
-pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, milestone: &str, repository: &str, dir: &str, exclude_pr: &[String]) -> Result<String> {
+pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, milestone: &str, repository: &str, dir: &str, exclude_pr: Vec<String>) -> Result<String> {
   if verbose {
     println!("\nCOMMANDS");
     println!("{SEPARATOR_LINE}");
@@ -96,14 +96,10 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
     issue_sorted_map.insert(issue.number.clone(), issue.clone());
   }
 
-  // Move all pull requests to sorted map.
+  // Move all pull requests to a sorted map.
   let mut pull_request_map = BTreeMap::new();
   for pull_request in &pull_requests {
-    // Skip pull requests that match any exclusion pattern.
-    if exclude_pr.iter().any(|pattern| pull_request.title.contains(pattern)) {
-      continue;
-    }
-    // From commit map remove commits that are included in pull request.
+    // From commit map remove commits that are included in this pull request.
     for commit in &pull_request.commits {
       commit_map.remove(&commit.hash);
     }
@@ -121,6 +117,22 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
         commit_map.remove(&commit.hash);
       } else {
         warnings.insert(number.clone(), format!("PR: #{} not in milestone {} | {}", number, milestone, commit.subject));
+      }
+    }
+  }
+
+  // Remove all excluded pull requests from the map.
+  if verbose {
+    println!("\nEXCLUDED PULL REQUESTS");
+    println!("{SEPARATOR_LINE}");
+  }
+  for pull_request in &pull_requests {
+    for pattern in &exclude_pr {
+      if pull_request.title.contains(pattern) {
+        if verbose {
+          println!("{} | {} | {} | {}", pull_request.number, pull_request.title, pull_request.url, pattern);
+        }
+        pull_request_map.remove(&pull_request.number);
       }
     }
   }

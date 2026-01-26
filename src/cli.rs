@@ -29,7 +29,7 @@ enum Action {
     String,
     /// Verbose flag.
     bool,
-    /// Exclude PR patterns.
+    /// Patterns for excluding pull requests.
     Vec<String>,
   ),
   /// Do nothing.
@@ -115,9 +115,8 @@ fn get_matches() -> ArgMatches {
         .arg(
           Arg::new("exclude-pr")
             .long("exclude-pr")
-            .help("Exclude pull requests that contain this string in title")
+            .help("Exclude pull requests that contain this string in the title")
             .action(ArgAction::Append)
-            .num_args(1)
             .display_order(7),
         ),
     )
@@ -151,7 +150,7 @@ fn get_cli_action() -> Action {
       let repository = match_string(matches, "repository");
       let dir = match_string(matches, "directory");
       let verbose = match_boolean(matches, "verbose");
-      let exclude_pr = match_string_vec(matches, "exclude-pr");
+      let exclude_pr = match_strings(matches, "exclude-pr");
       return Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_pr);
     }
     _ => {}
@@ -175,7 +174,7 @@ pub fn do_action() {
       utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct());
     }
     Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_pr) => {
-      match get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir, &exclude_pr) {
+      match get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir, exclude_pr) {
         Ok(changelog) => {
           println!("\nCHANGELOG");
           println!("{SEPARATOR_LINE}");
@@ -203,6 +202,6 @@ fn match_boolean(matches: &ArgMatches, name: &str) -> bool {
 }
 
 /// Matches an optional repeatable string argument.
-fn match_string_vec(matches: &ArgMatches, name: &str) -> Vec<String> {
-  matches.get_many::<String>(name).map(|values| values.cloned().collect()).unwrap_or_default()
+fn match_strings(matches: &ArgMatches, name: &str) -> Vec<String> {
+  matches.get_many(name).unwrap_or_default().cloned().collect()
 }

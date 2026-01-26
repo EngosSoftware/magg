@@ -49,7 +49,7 @@ struct PullRequest {
   commits: Vec<Commit>,
 }
 
-pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, milestone: &str, repository: &str, dir: &str) -> Result<String> {
+pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, milestone: &str, repository: &str, dir: &str, exclude_pr: &[String]) -> Result<String> {
   if verbose {
     println!("\nCOMMANDS");
     println!("{SEPARATOR_LINE}");
@@ -99,6 +99,10 @@ pub fn get_changelog(verbose: bool, start_revision: &str, end_revision: &str, mi
   // Move all pull requests to sorted map.
   let mut pull_request_map = BTreeMap::new();
   for pull_request in &pull_requests {
+    // Skip pull requests that match any exclusion pattern.
+    if exclude_pr.iter().any(|pattern| pull_request.title.contains(pattern)) {
+      continue;
+    }
     // From commit map remove commits that are included in pull request.
     for commit in &pull_request.commits {
       commit_map.remove(&commit.hash);

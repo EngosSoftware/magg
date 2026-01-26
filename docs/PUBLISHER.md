@@ -2,22 +2,22 @@
 
 ## Prerequisites
 
-- The Rust project this tool is executed in, is a **workspace**.
-- Workspace `Cargo.toml` (starts with `[workspace]`) contains a section `[workspace.dependencies]`.
-- Workspace dependencies have multiple crates that have `path` attribute set instead of `version`.
-- Dependencies with `path` are sorted in the order of publishing.
-- No other workspace dependencies have the `path` attribute set.
-- Dependencies with `path` attribute MUST NOT have `version` attribute set.
-- Dependencies with `path` are defined in a single line with the `path` as a first attribute (for simpler replacements).
+- [x] The Rust project this tool is executed in, is a **workspace**.
+- [x] Workspace `Cargo.toml` (starts with `[workspace]`) contains a section `[workspace.dependencies]`.
+- [x] Workspace dependencies have multiple crates that have `path` attribute set instead of `version`.
+- [x] Dependencies with `path` are sorted in the order of publishing.
+- [ ] No other workspace dependencies have the `path` attribute set.
+- [x] Dependencies with `path` attribute MUST NOT have `version` attribute set.
+- [x] Dependencies with `path` are defined in a single line with the `path` as a first attribute (for simpler replacements).
 
 ## Some ideas on validations
 
-- Validate if the `Cargo.toml` in a current directory is a workspace.
-- Validate if the workspace has defined dependencies, like `[workspace.dependencies]`.
-- Validate if the workspace has a version attribute defined.
-- Validate if there are dependencies with `path` key (these will be published).
-- Validate if the `path` attribute is the first one.
-- Validate if in the workspace `Cargo.toml` the dependency with `path` is formatted exactly this way:
+- [x] Validate if the `Cargo.toml` in a current directory is a workspace.
+- [x] Validate if the workspace has defined dependencies, like `[workspace.dependencies]`.
+- [x] Validate if the workspace has a version attribute defined, like `[workspace.package]\nversion = "3.0.3"`.
+- [x] Validate if there are dependencies with `path` key (these will be published).
+- [x] Validate if the `path` attribute is the first one.
+- [x] Validate if in the workspace `Cargo.toml` the dependency with `path` is formatted exactly this way:
   ```text
   dependency_name = { path = "path_to_the_dependency" }
   ```

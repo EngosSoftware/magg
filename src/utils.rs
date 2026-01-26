@@ -1,6 +1,6 @@
 use crate::errors::*;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 /// Separator line.
 pub const SEPARATOR_LINE: &str = "────────────────────────────────────────────────────────────────────────────────";
@@ -26,4 +26,29 @@ pub fn get_package_name(parsed: &toml::Value) -> &str {
 }
 pub fn get_repository(parsed: &toml::Value) -> &str {
   parsed["package"]["repository"].as_str().expect("package.repository not found in Cargo.toml")
+}
+
+pub fn get_line_index(content: &str, prefix: &str) -> Option<usize> {
+  for (index, line) in content.lines().enumerate() {
+    // println!("line: {}", line);
+    // println!("prefix: {}", prefix);
+    if line.starts_with(prefix) {
+      return Some(index);
+    }
+  }
+  None
+}
+
+pub fn strip_quotes(s: &str) -> &str {
+  match s.as_bytes() {
+    [b'"', .., b'"'] | [b'\'', .., b'\''] => &s[1..s.len() - 1],
+    _ => s,
+  }
+}
+
+pub fn canonicalize(path: impl AsRef<Path>) -> Result<PathBuf> {
+  path
+    .as_ref()
+    .canonicalize()
+    .map_err(|e| MaggError::new(format!("failed to canonicalize path: {}", path.as_ref().display())))
 }

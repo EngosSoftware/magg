@@ -24,10 +24,9 @@ pub fn publish_crates(file_name: &str, dir: &str) -> Result<()> {
   let workspace_maifest_content = utils::read_file(workspace_manifest_file.clone())?;
   let workspace_manifest_toml = parse_toml(workspace_manifest_file.as_path())?;
   // Check if the manifest file is a Rust workspace.
-  if workspace_manifest_toml.get("workspace").is_none() {
+  let Some(workspace) = workspace_manifest_toml.get("workspace") else {
     return Err(MaggError::new(format!("not a workspace manifest: {}", workspace_manifest_file.display())));
-  }
-  let workspace = &workspace_manifest_toml["workspace"];
+  };
   // Check if the workspace manifest has defined the publishing version.
   let Some(package) = workspace.get("package") else {
     return Err(MaggError::new("missing [workspace.package] section"));

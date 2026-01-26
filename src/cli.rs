@@ -5,7 +5,6 @@ use crate::publisher;
 use crate::utils::{RUST_MANIFEST_FILE_NAME, SEPARATOR_LINE};
 use crate::{readme, utils};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
-use std::ffi::{OsStr, OsString};
 
 /// Default timeout in seconds.
 const DEFAULT_TIMEOUT: u64 = 30;

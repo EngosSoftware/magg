@@ -34,6 +34,8 @@ enum Action {
   Publish(
     /// Name of the configuration and manifest file for Rust projects (default: Cargo.toml)
     String,
+    /// Path to the workspace manifest file.
+    String,
   ),
   /// Do nothing.
   Nothing,
@@ -117,16 +119,29 @@ fn get_matches() -> ArgMatches {
         ),
     )
     .subcommand(
-      Command::new("publish").about("Publishes Rust crates").display_order(5).arg(
-        Arg::new("file-name")
-          .short('f')
-          .long("file-name")
-          .help("Name of the Rust manifest file")
-          .default_value(RUST_MANIFEST_FILE_NAME)
-          .num_args(1)
-          .action(ArgAction::Set)
-          .display_order(1),
-      ),
+      Command::new("publish")
+        .about("Publishes Rust crates")
+        .display_order(5)
+        .arg(
+          Arg::new("file-name")
+            .short('f')
+            .long("file-name")
+            .help("Name of the Rust manifest file")
+            .default_value(RUST_MANIFEST_FILE_NAME)
+            .num_args(1)
+            .action(ArgAction::Set)
+            .display_order(1),
+        )
+        .arg(
+          Arg::new("dir")
+            .short('d')
+            .long("dir")
+            .help("Directory where the workspace manifest file is placed")
+            .default_value(".")
+            .num_args(1)
+            .action(ArgAction::Set)
+            .display_order(2),
+        ),
     )
     .get_matches()
 }
@@ -161,8 +176,9 @@ fn get_cli_action() -> Action {
       return Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose);
     }
     Some(("publish", matches)) => {
+      let dir = match_string(matches, "dir");
       let file_name = match_string(matches, "file-name");
-      return Action::Publish(file_name);
+      return Action::Publish(file_name, dir);
     }
     _ => {}
   }
@@ -196,9 +212,9 @@ pub fn do_action() {
         }
       }
     }
-    Action::Publish(file_name) => {
+    Action::Publish(file_name, dir) => {
       //
-      match publisher::publish_crates(&file_name) {
+      match publisher::publish_crates(&file_name, &dir) {
         Ok(()) => {}
         Err(reason) => {
           eprintln!("ERROR: {}", reason)

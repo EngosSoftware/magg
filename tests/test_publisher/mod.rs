@@ -4,7 +4,7 @@ fn short_file_name_option_should_work() {
     .code(0)
     .arg("publish")
     .arg("-f Cargø.toml")
-    .stdout("Cargø.toml\n")
+    .stdout("./Cargø.toml\n")
     .stderr("")
     .execute();
 }

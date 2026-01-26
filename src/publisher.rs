@@ -4,8 +4,9 @@ use crate::errors::*;
 use std::ffi::OsStr;
 use std::path::Path;
 
-pub fn publish_crates(file_name: &str) -> Result<()> {
-  println!("{}", file_name);
+pub fn publish_crates(file_name: &str, dir: &str) -> Result<()> {
+  let workspace_manifest_path = Path::new(dir).join(Path::new(file_name));
+  println!("{}", workspace_manifest_path.display());
   Ok(())
 }
 

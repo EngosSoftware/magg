@@ -4,6 +4,9 @@ use std::path::Path;
 /// Separator line.
 pub const SEPARATOR_LINE: &str = "────────────────────────────────────────────────────────────────────────────────";
 
+/// Default name of the Rust manifest file.
+pub const RUST_MANIFEST_FILE_NAME: &str = "Cargo.toml";
+
 pub fn read_file(file_name: impl AsRef<Path>) -> String {
   fs::read_to_string(file_name).expect("failed to read file")
 }

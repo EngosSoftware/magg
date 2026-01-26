@@ -1,7 +1,8 @@
-use crate::changelog::get_changelog;
+use crate::changelog;
 use crate::code_of_conduct::get_code_of_conduct;
 use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
-use crate::utils::SEPARATOR_LINE;
+use crate::publisher;
+use crate::utils::{RUST_MANIFEST_FILE_NAME, SEPARATOR_LINE};
 use crate::{readme, utils};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
 
@@ -29,6 +30,10 @@ enum Action {
     String,
     /// Verbose flag.
     bool,
+  ),
+  Publish(
+    /// Name of the configuration and manifest file for Rust projects (default: Cargo.toml)
+    String,
   ),
   /// Do nothing.
   Nothing,
@@ -111,6 +116,18 @@ fn get_matches() -> ArgMatches {
             .display_order(6),
         ),
     )
+    .subcommand(
+      Command::new("publish").about("Publishes Rust crates").display_order(5).arg(
+        Arg::new("file-name")
+          .short('f')
+          .long("file-name")
+          .help("Name of the Rust manifest file")
+          .default_value(RUST_MANIFEST_FILE_NAME)
+          .num_args(1)
+          .action(ArgAction::Set)
+          .display_order(1),
+      ),
+    )
     .get_matches()
 }
 
@@ -143,6 +160,10 @@ fn get_cli_action() -> Action {
       let verbose = match_boolean(matches, "verbose");
       return Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose);
     }
+    Some(("publish", matches)) => {
+      let file_name = match_string(matches, "file-name");
+      return Action::Publish(file_name);
+    }
     _ => {}
   }
   Action::Nothing
@@ -164,12 +185,21 @@ pub fn do_action() {
       utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct());
     }
     Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose) => {
-      match get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir) {
+      match changelog::get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir) {
         Ok(changelog) => {
           println!("\nCHANGELOG");
           println!("{SEPARATOR_LINE}");
           println!("{}", changelog)
         }
+        Err(reason) => {
+          eprintln!("ERROR: {}", reason)
+        }
+      }
+    }
+    Action::Publish(file_name) => {
+      //
+      match publisher::publish_crates(&file_name) {
+        Ok(()) => {}
         Err(reason) => {
           eprintln!("ERROR: {}", reason)
         }
@@ -183,7 +213,7 @@ pub fn do_action() {
 
 /// Matches a mandatory string argument.
 fn match_string(matches: &ArgMatches, name: &str) -> String {
-  matches.get_one::<String>(name).unwrap().to_string()
+  matches.get_one::<String>(name).unwrap().trim().to_string()
 }
 
 /// Matches a mandatory boolean argument.

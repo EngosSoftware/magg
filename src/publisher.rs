@@ -4,6 +4,11 @@ use crate::errors::*;
 use std::ffi::OsStr;
 use std::path::Path;
 
+pub fn publish_crates(file_name: &str) -> Result<()> {
+  println!("{}", file_name);
+  Ok(())
+}
+
 fn execute_command<S, A, P>(program: S, args: A, dir: P) -> Result<()>
 where
   S: AsRef<OsStr>,

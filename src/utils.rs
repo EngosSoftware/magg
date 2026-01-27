@@ -30,8 +30,6 @@ pub fn get_repository(parsed: &toml::Value) -> &str {
 
 pub fn get_line_index(content: &str, prefix: &str) -> Option<usize> {
   for (index, line) in content.lines().enumerate() {
-    // println!("line: {}", line);
-    // println!("prefix: {}", prefix);
     if line.starts_with(prefix) {
       return Some(index);
     }
@@ -60,20 +58,19 @@ pub fn step_progress() {
 
 pub fn ask_for_choice(prompt: &str, accept: bool) -> Result<bool> {
   if accept {
-    Ok(true)
-  } else {
-    loop {
-      print!("{} [Y/n]: ", prompt);
-      io::stdout().flush().map_err(|e| MaggError::new(format!("failed to flush stdout, reason: {}", e)))?;
-      let mut input = String::new();
-      io::stdin()
-        .read_line(&mut input)
-        .map_err(|e| MaggError::new(format!("failed to read line, reason: {}", e)))?;
-      match input.trim().to_lowercase().as_str() {
-        "y" => return Ok(true),
-        "n" => return Ok(false),
-        _ => println!("Please enter 'Y' or 'n'"),
-      }
+    return Ok(true);
+  }
+  loop {
+    print!("{} [Y/n]: ", prompt);
+    io::stdout().flush().map_err(|e| MaggError::new(format!("failed to flush stdout, reason: {}", e)))?;
+    let mut input = String::new();
+    io::stdin()
+      .read_line(&mut input)
+      .map_err(|e| MaggError::new(format!("failed to read line, reason: {}", e)))?;
+    match input.trim().to_lowercase().as_str() {
+      "y" => return Ok(true),
+      "n" => return Ok(false),
+      _ => println!("Please enter 'Y' or 'n'"),
     }
   }
 }

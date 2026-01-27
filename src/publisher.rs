@@ -41,7 +41,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   };
   // Check if the workspace manifest has defined the version to be published.
   let Some(workspace_package_version) = workspace_package.get("version") else {
-    return Err(MaggError::new("missing 'version' in [workspace.package]"));
+    return Err(MaggError::new("missing 'version' entry in [workspace.package] section"));
   };
   // Check if the version is a string.
   let Some(publish_version) = workspace_package_version.as_str() else {

@@ -28,10 +28,10 @@ pub fn get_repository(parsed: &toml::Value) -> &str {
   parsed["package"]["repository"].as_str().expect("package.repository not found in Cargo.toml")
 }
 
-pub fn get_line_index(content: &str, prefix: &str) -> Option<usize> {
+pub fn get_line_number(content: &str, prefix: &str) -> Option<usize> {
   for (index, line) in content.lines().enumerate() {
     if line.starts_with(prefix) {
-      return Some(index);
+      return Some(index + 1);
     }
   }
   None

@@ -2,10 +2,11 @@
 
 use crate::errors::*;
 use crate::utils;
-use crate::utils::{ask_for_choice, get_line_index, parse_toml};
 use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
+
+type CratesToPublish = BTreeMap<usize, CrateToPublish>;
 
 /// A crate dependency defined in the workspace manifest to be published.
 struct CrateToPublish {
@@ -19,6 +20,8 @@ struct CrateToPublish {
   published_prefix: String,
   /// Working directory for published crate.
   dir: PathBuf,
+  /// Number of the line in the workspace manifest where the dependency is placed.
+  line_number: usize,
 }
 
 pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool, simulation: bool) -> Result<()> {
@@ -27,7 +30,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   let workspace_manifest_file = utils::canonicalize(working_dir.join(file_path))?;
   let workspace_manifest_path = workspace_manifest_file.as_path();
   let mut workspace_maifest_content = utils::read_file(workspace_manifest_path)?;
-  let workspace_manifest_toml = parse_toml(workspace_manifest_path)?;
+  let workspace_manifest_toml = utils::parse_toml(workspace_manifest_path)?;
   // Check if the manifest file is a Rust workspace.
   let Some(workspace) = workspace_manifest_toml.get("workspace") else {
     return Err(MaggError::new(format!(
@@ -60,7 +63,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   // Collect crates to publish
   //-----------------------------------
 
-  let mut crates_to_publish = BTreeMap::new();
+  let mut crates_to_publish = CratesToPublish::new();
   for (key, value) in workspace_dependencies_table {
     if value.get("path").is_some() {
       let name = key.to_string();
@@ -71,17 +74,18 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       let prefix = format!("{} = {{ path = \"{}\"", name, path);
       let published_prefix = format!("{} = {{ version = \"{}\"", name, publish_version);
       let dir = utils::canonicalize(working_dir.join(Path::new(&path)))?;
-      let Some(line) = get_line_index(&workspace_maifest_content, &prefix) else {
+      let Some(line_number) = utils::get_line_number(&workspace_maifest_content, &prefix) else {
         return Err(MaggError::new(format!("invalid formatting for dependency '{name}'")));
       };
       crates_to_publish.insert(
-        line,
+        line_number,
         CrateToPublish {
           name,
           path,
           prefix,
           published_prefix,
           dir,
+          line_number,
         },
       );
     }
@@ -94,11 +98,10 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   // Validate crates
   //---------------------
 
-  let publish_names: Vec<String> = crates_to_publish.values().map(|crate_to_publish| crate_to_publish.name.clone()).collect();
   for crate_to_publish in crates_to_publish.values() {
     let name = crate_to_publish.name.to_string();
     let crate_manifest_file = utils::canonicalize(working_dir.join(Path::new(&crate_to_publish.path)).join(file_path))?;
-    let crate_manifest_toml = parse_toml(crate_manifest_file)?;
+    let crate_manifest_toml = utils::parse_toml(crate_manifest_file)?;
     let Some(crate_package) = crate_manifest_toml.get("package") else {
       return Err(MaggError::new(format!("missing [package] section in dependency '{name}'")));
     };
@@ -123,8 +126,12 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     if !crate_package_version_workspace_value {
       return Err(MaggError::new(format!("[package].version.workspace attribute in crate '{name}' must have value \"true\"")));
     }
-    validate_crate_dependencies(crate_package, "dependencies", &name, &publish_names)?;
-    validate_crate_dependencies(crate_package, "dev-dependencies", &name, &publish_names)?;
+    if let Some(dependencies) = crate_package.get("dependencies") {
+      validate_crate_dependencies(dependencies, crate_to_publish, &crates_to_publish)?;
+    }
+    if let Some(dependencies) = crate_package.get("dev-dependencies") {
+      validate_crate_dependencies(dependencies, crate_to_publish, &crates_to_publish)?;
+    }
   }
 
   //---------------------
@@ -134,7 +141,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   // Ask if the version to be published is the right one.
   println!();
   println!("Publish version: {}", publish_version);
-  if !ask_for_choice("Is this version correct?", accept_all)? {
+  if !utils::ask_for_choice("Is this version correct?", accept_all)? {
     return Ok(());
   }
 
@@ -145,7 +152,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     println!("{} v{} {}", crate_to_publish.name, publish_version, crate_to_publish.dir.display());
   }
   println!();
-  if !ask_for_choice("Do you want to publish all these crates?", accept_all)? {
+  if !utils::ask_for_choice("Do you want to publish all these crates?", accept_all)? {
     return Ok(());
   }
 
@@ -157,7 +164,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       publish_version,
       crate_to_publish.dir.display()
     );
-    if ask_for_choice("Perform dry-run before publishing this crate?", accept_all)? {
+    if utils::ask_for_choice("Perform dry-run before publishing this crate?", accept_all)? {
       if simulation {
         execute_command("echo", ["simulating <dry-run>"], crate_to_publish.dir.clone())?;
       } else {
@@ -171,7 +178,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       publish_version,
       crate_to_publish.dir.display()
     );
-    if ask_for_choice("Publish this crate?", accept_all)? {
+    if utils::ask_for_choice("Publish this crate?", accept_all)? {
       if simulation {
         execute_command("echo", ["simulating <publish>"], crate_to_publish.dir.clone())?;
       } else {
@@ -192,33 +199,45 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     // Save the modified version of the workspace manifest, so other crates will use the published versions of dependencies.
     utils::write_file(workspace_manifest_path, &workspace_maifest_content);
   }
+  // TODO Read the workspace manifest from disk and check is all paths are replaces by versions.
   Ok(())
 }
 
-fn validate_crate_dependencies(package: &toml::Value, dependencies: &str, crate_name: &str, publish_names: &[String]) -> Result<()> {
-  if let Some(crate_package_dependencies) = package.get(dependencies) {
-    let Some(crate_dependencies_table) = crate_package_dependencies.as_table() else {
-      return Err(MaggError::new(format!("[package.dependencies] section is not a table in crate {crate_name}")));
-    };
-    for (key, value) in crate_dependencies_table {
-      if publish_names.contains(key) {
+fn validate_crate_dependencies(dependencies: &toml::Value, crate_to_publish: &CrateToPublish, crates_to_publish: &CratesToPublish) -> Result<()> {
+  // Make sure the dependency section is a TOML table.
+  let Some(crate_dependencies_table) = dependencies.as_table() else {
+    return Err(MaggError::new(format!("dependencies section is not a table in crate '{}'", crate_to_publish.name)));
+  };
+  // Iterate over all dependencies.
+  for (key, value) in crate_dependencies_table {
+    // Iterate over all crates to be published to check if this crate has them as dependencies.
+    for dependency_crate_to_publish in crates_to_publish.values() {
+      if *key == dependency_crate_to_publish.name {
+        // Make sure the dependency is defined in the workspace manifest.
         let Some(crate_dependency_workspace) = value.get("workspace") else {
-          return Err(MaggError::new(format!("missing [package.dependencies].{key}.workspace attribute in crate '{crate_name}'")));
+          return Err(MaggError::new(format!("missing dependency {key}.workspace attribute in crate '{}'", crate_to_publish.name)));
         };
+        // Make sure the workspace dependency is ot type boolean.
         let Some(crate_dependency_workspace_value) = crate_dependency_workspace.as_bool() else {
-          return Err(MaggError::new(format!("invalid [package.dependencies].{key}.workspace attribute in crate '{crate_name}'")));
+          return Err(MaggError::new(format!("invalid dependency {key}.workspace attribute in crate '{}'", crate_to_publish.name)));
         };
+        // Make sure the workspace dependency has value 'true'.
         if !crate_dependency_workspace_value {
           return Err(MaggError::new(format!(
-            "[package.dependencies].{key}.workspace attribute in crate '{crate_name}' must have value \"true\""
+            "dependency {key}.workspace attribute in crate '{}' must have value \"true\"",
+            crate_to_publish.name
+          )));
+        }
+        // Make sure, the line number of this crate is greater than the line number of the workspace dependency.
+        if crate_to_publish.line_number <= dependency_crate_to_publish.line_number {
+          return Err(MaggError::new(format!(
+            "invalid publish order, crate '{}': {}, dependency '{}': {} ",
+            crate_to_publish.name, crate_to_publish.line_number, dependency_crate_to_publish.name, dependency_crate_to_publish.line_number
           )));
         }
       }
     }
-  };
-
-  // TODO Read the workspace manifest from disk and check is all paths are replaces by versions.
-
+  }
   Ok(())
 }
 

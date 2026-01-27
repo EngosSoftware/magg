@@ -45,7 +45,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   };
   // Check if the version is a string.
   let Some(publish_version) = workspace_package_version.as_str() else {
-    return Err(MaggError::new("invalid 'version' in [workspace.package]"));
+    return Err(MaggError::new("invalid 'version' entry in [workspace.package] section"));
   };
   // Get dependencies section.
   let Some(workspace_dependencies) = workspace.get("dependencies") else {

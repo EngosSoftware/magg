@@ -32,8 +32,8 @@ thiserror = "1.0.26"
 fn _0001() {
   let file = file!();
   let dir = Path::new(file).parent().unwrap();
-  let original = dir.join(Path::new("project_1/Cargq.toml"));
-  let backup = dir.join(Path::new("project_1/Cargq.bak.toml"));
+  let original = dir.join(Path::new("project_1/Carqo.toml"));
+  let backup = dir.join(Path::new("project_1/Carqo.bak.toml"));
   std::fs::copy(&original, &backup).unwrap();
   cli_assert::command!()
     .code(0)
@@ -41,7 +41,7 @@ fn _0001() {
     .arg("-d")
     .arg("project_1")
     .arg("-f")
-    .arg("Cargq.toml")
+    .arg("Carqo.toml")
     .arg("--simulation")
     .arg("--accept-all")
     .stderr("")

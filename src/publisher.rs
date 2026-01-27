@@ -33,10 +33,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   let workspace_manifest_toml = utils::parse_toml(workspace_manifest_path)?;
   // Check if the manifest file is a Rust workspace.
   let Some(workspace) = workspace_manifest_toml.get("workspace") else {
-    return Err(MaggError::new(format!(
-      "missing [workspace] section in manifest file: {}",
-      workspace_manifest_path.display()
-    )));
+    return Err(MaggError::new("missing [workspace] section in the workspace manifest file"));
   };
   // Check if the workspace manifest has package section.
   let Some(workspace_package) = workspace.get("package") else {

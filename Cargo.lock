@@ -102,9 +102,7 @@ checksum = "c3e64b0cc0439b12df2fa678eae89a1c56a529fd067a9115f7827f1fffd22b32"
 
 [[package]]
 name = "cli-assert"
-version = "0.1.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45d4694b3967e675671a9327a54d7e034786574fbe025a72be1d8a8cd6bf24ee"
+version = "0.1.9"
 dependencies = [
  "tempfile",
 ]

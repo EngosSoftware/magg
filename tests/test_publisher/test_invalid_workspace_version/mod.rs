@@ -1,7 +1,7 @@
 #[test]
 fn _0001() {
   cli_assert::command!()
-    .code(0)
+    .code(1)
     .arg("publish")
     .arg("-f")
     .arg("Carqo.toml")

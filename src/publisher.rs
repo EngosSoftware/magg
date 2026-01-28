@@ -233,8 +233,8 @@ fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &Cr
         // Make sure, the line number of this crate is greater than the line number of the workspace dependency.
         if crate_to_publish.line_number <= dependency_crate_to_publish.line_number {
           return Err(MaggError::new(format!(
-            "invalid publish order, crate '{}': {}, dependency '{}': {} ",
-            crate_to_publish.name, crate_to_publish.line_number, dependency_crate_to_publish.name, dependency_crate_to_publish.line_number
+            "invalid publish order, dependency '{}' must be published before crate '{}'",
+            dependency_crate_to_publish.name, crate_to_publish.name,
           )));
         }
       }

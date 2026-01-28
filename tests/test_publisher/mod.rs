@@ -4,6 +4,7 @@ mod test_invalid_dependencies_dependency_manifest;
 mod test_invalid_dependency_manifest;
 mod test_invalid_dev_dependencies_dependency_manifest;
 mod test_invalid_name_in_dependency_manifest;
+mod test_invalid_order_of_published_dependencies;
 mod test_invalid_path_dependency_formatting;
 mod test_invalid_version_workspace_in_dependency_manifest;
 mod test_invalid_workspace_dependencies;

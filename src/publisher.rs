@@ -105,22 +105,24 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       return Err(MaggError::new(format!("missing [package].name attribute in manifest for dependency '{name}'")));
     };
     let Some(package_name) = crate_package_name.as_str() else {
-      return Err(MaggError::new(format!("invalid [package].name attribute in dependency '{name}'")));
+      return Err(MaggError::new(format!("invalid [package].name attribute in manifest for dependency '{name}'")));
     };
     if crate_to_publish.name != package_name {
-      return Err(MaggError::new(format!("expected 'name = \"{name}\"', actual 'name = \"{}\"'", package_name)));
+      return Err(MaggError::new(format!(
+        "expected 'name = \"{name}\"', actual 'name = \"{package_name}\"' in manifest for dependency '{name}'"
+      )));
     }
     let Some(crate_package_version) = crate_package.get("version") else {
-      return Err(MaggError::new(format!("missing [package].version attribute in dependency '{name}'")));
+      return Err(MaggError::new(format!("missing [package].version attribute in manifest for dependency '{name}'")));
     };
     let Some(crate_package_version_workspace) = crate_package_version.get("workspace") else {
-      return Err(MaggError::new(format!("missing [package].version.workspace attribute in dependency '{name}'")));
+      return Err(MaggError::new(format!("missing [package].version.workspace attribute in manifest for dependency '{name}'")));
     };
     let Some(crate_package_version_workspace_value) = crate_package_version_workspace.as_bool() else {
-      return Err(MaggError::new(format!("invalid [package].version.workspace attribute in dependency '{name}'")));
+      return Err(MaggError::new(format!("invalid [package].version.workspace attribute in manifest for dependency '{name}'")));
     };
     if !crate_package_version_workspace_value {
-      return Err(MaggError::new(format!("[package].version.workspace attribute in crate '{name}' must have value \"true\"")));
+      return Err(MaggError::new(format!("[package].version.workspace attribute in crate '{name}' must have value 'true'")));
     }
     if let Some(dependencies) = crate_package.get("dependencies") {
       validate_crate_dependencies(dependencies, crate_to_publish, &crates_to_publish)?;

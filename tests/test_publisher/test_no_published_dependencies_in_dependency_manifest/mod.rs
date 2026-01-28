@@ -24,33 +24,33 @@ fn _0001() {
 Publish version: 1.0.0
 
 Publish crates:
-cosmwasm-check v1.0.0 {dir}/check
-cosmwasm-vm v1.0.0 {dir}/vm
+cosmwasm-check v1.0.0 {dir}||PATH-SEPARATOR||check
+cosmwasm-vm v1.0.0 {dir}||PATH-SEPARATOR||vm
 
 
 Crate (dry-run):
   cosmwasm-check
   v1.0.0
-  {dir}/check
+  {dir}||PATH-SEPARATOR||check
 simulating <dry-run>
 
 Crate (publish):
   cosmwasm-check
   v1.0.0
-  {dir}/check
+  {dir}||PATH-SEPARATOR||check
 simulating <publish>
 Waiting 1 second(s), ·
 
 Crate (dry-run):
   cosmwasm-vm
   v1.0.0
-  {dir}/vm
+  {dir}||PATH-SEPARATOR||vm
 simulating <dry-run>
 
 Crate (publish):
   cosmwasm-vm
   v1.0.0
-  {dir}/vm
+  {dir}||PATH-SEPARATOR||vm
 simulating <publish>
 Waiting 1 second(s), ·
 "#
@@ -65,7 +65,7 @@ Waiting 1 second(s), ·
     .arg("--accept-all")
     .arg("--timeout")
     .arg("1")
-    .stdout(normalize(&expected_stdout))
+    .stdout(normalize_path_separator(&expected_stdout))
     .stderr("")
     .execute();
   assert_eq!(normalize(EXPECTED_FILE), std::fs::read_to_string(&original).unwrap());

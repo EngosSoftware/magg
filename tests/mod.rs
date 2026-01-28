@@ -30,3 +30,13 @@ fn normalize_r(s: &str) -> String {
 fn normalize_r(s: &str) -> String {
   s.replace("{{R}}", "\r")
 }
+
+#[cfg(not(target_os = "windows"))]
+fn normalize_path_separator(s: &str) -> String {
+  s.replace("||PATH-SEPARATOR||", "/")
+}
+
+#[cfg(target_os = "windows")]
+fn normalize_path_separator(s: &str) -> String {
+  s.replace("||PATH-SEPARATOR||", "\\")
+}

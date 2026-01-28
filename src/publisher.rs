@@ -205,7 +205,6 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     // Save the modified version of the workspace manifest, so other crates will use the published versions of dependencies.
     utils::write_file(workspace_manifest_path, &workspace_maifest_content)?;
   }
-  // TODO Read the workspace manifest from disk and check is all paths are replaces by versions.
   Ok(())
 }
 
@@ -219,7 +218,7 @@ fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &Cr
         let Some(crate_dependency_workspace) = value.get("workspace") else {
           return Err(MaggError::new(format!("missing dependency {key}.workspace attribute in crate '{}'", crate_to_publish.name)));
         };
-        // Make sure the workspace dependency is ot type boolean.
+        // Make sure the workspace dependency is a boolean type.
         let Some(crate_dependency_workspace_value) = crate_dependency_workspace.as_bool() else {
           return Err(MaggError::new(format!("invalid dependency {key}.workspace attribute in crate '{}'", crate_to_publish.name)));
         };
@@ -230,6 +229,20 @@ fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &Cr
             crate_to_publish.name
           )));
         }
+        // Make sure that the workspace dependency has no 'version' attribute set.
+        if value.get("version").is_some() {
+          return Err(MaggError::new(format!(
+            "'{key}' dependency must not have 'version' attribute set in crate '{}'",
+            crate_to_publish.name
+          )));
+        };
+        // Make sure that the workspace dependency has no 'path' attribute set.
+        if value.get("path").is_some() {
+          return Err(MaggError::new(format!(
+            "'{key}' dependency must not have 'path' attribute set in crate '{}'",
+            crate_to_publish.name
+          )));
+        };
         // Make sure, the line number of this crate is greater than the line number of the workspace dependency.
         if crate_to_publish.line_number <= dependency_crate_to_publish.line_number {
           return Err(MaggError::new(format!(

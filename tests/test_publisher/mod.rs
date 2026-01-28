@@ -25,4 +25,6 @@ mod test_no_workspace_version;
 mod test_non_existing_dependency_manifest;
 mod test_non_existing_path_dependency;
 mod test_path_dependency_with_version;
+mod test_path_in_published_dependency_in_dependency_manifest;
 mod test_structure;
+mod test_version_in_published_dependency_in_dependency_manifest;

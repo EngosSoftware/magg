@@ -256,7 +256,8 @@ pub fn do_action() {
         utils::write_file("README.md", &contents);
       }
       Err(reason) => {
-        eprintln!("ERROR: {}", reason)
+        eprintln!("ERROR: {}", reason);
+        std::process::exit(1);
       }
     },
     Action::Licenses => {
@@ -275,7 +276,8 @@ pub fn do_action() {
           println!("{}", changelog)
         }
         Err(reason) => {
-          eprintln!("ERROR: {}", reason)
+          eprintln!("ERROR: {}", reason);
+          std::process::exit(1);
         }
       }
     }
@@ -284,7 +286,8 @@ pub fn do_action() {
       match publisher::publish_crates(&file_name, &dir, timeout, accept_all, simulation) {
         Ok(()) => {}
         Err(reason) => {
-          eprintln!("ERROR: {}", reason)
+          eprintln!("ERROR: {}", reason);
+          std::process::exit(1);
         }
       }
     }

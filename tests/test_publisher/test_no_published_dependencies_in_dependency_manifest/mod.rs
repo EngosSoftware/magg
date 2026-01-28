@@ -65,7 +65,7 @@ Waiting 1 second(s), ·
     .arg("--accept-all")
     .arg("--timeout")
     .arg("1")
-    .stdout(expected_stdout)
+    .stdout(normalize(&expected_stdout))
     .stderr("")
     .execute();
   assert_eq!(normalize(EXPECTED_FILE), std::fs::read_to_string(&original).unwrap());

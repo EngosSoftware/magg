@@ -1,5 +1,7 @@
+mod test_invalid_workspace_dependencies;
 mod test_invalid_workspace_version;
 mod test_no_workspace;
+mod test_no_workspace_dependencies;
 mod test_no_workspace_package;
 mod test_no_workspace_version;
 mod test_structure;

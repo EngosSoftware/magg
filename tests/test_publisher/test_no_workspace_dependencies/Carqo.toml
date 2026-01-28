@@ -1,0 +1,4 @@
+[workspace]
+
+[workspace.package]
+version = "1.0.0"

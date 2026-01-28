@@ -1,0 +1,5 @@
+[workspace]
+dependencies = "(empty)"
+
+[workspace.package]
+version = "1.0.0"

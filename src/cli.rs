@@ -253,7 +253,7 @@ pub fn do_action() {
   match get_cli_action() {
     Action::Readme(file_name) => match readme::scaffold_readme(file_name) {
       Ok(contents) => {
-        utils::write_file("README.md", &contents);
+        utils::write_file("README.md", &contents).unwrap();
       }
       Err(reason) => {
         eprintln!("ERROR: {}", reason);
@@ -261,12 +261,12 @@ pub fn do_action() {
       }
     },
     Action::Licenses => {
-      utils::write_file("LICENSE", &get_apache_2());
-      utils::write_file("NOTICE", &get_apache_notice());
-      utils::write_file("LICENSE-MIT", &get_mit());
+      utils::write_file("LICENSE", &get_apache_2()).unwrap();
+      utils::write_file("NOTICE", &get_apache_notice()).unwrap();
+      utils::write_file("LICENSE-MIT", &get_mit()).unwrap();
     }
     Action::CodeOfConduct => {
-      utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct());
+      utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct()).unwrap();
     }
     Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_commit, exclude_pr) => {
       match changelog::get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir, exclude_commit, exclude_pr) {

@@ -2,11 +2,10 @@
 
 use crate::errors::*;
 use crate::utils;
-use std::collections::BTreeMap;
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
-type CratesToPublish = BTreeMap<usize, CrateToPublish>;
+type CratesToPublish = Vec<CrateToPublish>;
 
 /// A crate dependency defined in the workspace manifest to be published.
 struct CrateToPublish {
@@ -73,17 +72,14 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       };
       let published_prefix = format!("{} = {{ version = \"{}\"", name, publish_version);
       let dir = utils::canonicalize(working_dir.join(Path::new(&path)))?;
-      crates_to_publish.insert(
+      crates_to_publish.push(CrateToPublish {
+        name,
+        path,
+        prefix,
+        published_prefix,
+        dir,
         line_number,
-        CrateToPublish {
-          name,
-          path,
-          prefix,
-          published_prefix,
-          dir,
-          line_number,
-        },
-      );
+      });
     }
   }
   if crates_to_publish.is_empty() {
@@ -94,7 +90,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   // Validate crates
   //---------------------
 
-  for crate_to_publish in crates_to_publish.values() {
+  for crate_to_publish in &crates_to_publish {
     let name = crate_to_publish.name.to_string();
     let crate_manifest_file = utils::canonicalize(working_dir.join(Path::new(&crate_to_publish.path)).join(file_path))?;
     let crate_manifest_toml = utils::parse_toml(crate_manifest_file)?;
@@ -124,11 +120,17 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     if !crate_package_version_workspace_value {
       return Err(MaggError::new(format!("[package].version.workspace attribute in crate '{name}' must have value 'true'")));
     }
-    if let Some(dependencies) = crate_package.get("dependencies") {
-      validate_crate_dependencies(dependencies, crate_to_publish, &crates_to_publish)?;
+    if let Some(dependencies) = crate_manifest_toml.get("dependencies") {
+      let Some(dependencies_table) = dependencies.as_table() else {
+        return Err(MaggError::new(format!("[dependencies] section is not a table in crate '{name}'")));
+      };
+      validate_crate_dependencies(dependencies_table, crate_to_publish, &crates_to_publish)?;
     }
-    if let Some(dependencies) = crate_package.get("dev-dependencies") {
-      validate_crate_dependencies(dependencies, crate_to_publish, &crates_to_publish)?;
+    if let Some(dev_dependencies) = crate_manifest_toml.get("dev-dependencies") {
+      let Some(dev_dependencies_table) = dev_dependencies.as_table() else {
+        return Err(MaggError::new(format!("[dev-dependencies] section is not a table in crate '{name}'")));
+      };
+      validate_crate_dependencies(dev_dependencies_table, crate_to_publish, &crates_to_publish)?;
     }
   }
 
@@ -146,7 +148,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   // List all crates to be publishe with versions and ask if the list is correct.\
   println!();
   println!("Publish crates:");
-  for crate_to_publish in crates_to_publish.values() {
+  for crate_to_publish in &crates_to_publish {
     println!("{} v{} {}", crate_to_publish.name, publish_version, crate_to_publish.dir.display());
   }
   println!();
@@ -154,7 +156,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     return Ok(());
   }
 
-  for crate_to_publish in crates_to_publish.values() {
+  for crate_to_publish in &crates_to_publish {
     // Ask if perform dry-run before publishing.
     println!(
       "\nCrate (dry-run):\n  {}\n  v{}\n  {}",
@@ -184,32 +186,34 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       }
     }
     // Wait a timeout, just to make sure that the crate is fully published.
-    if timeout > 0 && !simulation {
+    if timeout > 0 {
       print!("Waiting {} second(s), ", timeout);
-      let one_second = std::time::Duration::new(1, 0);
-      for _ in 0..timeout {
-        utils::step_progress();
-        std::thread::sleep(one_second);
-      }
+    }
+    for _ in 0..timeout {
+      utils::step_progress();
+      std::thread::sleep(if simulation && timeout == 1 {
+        std::time::Duration::new(0, 1)
+      } else {
+        std::time::Duration::new(1, 0)
+      });
+    }
+    if timeout > 0 {
+      println!();
     }
     // After publishing the crate, replace the 'path' with the published 'version'.
     workspace_maifest_content = workspace_maifest_content.replace(&crate_to_publish.prefix, &crate_to_publish.published_prefix);
     // Save the modified version of the workspace manifest, so other crates will use the published versions of dependencies.
-    utils::write_file(workspace_manifest_path, &workspace_maifest_content);
+    utils::write_file(workspace_manifest_path, &workspace_maifest_content)?;
   }
   // TODO Read the workspace manifest from disk and check is all paths are replaces by versions.
   Ok(())
 }
 
-fn validate_crate_dependencies(dependencies: &toml::Value, crate_to_publish: &CrateToPublish, crates_to_publish: &CratesToPublish) -> Result<()> {
-  // Make sure the dependency section is a TOML table.
-  let Some(crate_dependencies_table) = dependencies.as_table() else {
-    return Err(MaggError::new(format!("dependencies section is not a table in crate '{}'", crate_to_publish.name)));
-  };
+fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &CrateToPublish, crates_to_publish: &CratesToPublish) -> Result<()> {
   // Iterate over all dependencies.
-  for (key, value) in crate_dependencies_table {
+  for (key, value) in dependencies {
     // Iterate over all crates to be published to check if this crate has them as dependencies.
-    for dependency_crate_to_publish in crates_to_publish.values() {
+    for dependency_crate_to_publish in crates_to_publish {
       if *key == dependency_crate_to_publish.name {
         // Make sure the dependency is defined in the workspace manifest.
         let Some(crate_dependency_workspace) = value.get("workspace") else {

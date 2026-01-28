@@ -13,13 +13,13 @@ version = "3.0.0"
 cosmwasm-core = { version = "3.0.0" }
 cosmwasm-crypto = { version = "3.0.0" }
 cosmwasm-derive = { version = "3.0.0" }
-cosmwasm-schema = { version = "3.0.0" }
-cosmwasm-schema-derive = { version = "3.0.0" }
-cosmwasm-std = { version = "3.0.0", default-features = false }
-cosmwasm-vm = { version = "3.0.0" }
-cosmwasm-vm-derive = { version = "3.0.0" }
-cw-schema = { version = "3.0.0" }
 cw-schema-derive = { version = "3.0.0" }
+cw-schema = { version = "3.0.0" }
+cosmwasm-schema-derive = { version = "3.0.0" }
+cosmwasm-schema = { version = "3.0.0" }
+cosmwasm-std = { version = "3.0.0", default-features = false }
+cosmwasm-vm-derive = { version = "3.0.0" }
+cosmwasm-vm = { version = "3.0.0" }
 cosmwasm-check = { version = "3.0.0" }
 
 schemars = "0.8.4"
@@ -37,12 +37,14 @@ fn _0001() {
   cli_assert::command!()
     .code(0)
     .arg("publish")
-    .arg("-d")
+    .arg("--dir")
     .arg("project_1")
-    .arg("-f")
+    .arg("--file-name")
     .arg("Carqo.toml")
     .arg("--simulation")
     .arg("--accept-all")
+    .arg("--timeout")
+    .arg("0")
     .stderr("")
     .execute();
   assert_eq!(EXPECTED, std::fs::read_to_string(&original).unwrap());

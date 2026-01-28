@@ -11,13 +11,13 @@ version = "3.0.0"
 cosmwasm-core = { path = "./packages/core" }
 cosmwasm-crypto = { path = "./packages/crypto" }
 cosmwasm-derive = { path = "./packages/derive" }
-cosmwasm-schema = { path = "./packages/schema" }
-cosmwasm-schema-derive = { path = "./packages/schema-derive" }
-cosmwasm-std = { path = "./packages/std", default-features = false }
-cosmwasm-vm = { path = "./packages/vm" }
-cosmwasm-vm-derive = { path = "./packages/vm-derive" }
-cw-schema = { path = "./packages/cw-schema" }
 cw-schema-derive = { path = "./packages/cw-schema-derive" }
+cw-schema = { path = "./packages/cw-schema" }
+cosmwasm-schema-derive = { path = "./packages/schema-derive" }
+cosmwasm-schema = { path = "./packages/schema" }
+cosmwasm-std = { path = "./packages/std", default-features = false }
+cosmwasm-vm-derive = { path = "./packages/vm-derive" }
+cosmwasm-vm = { path = "./packages/vm" }
 cosmwasm-check = { path = "./packages/check" }
 
 schemars = "0.8.4"

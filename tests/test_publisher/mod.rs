@@ -1,5 +1,7 @@
 mod test_false_version_workspace_in_dependency_manifest;
+mod test_invalid_dependencies_dependency_manifest;
 mod test_invalid_dependency_manifest;
+mod test_invalid_dev_dependencies_dependency_manifest;
 mod test_invalid_name_in_dependency_manifest;
 mod test_invalid_path_dependency_formatting;
 mod test_invalid_version_workspace_in_dependency_manifest;
@@ -9,6 +11,7 @@ mod test_mismatched_name_in_dependency_manifest;
 mod test_no_crates_to_publish;
 mod test_no_name_in_dependency_manifest;
 mod test_no_package_in_dependency_manifest;
+mod test_no_published_dependencies_in_dependency_manifest;
 mod test_no_version_in_dependency_manifest;
 mod test_no_version_workspace_in_dependency_manifest;
 mod test_no_workspace;

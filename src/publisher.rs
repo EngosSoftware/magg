@@ -59,21 +59,20 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   //-----------------------------------
   // Collect crates to publish
   //-----------------------------------
-
   let mut crates_to_publish = CratesToPublish::new();
   for (key, value) in workspace_dependencies_table {
     if value.get("path").is_some() {
       let name = key.to_string();
       if value.get("version").is_some() {
-        return Err(MaggError::new(format!("dependency '{name}' may not have 'version' set")));
+        return Err(MaggError::new(format!("dependency '{name}' must not have 'version' attribute set")));
       }
       let path = utils::strip_quotes(value["path"].as_str().unwrap()).to_string();
       let prefix = format!("{} = {{ path = \"{}\"", name, path);
+      let Some(line_number) = utils::get_line_number(&workspace_maifest_content, &prefix) else {
+        return Err(MaggError::new(format!("invalid formatting for dependency '{name}', expected '{}'", prefix)));
+      };
       let published_prefix = format!("{} = {{ version = \"{}\"", name, publish_version);
       let dir = utils::canonicalize(working_dir.join(Path::new(&path)))?;
-      let Some(line_number) = utils::get_line_number(&workspace_maifest_content, &prefix) else {
-        return Err(MaggError::new(format!("invalid formatting for dependency '{name}'")));
-      };
       crates_to_publish.insert(
         line_number,
         CrateToPublish {

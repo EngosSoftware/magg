@@ -1,3 +1,4 @@
+mod test_invalid_path_dependency_formatting;
 mod test_invalid_workspace_dependencies;
 mod test_invalid_workspace_version;
 mod test_no_crates_to_publish;
@@ -5,4 +6,5 @@ mod test_no_workspace;
 mod test_no_workspace_dependencies;
 mod test_no_workspace_package;
 mod test_no_workspace_version;
+mod test_path_dependency_with_version;
 mod test_structure;

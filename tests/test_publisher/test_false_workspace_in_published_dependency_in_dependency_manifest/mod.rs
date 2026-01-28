@@ -8,6 +8,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("ERROR: dependency cosmwasm-vm.workspace attribute in crate 'cosmwasm-check' must have value 'true'\n")
+    .stderr("error: dependency cosmwasm-vm.workspace attribute in crate 'cosmwasm-check' must have value 'true'\n")
     .execute();
 }

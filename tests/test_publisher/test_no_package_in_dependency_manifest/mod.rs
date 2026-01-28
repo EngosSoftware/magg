@@ -8,6 +8,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("ERROR: missing [package] section in manifest for dependency 'cosmwasm-check'\n")
+    .stderr("error: missing [package] section in manifest for dependency 'cosmwasm-check'\n")
     .execute();
 }

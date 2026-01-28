@@ -4,7 +4,14 @@ use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
 use crate::publisher;
 use crate::utils::{RUST_MANIFEST_FILE_NAME, SEPARATOR_LINE};
 use crate::{readme, utils};
+use antex::{ColorMode, StyledText, Text};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
+
+macro_rules! print_error {
+  ($reason: expr) => {
+    Text::new(ColorMode::default()).bold().red().s("error").c().colon().space().s($reason).eprintln();
+  };
+}
 
 /// Default timeout in seconds.
 const DEFAULT_TIMEOUT: u64 = 30;
@@ -256,7 +263,7 @@ pub fn do_action() {
         utils::write_file("README.md", &contents).unwrap();
       }
       Err(reason) => {
-        eprintln!("ERROR: {}", reason);
+        print_error!(reason);
         std::process::exit(1);
       }
     },
@@ -276,7 +283,7 @@ pub fn do_action() {
           println!("{}", changelog)
         }
         Err(reason) => {
-          eprintln!("ERROR: {}", reason);
+          print_error!(reason);
           std::process::exit(1);
         }
       }
@@ -286,7 +293,7 @@ pub fn do_action() {
       match publisher::publish_crates(&file_name, &dir, timeout, accept_all, simulation) {
         Ok(()) => {}
         Err(reason) => {
-          eprintln!("ERROR: {}", reason);
+          print_error!(reason);
           std::process::exit(1);
         }
       }

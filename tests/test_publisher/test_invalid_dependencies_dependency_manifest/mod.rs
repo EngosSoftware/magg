@@ -8,6 +8,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("ERROR: [dependencies] section is not a table in crate 'cosmwasm-check'\n")
+    .stderr("error: [dependencies] section is not a table in crate 'cosmwasm-check'\n")
     .execute();
 }

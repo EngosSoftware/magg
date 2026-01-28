@@ -8,6 +8,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("ERROR: dependency 'cosmwasm-check' must not have 'version' attribute set\n")
+    .stderr("error: dependency 'cosmwasm-check' must not have 'version' attribute set\n")
     .execute();
 }

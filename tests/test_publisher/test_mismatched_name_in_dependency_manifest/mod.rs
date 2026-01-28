@@ -8,6 +8,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("ERROR: expected 'name = \"cosmwasm-check\"', actual 'name = \"check\"' in manifest for dependency 'cosmwasm-check'\n")
+    .stderr("error: expected 'name = \"cosmwasm-check\"', actual 'name = \"check\"' in manifest for dependency 'cosmwasm-check'\n")
     .execute();
 }

@@ -8,6 +8,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("ERROR: invalid formatting for dependency 'cosmwasm-check', expected 'cosmwasm-check = { path = \"./packages/check\"'\n")
+    .stderr("error: invalid formatting for dependency 'cosmwasm-check', expected 'cosmwasm-check = { path = \"./packages/check\"'\n")
     .execute();
 }

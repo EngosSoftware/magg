@@ -62,6 +62,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "antex"
+version = "0.0.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fee27ffc4fa6ad5b6a7d6b3dca6437ea7488def4833f4f896edd6b55e00e2de8"
+
+[[package]]
 name = "bitflags"
 version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -194,8 +200,9 @@ checksum = "df1d3c3b53da64cf5760482273a98e575c651a67eec7f77df96b5b642de8f039"
 
 [[package]]
 name = "magg"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
+ "antex",
  "clap",
  "cli-assert",
  "regex",

@@ -8,6 +8,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("ERROR: invalid publish order, dependency 'cosmwasm-vm' must be published before crate 'cosmwasm-check'\n")
+    .stderr("error: invalid publish order, dependency 'cosmwasm-vm' must be published before crate 'cosmwasm-check'\n")
     .execute();
 }

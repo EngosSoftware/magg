@@ -8,6 +8,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("ERROR: invalid [package].version.workspace attribute in manifest for dependency 'cosmwasm-check'\n")
+    .stderr("error: invalid [package].version.workspace attribute in manifest for dependency 'cosmwasm-check'\n")
     .execute();
 }

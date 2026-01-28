@@ -3,7 +3,7 @@ name = "magg"
 authors = ["Dariusz Depta <depta@engos.de>"]
 description = "Sophisticated tooling for Rust developers"
 repository = "https://github.com/EngosSoftware/magg.git"
-version = "0.2.1"
+version = "0.2.2"
 license = "MIT OR Apache-2.0"
 edition = "2024"
 exclude = [
@@ -24,6 +24,7 @@ name = "magg"
 path = "src/main.rs"
 
 [dependencies]
+antex = "0.0.11"
 clap = { version = "4.5.54", features = ["cargo"] }
 regex = "1.12.2"
 time = "0.3.46"

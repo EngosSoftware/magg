@@ -8,6 +8,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("ERROR: invalid 'version' entry in [workspace.package] section\n")
+    .stderr("error: invalid 'version' entry in [workspace.package] section\n")
     .execute();
 }

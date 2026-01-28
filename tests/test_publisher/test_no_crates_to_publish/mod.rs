@@ -8,6 +8,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("ERROR: no crates to publish\n")
+    .stderr("error: no crates to publish\n")
     .execute();
 }

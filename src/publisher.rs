@@ -226,7 +226,7 @@ fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &Cr
         // Make sure the workspace dependency has value 'true'.
         if !crate_dependency_workspace_value {
           return Err(MaggError::new(format!(
-            "dependency {key}.workspace attribute in crate '{}' must have value \"true\"",
+            "dependency {key}.workspace attribute in crate '{}' must have value 'true'",
             crate_to_publish.name
           )));
         }

@@ -1,3 +1,5 @@
+use super::*;
+
 #[test]
 fn short() {
   let expected = r#"Sophisticated tooling for Rust developers
@@ -16,5 +18,5 @@ Options:
   -V, --version  Print version
   -h, --help     Print help
 "#;
-  cli_assert::command!().arg("-h").code(0).stdout(expected).stderr("").execute();
+  cli_assert::command!().arg("-h").code(0).stdout(normalize(expected)).stderr("").execute();
 }

@@ -20,3 +20,13 @@ fn normalize_exe(s: &str) -> String {
 fn normalize_exe(s: &str) -> String {
   s.replace("{{EXE}}", ".exe")
 }
+
+#[cfg(not(target_os = "windows"))]
+fn normalize_r(s: &str) -> String {
+  s.replace("{{R}}", "")
+}
+
+#[cfg(target_os = "windows")]
+fn normalize_re(s: &str) -> String {
+  s.replace("{{R}}", "\r")
+}

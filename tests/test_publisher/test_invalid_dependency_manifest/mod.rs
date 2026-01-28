@@ -1,3 +1,11 @@
+const EXPECTED_STDERR: &str = r#"ERROR: TOML parse error at line 1, column 11
+  |
+1 | [workspace{{R}}
+  |           ^
+unclosed table, expected `]`
+
+"#;
+
 #[test]
 fn _0001() {
   cli_assert::command!()
@@ -8,14 +16,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr(
-      r#"ERROR: TOML parse error at line 1, column 11
-  |
-1 | [workspace
-  |           ^
-unclosed table, expected `]`
-
-"#,
-    )
+    .stderr(normalize_r(EXPECTED_STDERR))
     .execute();
 }

@@ -6,5 +6,6 @@ mod test_no_workspace;
 mod test_no_workspace_dependencies;
 mod test_no_workspace_package;
 mod test_no_workspace_version;
+mod test_non_existing_path_dependency;
 mod test_path_dependency_with_version;
 mod test_structure;

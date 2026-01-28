@@ -30,8 +30,7 @@ thiserror = "1.0.26"
 
 #[test]
 fn _0001() {
-  let file = file!();
-  let dir = Path::new(file).parent().unwrap();
+  let dir = Path::new(file!()).parent().unwrap();
   let original = dir.join(Path::new("project_1/Carqo.toml"));
   let backup = dir.join(Path::new("project_1/Carqo.bak.toml"));
   std::fs::copy(&original, &backup).unwrap();

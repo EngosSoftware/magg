@@ -13,22 +13,22 @@ fn normalize(s: &str) -> String {
 
 #[cfg(not(target_os = "windows"))]
 fn normalize_exe(s: &str) -> String {
-  s.replace("{{EXE}}", "")
+  s.replace("||EXE||", "")
 }
 
 #[cfg(target_os = "windows")]
 fn normalize_exe(s: &str) -> String {
-  s.replace("{{EXE}}", ".exe")
+  s.replace("||EXE||", ".exe")
 }
 
 #[cfg(not(target_os = "windows"))]
 fn normalize_r(s: &str) -> String {
-  s.replace("{{R}}", "")
+  s.replace("||R||", "")
 }
 
 #[cfg(target_os = "windows")]
 fn normalize_r(s: &str) -> String {
-  s.replace("{{R}}", "\r")
+  s.replace("||R||", "\r")
 }
 
 #[cfg(not(target_os = "windows"))]

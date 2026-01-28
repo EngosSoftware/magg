@@ -2,7 +2,7 @@ use super::*;
 
 const EXPECTED_STDERR: &str = r#"ERROR: TOML parse error at line 1, column 11
   |
-1 | [workspace{{R}}
+1 | [workspace||R||
   |           ^
 unclosed table, expected `]`
 

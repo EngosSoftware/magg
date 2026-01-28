@@ -4,7 +4,7 @@ use super::*;
 fn short() {
   let expected = r#"Sophisticated tooling for Rust developers
 
-Usage: magg{{EXE}} [COMMAND]
+Usage: magg||EXE|| [COMMAND]
 
 Commands:
   readme           Generates README.md file

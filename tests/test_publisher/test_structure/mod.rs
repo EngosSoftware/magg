@@ -1,3 +1,4 @@
+use super::*;
 use std::path::Path;
 
 const EXPECTED: &str = r#"[workspace]
@@ -47,7 +48,7 @@ fn _0001() {
     .arg("0")
     .stderr("")
     .execute();
-  assert_eq!(EXPECTED, std::fs::read_to_string(&original).unwrap());
+  assert_eq!(normalize(EXPECTED), std::fs::read_to_string(&original).unwrap());
   std::fs::copy(&backup, original).unwrap();
   std::fs::remove_file(backup).unwrap()
 }

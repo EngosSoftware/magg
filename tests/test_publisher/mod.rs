@@ -1,3 +1,5 @@
+use super::*;
+
 mod test_false_version_workspace_in_dependency_manifest;
 mod test_false_workspace_in_published_dependency_in_dependency_manifest;
 mod test_invalid_dependencies_dependency_manifest;

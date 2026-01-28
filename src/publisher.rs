@@ -99,10 +99,10 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     let crate_manifest_file = utils::canonicalize(working_dir.join(Path::new(&crate_to_publish.path)).join(file_path))?;
     let crate_manifest_toml = utils::parse_toml(crate_manifest_file)?;
     let Some(crate_package) = crate_manifest_toml.get("package") else {
-      return Err(MaggError::new(format!("missing [package] section in dependency '{name}'")));
+      return Err(MaggError::new(format!("missing [package] section in manifest for dependency '{name}'")));
     };
     let Some(crate_package_name) = crate_package.get("name") else {
-      return Err(MaggError::new(format!("missing [package].name attribute in dependency '{name}'")));
+      return Err(MaggError::new(format!("missing [package].name attribute in manifest for dependency '{name}'")));
     };
     let Some(package_name) = crate_package_name.as_str() else {
       return Err(MaggError::new(format!("invalid [package].name attribute in dependency '{name}'")));

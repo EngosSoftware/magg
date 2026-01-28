@@ -4,7 +4,7 @@ use super::*;
 fn short() {
   let expected = r#"Sophisticated tooling for Rust developers
 
-Usage: magg [COMMAND]
+Usage: magg{{EXE}} [COMMAND]
 
 Commands:
   readme           Generates README.md file
@@ -18,5 +18,5 @@ Options:
   -V, --version  Print version
   -h, --help     Print help
 "#;
-  cli_assert::command!().arg("-h").code(0).stdout(normalize(expected)).stderr("").execute();
+  cli_assert::command!().arg("-h").code(0).stdout(normalize_exe(expected)).stderr("").execute();
 }

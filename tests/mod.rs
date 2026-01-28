@@ -27,6 +27,6 @@ fn normalize_r(s: &str) -> String {
 }
 
 #[cfg(target_os = "windows")]
-fn normalize_re(s: &str) -> String {
+fn normalize_r(s: &str) -> String {
   s.replace("{{R}}", "\r")
 }

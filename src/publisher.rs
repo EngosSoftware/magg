@@ -159,12 +159,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
 
   for crate_to_publish in &crates_to_publish {
     // Ask if perform dry-run before publishing.
-    println!(
-      "\nCrate (dry-run):\n  {}\n  v{}\n  {}",
-      crate_to_publish.name,
-      publish_version,
-      crate_to_publish.dir.display()
-    );
+    println!("\nDRY-RUN: {} v{} {}", crate_to_publish.name, publish_version, crate_to_publish.dir.display());
     if utils::ask_for_choice("Perform dry-run before publishing this crate?", accept_all)? {
       if simulation {
         execute_command("echo", ["simulating <dry-run>"], crate_to_publish.dir.clone())?;
@@ -173,12 +168,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       }
     }
     // Ask if publish the crate.
-    println!(
-      "\nCrate (publish):\n  {}\n  v{}\n  {}",
-      crate_to_publish.name,
-      publish_version,
-      crate_to_publish.dir.display()
-    );
+    println!("\nPUBLISH: {} v{}  {}", crate_to_publish.name, publish_version, crate_to_publish.dir.display());
     if utils::ask_for_choice("Publish this crate?", accept_all)? {
       if simulation {
         execute_command("echo", ["simulating <publish>"], crate_to_publish.dir.clone())?;

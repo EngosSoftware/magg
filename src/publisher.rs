@@ -70,6 +70,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       let Some(line_number) = utils::get_line_number(&workspace_maifest_content, &prefix) else {
         return Err(MaggError::new(format!("invalid formatting for dependency '{name}', expected '{}'", prefix)));
       };
+      println!("DDD: prefix = {}, line number = {}", prefix, line_number);
       let published_prefix = format!("{} = {{ version = \"{}\"", name, publish_version);
       let dir = utils::canonicalize(working_dir.join(Path::new(&path)))?;
       crates_to_publish.push(CrateToPublish {
@@ -85,6 +86,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   if crates_to_publish.is_empty() {
     return Err(MaggError::new("no crates to publish"));
   }
+  crates_to_publish.sort_by_key(|crate_to_publish|crate_to_publish.line_number);
 
   //---------------------
   // Validate crates

@@ -62,7 +62,7 @@ pub fn ask_for_choice(prompt: &str, accept: bool) -> Result<bool> {
     return Ok(true);
   }
   loop {
-    print!("{} [Y/n]: ", prompt);
+    print!("{} [Yes/no/abort]: ", prompt);
     io::stdout().flush().map_err(|e| MaggError::new(format!("failed to flush stdout, reason: {}", e)))?;
     let mut input = String::new();
     io::stdin()
@@ -71,7 +71,8 @@ pub fn ask_for_choice(prompt: &str, accept: bool) -> Result<bool> {
     match input.trim().to_lowercase().as_str() {
       "y" => return Ok(true),
       "n" => return Ok(false),
-      _ => println!("Please enter 'Y' or 'n'"),
+      "a" => std::process::exit(1),
+      _ => println!("Please enter 'Y', 'n' or 'a'"),
     }
   }
 }

@@ -85,7 +85,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   if crates_to_publish.is_empty() {
     return Err(MaggError::new("no crates to publish"));
   }
-  crates_to_publish.sort_by_key(|crate_to_publish|crate_to_publish.line_number);
+  crates_to_publish.sort_by_key(|crate_to_publish| crate_to_publish.line_number);
 
   //---------------------
   // Validate crates
@@ -188,7 +188,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     }
     // Wait a timeout, just to make sure that the crate is fully published.
     if timeout > 0 {
-      print!("Waiting {} second(s), ", timeout);
+      print!("Waiting {} second{} ", timeout, if timeout > 1 { "s" } else { "" });
     }
     for _ in 0..timeout {
       utils::step_progress();

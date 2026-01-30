@@ -1,4 +1,5 @@
 use crate::errors::*;
+use antex::{StyledText, Text};
 use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 
@@ -61,8 +62,9 @@ pub fn ask_for_choice(prompt: &str, accept: bool) -> Result<bool> {
   if accept {
     return Ok(true);
   }
+  let prompt_text = prompt_text(prompt);
   loop {
-    print!("{} [Yes/no/abort]: ", prompt);
+    print!("{}", prompt_text);
     io::stdout().flush().map_err(|e| MaggError::new(format!("failed to flush stdout, reason: {}", e)))?;
     let mut input = String::new();
     io::stdin()
@@ -75,4 +77,9 @@ pub fn ask_for_choice(prompt: &str, accept: bool) -> Result<bool> {
       _ => println!("Please enter 'Y', 'n' or 'a'"),
     }
   }
+}
+
+#[rustfmt::skip]
+fn prompt_text(prompt: &str) -> Text {
+  Text::auto().cyan().s(prompt).clear().s(" [").bold().green().s('Y').clear().s("es/").bold().red().s('n').clear().s("o/").bold().yellow().s('a').clear().s("bort]: ")
 }

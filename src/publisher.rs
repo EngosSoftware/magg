@@ -2,12 +2,14 @@
 
 use crate::errors::*;
 use crate::utils;
+use antex::{StyledText, Text};
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
 type CratesToPublish = Vec<CrateToPublish>;
 
 /// A crate dependency defined in the workspace manifest to be published.
+#[derive(Default)]
 struct CrateToPublish {
   /// Name of the crate in the workspace manifest to be published.
   name: String,
@@ -21,6 +23,8 @@ struct CrateToPublish {
   dir: PathBuf,
   /// Number of the line in the workspace manifest where the dependency is placed.
   line_number: usize,
+  /// Padding after crate name for aligning columns.
+  padding: String,
 }
 
 pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool, simulation: bool) -> Result<()> {
@@ -79,6 +83,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
         published_prefix,
         dir,
         line_number,
+        ..Default::default()
       });
     }
   }
@@ -86,6 +91,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     return Err(MaggError::new("no crates to publish"));
   }
   crates_to_publish.sort_by_key(|crate_to_publish| crate_to_publish.line_number);
+  update_padding(&mut crates_to_publish);
 
   //---------------------
   // Validate crates
@@ -141,7 +147,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
 
   // Ask if the version to be published is the right one.
   println!();
-  println!("Publish version: {}", publish_version);
+  println!("Publish version: {}", Text::auto().bold().green().s(publish_version).clear());
   if !utils::ask_for_choice("Is this version correct?", accept_all)? {
     return Ok(());
   }
@@ -149,8 +155,14 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   // List all crates to be publishe with versions and ask if the list is correct.\
   println!();
   println!("Publish crates:");
+
   for crate_to_publish in &crates_to_publish {
-    println!("{} v{} {}", crate_to_publish.name, publish_version, crate_to_publish.dir.display());
+    println!(
+      "{}  {}  {}",
+      Text::auto().bold().blue().s(&crate_to_publish.name).clear().s(&crate_to_publish.padding),
+      Text::auto().bold().green().s('v').s(publish_version).clear(),
+      crate_to_publish.dir.display()
+    );
   }
   println!();
   if !utils::ask_for_choice("Do you want to publish all these crates?", accept_all)? {
@@ -159,7 +171,13 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
 
   for crate_to_publish in &crates_to_publish {
     // Ask if perform dry-run before publishing.
-    println!("\nDRY-RUN: {} v{} {}", crate_to_publish.name, publish_version, crate_to_publish.dir.display());
+    println!(
+      "\n{} {} {} {}",
+      Text::auto().bold().bg_yellow().s("  DRY-RUN  ").clear(),
+      Text::auto().bold().blue().s(&crate_to_publish.name).clear(),
+      Text::auto().bold().green().s('v').s(publish_version).clear(),
+      crate_to_publish.dir.display()
+    );
     if utils::ask_for_choice("Perform dry-run before publishing this crate?", accept_all)? {
       if simulation {
         execute_command("echo", ["simulating <dry-run>"], crate_to_publish.dir.clone())?;
@@ -168,7 +186,13 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       }
     }
     // Ask if publish the crate.
-    println!("\nPUBLISH: {} v{} {}", crate_to_publish.name, publish_version, crate_to_publish.dir.display());
+    println!(
+      "\n{} {} {} {}",
+      Text::auto().bold().bg_red().s("  PUBLISH  ").clear(),
+      Text::auto().bold().blue().s(&crate_to_publish.name).clear(),
+      Text::auto().bold().green().s('v').s(publish_version).clear(),
+      crate_to_publish.dir.display()
+    );
     if utils::ask_for_choice("Publish this crate?", accept_all)? {
       if simulation {
         execute_command("echo", ["simulating <publish>"], crate_to_publish.dir.clone())?;
@@ -245,6 +269,18 @@ fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &Cr
     }
   }
   Ok(())
+}
+
+fn update_padding(crates_to_publish: &mut CratesToPublish) {
+  let mut max_length = 0;
+  for crate_to_publish in crates_to_publish.iter_mut() {
+    if crate_to_publish.name.len() > max_length {
+      max_length = crate_to_publish.name.len();
+    }
+  }
+  for crate_to_publish in crates_to_publish.iter_mut() {
+    crate_to_publish.padding = " ".repeat(max_length - crate_to_publish.name.len());
+  }
 }
 
 fn execute_command<S, A, P>(program: S, args: A, dir: P) -> Result<()>

@@ -62,7 +62,7 @@ pub fn ask_for_choice(prompt: &str, accept: bool) -> Result<bool> {
   #[rustfmt::skip]
   #[inline(always)]
   fn prompt_text(prompt: &str) -> Text {
-    Text::auto().yellow().s(prompt).clear().s(" [").bold().s('Y').clear().s("es/").bold().s('N').clear().s("o/").bold().s('A').clear().s("bort]: ")
+    Text::auto().bold().s(prompt).clear().s(" [").bold().underline().s('Y').clear().s("es/").bold().underline().s('N').clear().s("o/").bold().underline().s('A').clear().s("bort]: ")
   }
   if accept {
     return Ok(true);

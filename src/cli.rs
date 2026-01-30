@@ -7,8 +7,7 @@ use antex::{ColorMode, StyledText, Text};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
 
 /// Default timeout in seconds.
-const DEFAULT_TIMEOUT: u64 = 30;
-const DEFAULT_TIMEOUT_STR: &str = stringify!(DEFAULT_TIMEOUT);
+const DEFAULT_TIMEOUT: u64 = 5;
 
 enum Action {
   /// Generate README.md file
@@ -175,7 +174,7 @@ fn get_matches() -> ArgMatches {
             .short('t')
             .long("timeout")
             .help("Number of seconds to wait after publishing a crate")
-            .default_value(DEFAULT_TIMEOUT_STR)
+            .default_value("5")
             .num_args(1)
             .action(ArgAction::Set)
             .display_order(3),

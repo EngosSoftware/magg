@@ -59,27 +59,26 @@ pub fn step_progress() {
 }
 
 pub fn ask_for_choice(prompt: &str, accept: bool) -> Result<bool> {
+  #[rustfmt::skip]
+  #[inline(always)]
+  fn prompt_text(prompt: &str) -> Text {
+    Text::auto().yellow().s(prompt).clear().s(" [").bold().s('Y').clear().s("es/").bold().s('N').clear().s("o/").bold().s('A').clear().s("bort]: ")
+  }
   if accept {
     return Ok(true);
   }
-  let prompt_text = prompt_text(prompt);
   loop {
-    print!("{}", prompt_text);
+    print!("{}", prompt_text(prompt));
     io::stdout().flush().map_err(|e| MaggError::new(format!("failed to flush stdout, reason: {}", e)))?;
     let mut input = String::new();
     io::stdin()
       .read_line(&mut input)
       .map_err(|e| MaggError::new(format!("failed to read line, reason: {}", e)))?;
-    match input.trim().to_lowercase().as_str() {
-      "y" => return Ok(true),
-      "n" => return Ok(false),
-      "a" => std::process::exit(1),
-      _ => println!("Please enter 'Y', 'n' or 'a'"),
+    match input.trim() {
+      "Y" => return Ok(true),
+      "N" => return Ok(false),
+      "A" => std::process::exit(1),
+      _ => println!("Please enter 'Y', 'N' or 'A'"),
     }
   }
-}
-
-#[rustfmt::skip]
-fn prompt_text(prompt: &str) -> Text {
-  Text::auto().cyan().s(prompt).clear().s(" [").bold().green().s('Y').clear().s("es/").bold().red().s('n').clear().s("o/").bold().yellow().s('a').clear().s("bort]: ")
 }

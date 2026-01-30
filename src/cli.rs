@@ -1,15 +1,10 @@
 use crate::code_of_conduct::get_code_of_conduct;
+use crate::errors::*;
 use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
 use crate::utils::{RUST_MANIFEST_FILE_NAME, SEPARATOR_LINE};
 use crate::{changelog, publisher, readme, utils};
 use antex::{ColorMode, StyledText, Text};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
-
-macro_rules! print_error {
-  ($reason: expr) => {
-    Text::new(ColorMode::default()).bold().red().s("error").c().colon().space().s($reason).eprintln();
-  };
-}
 
 /// Default timeout in seconds.
 const DEFAULT_TIMEOUT: u64 = 30;
@@ -254,6 +249,10 @@ fn get_cli_action() -> Action {
 }
 
 pub fn do_action() {
+  fn error_message(reason: MaggError) -> Text {
+    Text::new(ColorMode::default()).bold().red().s("error").clear().s(": ").s(reason.to_string())
+  }
+
   //
   match get_cli_action() {
     Action::Readme(file_name) => match readme::scaffold_readme(file_name) {
@@ -261,7 +260,7 @@ pub fn do_action() {
         utils::write_file("README.md", &contents).unwrap();
       }
       Err(reason) => {
-        print_error!(reason);
+        eprintln!("{}", error_message(reason));
         std::process::exit(1);
       }
     },
@@ -281,7 +280,7 @@ pub fn do_action() {
           println!("{}", changelog)
         }
         Err(reason) => {
-          print_error!(reason);
+          eprintln!("{}", error_message(reason));
           std::process::exit(1);
         }
       }
@@ -291,7 +290,7 @@ pub fn do_action() {
       match publisher::publish_crates(&file_name, &dir, timeout, accept_all, simulation) {
         Ok(()) => {}
         Err(reason) => {
-          print_error!(reason);
+          eprintln!("{}", error_message(reason));
           std::process::exit(1);
         }
       }

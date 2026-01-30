@@ -63,9 +63,9 @@ dependencies = [
 
 [[package]]
 name = "antex"
-version = "0.0.11"
+version = "0.1.0-rc.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fee27ffc4fa6ad5b6a7d6b3dca6437ea7488def4833f4f896edd6b55e00e2de8"
+checksum = "ff6a470bf97bf06ac0ad2105a101d83554419cef1cdf73b8c371ffcd44814bf1"
 
 [[package]]
 name = "bitflags"

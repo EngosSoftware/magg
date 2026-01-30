@@ -28,31 +28,19 @@ cosmwasm-check v1.0.0 {dir}||PATH-SEPARATOR||check
 cosmwasm-vm v1.0.0 {dir}||PATH-SEPARATOR||vm
 
 
-Crate (dry-run):
-  cosmwasm-check
-  v1.0.0
-  {dir}||PATH-SEPARATOR||check
+DRY-RUN: cosmwasm-check v1.0.0 {dir}||PATH-SEPARATOR||check
 simulating <dry-run>
 
-Crate (publish):
-  cosmwasm-check
-  v1.0.0
-  {dir}||PATH-SEPARATOR||check
+PUBLISH: cosmwasm-check v1.0.0 {dir}||PATH-SEPARATOR||check
 simulating <publish>
-Waiting 1 second(s), ·
+Waiting 1 second ·
 
-Crate (dry-run):
-  cosmwasm-vm
-  v1.0.0
-  {dir}||PATH-SEPARATOR||vm
+DRY-RUN: cosmwasm-vm v1.0.0 {dir}||PATH-SEPARATOR||vm
 simulating <dry-run>
 
-Crate (publish):
-  cosmwasm-vm
-  v1.0.0
-  {dir}||PATH-SEPARATOR||vm
+PUBLISH: cosmwasm-vm v1.0.0 {dir}||PATH-SEPARATOR||vm
 simulating <publish>
-Waiting 1 second(s), ·
+Waiting 1 second ·
 "#
   );
 

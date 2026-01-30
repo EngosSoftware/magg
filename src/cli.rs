@@ -1,9 +1,7 @@
-use crate::changelog;
 use crate::code_of_conduct::get_code_of_conduct;
 use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
-use crate::publisher;
 use crate::utils::{RUST_MANIFEST_FILE_NAME, SEPARATOR_LINE};
-use crate::{readme, utils};
+use crate::{changelog, publisher, readme, utils};
 use antex::{ColorMode, StyledText, Text};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
 

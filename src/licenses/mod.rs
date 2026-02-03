@@ -1,5 +1,7 @@
 //! License generator
 
+use time::OffsetDateTime;
+
 const APACHE_2: &str = include_str!("APACHE-2");
 const APACHE_NOTICE: &str = include_str!("APACHE-NOTICE");
 const MIT: &str = include_str!("MIT");
@@ -25,5 +27,5 @@ pub fn get_mit() -> String {
 }
 
 fn get_year() -> String {
-  format!("{}", time::OffsetDateTime::now_utc().year())
+  format!("{}", OffsetDateTime::now_utc().year())
 }

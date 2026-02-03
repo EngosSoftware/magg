@@ -24,21 +24,21 @@ fn _0001() {
 Publish version: 1.0.0
 
 Publish crates:
-cosmwasm-check v1.0.0 {dir}||PATH-SEPARATOR||check
-cosmwasm-vm v1.0.0 {dir}||PATH-SEPARATOR||vm
+cosmwasm-check  v1.0.0  {dir}||PATH-SEPARATOR||check
+cosmwasm-vm     v1.0.0  {dir}||PATH-SEPARATOR||vm
 
 
-DRY-RUN: cosmwasm-check v1.0.0 {dir}||PATH-SEPARATOR||check
+  DRY-RUN   cosmwasm-check v1.0.0 {dir}||PATH-SEPARATOR||check
 simulating <dry-run>
 
-PUBLISH: cosmwasm-check v1.0.0 {dir}||PATH-SEPARATOR||check
+  PUBLISH   cosmwasm-check v1.0.0 {dir}||PATH-SEPARATOR||check
 simulating <publish>
 Waiting 1 second ·
 
-DRY-RUN: cosmwasm-vm v1.0.0 {dir}||PATH-SEPARATOR||vm
+  DRY-RUN   cosmwasm-vm v1.0.0 {dir}||PATH-SEPARATOR||vm
 simulating <dry-run>
 
-PUBLISH: cosmwasm-vm v1.0.0 {dir}||PATH-SEPARATOR||vm
+  PUBLISH   cosmwasm-vm v1.0.0 {dir}||PATH-SEPARATOR||vm
 simulating <publish>
 Waiting 1 second ·
 "#

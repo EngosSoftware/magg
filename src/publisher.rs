@@ -16,9 +16,9 @@ struct CrateToPublish {
   /// Local path where the crate is defined.
   path: String,
   /// Search prefix in the original workspace manifest.
-  prefix: String,
+  prefix_with_path: String,
   /// Published crate dependency.
-  published_prefix: String,
+  prefix_with_version: String,
   /// Working directory for published crate.
   dir: PathBuf,
   /// Number of the line in the workspace manifest where the dependency is placed.
@@ -59,9 +59,9 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     return Err(MaggError::new("[workspace.dependencies] section is not a table"));
   };
 
-  //-----------------------------------
-  // Collect crates to publish
-  //-----------------------------------
+  //----------------------------------------------------------
+  // Collect crates to publish from [workspace.dependencies]
+  //----------------------------------------------------------
   let mut crates_to_publish = CratesToPublish::new();
   for (key, value) in workspace_dependencies_table {
     if value.get("path").is_some() {
@@ -70,17 +70,17 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
         return Err(MaggError::new(format!("dependency '{name}' must not have 'version' attribute set")));
       }
       let path = utils::strip_quotes(value["path"].as_str().unwrap()).to_string();
-      let prefix = format!("{} = {{ path = \"{}\"", name, path);
-      let Some(line_number) = utils::get_line_number(&workspace_maifest_content, &prefix) else {
-        return Err(MaggError::new(format!("invalid formatting for dependency '{name}', expected '{}'", prefix)));
+      let prefix_with_path = format!("{} = {{ path = \"{}\"", name, path);
+      let Some(line_number) = utils::get_line_number(&workspace_maifest_content, &prefix_with_path) else {
+        return Err(MaggError::new(format!("invalid formatting for dependency '{name}', expected '{}'", prefix_with_path)));
       };
-      let published_prefix = format!("{} = {{ version = \"{}\"", name, publish_version);
+      let prefix_with_version = format!("{} = {{ version = \"{}\"", name, publish_version);
       let dir = utils::canonicalize(working_dir.join(Path::new(&path)))?;
       crates_to_publish.push(CrateToPublish {
         name,
         path,
-        prefix,
-        published_prefix,
+        prefix_with_path,
+        prefix_with_version,
         dir,
         line_number,
         ..Default::default()
@@ -215,9 +215,10 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     if timeout > 0 {
       println!();
     }
-    // After publishing the crate, replace the 'path' with the published 'version'.
-    workspace_maifest_content = workspace_maifest_content.replace(&crate_to_publish.prefix, &crate_to_publish.published_prefix);
-    // Save the modified version of the workspace manifest, so other crates will use the published versions of dependencies.
+    // After publishing the crate, replace 'path' with 'version'.
+    workspace_maifest_content = workspace_maifest_content.replace(&crate_to_publish.prefix_with_path, &crate_to_publish.prefix_with_version);
+    // Save the modified version of the workspace manifest,
+    // so other crates will use the published versions of dependencies.
     utils::write_file(workspace_manifest_path, &workspace_maifest_content)?;
   }
   Ok(())

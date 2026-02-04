@@ -5,11 +5,25 @@ use std::path::{Path, PathBuf};
 /// Workspace metadata.
 pub struct Workspace {
   /// Full path to the workspace manifest file.
-  pub manifest: PathBuf,
+  manifest: PathBuf,
   /// Version defined in `[workspace.package]` table.
-  pub version: String,
+  version: String,
   /// Workspace dependencies.
-  pub dependencies: Vec<Dependency>,
+  dependencies: Vec<Dependency>,
+}
+
+impl Workspace {
+  pub fn manifest(&self) -> &Path {
+    &self.manifest
+  }
+
+  pub fn version(&self) -> &str {
+    &self.version
+  }
+
+  pub fn dependencies(&self) -> &[Dependency] {
+    &self.dependencies
+  }
 }
 
 #[derive(Default)]
@@ -61,7 +75,7 @@ pub fn load_workspace(working_dir: &Path) -> Result<Workspace> {
       let Some(path) = path.as_str() else {
         return Err(MaggError::new(format!("'path' is not a string for '{}' in [workspace.dependencies] table", name)));
       };
-      dependency.path = Some(path.to_string());
+      dependency.path = Some(utils::strip_quotes(path).to_string());
     }
     if let Some(version) = value.get("version") {
       let Some(version) = version.as_str() else {
@@ -110,3 +124,30 @@ pub fn load_workspace(working_dir: &Path) -> Result<Workspace> {
     dependencies,
   })
 }
+
+/*
+fn collect_members(file_name: &Path, working_dir: &Path, members_globs: Vec<&str>, exclude_globs: Vec<&str>) -> Result<Vec<CrateMetadata>> {
+  let members = vec![];
+  for members_glob in members_globs {
+    let pattern = working_dir.join(members_glob).to_string_lossy().to_string();
+    let paths = glob(&pattern).map_err(|e| MaggError::new(format!("failed to resolve glob '{}', reason {}", pattern, e)))?;
+    for entry in paths {
+      match entry {
+        Ok(path) => {
+          if path.is_dir() {
+            let crate_manifest_file = path.join(file_name);
+            if crate_manifest_file.exists() {
+              let crate_manifest_toml = utils::parse_toml(&crate_manifest_file)?;
+              println!("m={} {}", path.display(), crate_manifest_file.display());
+            }
+          }
+        }
+        Err(reason) => {
+          return Err(MaggError::new(format!("failed to retrieve glob path, reason: {}", reason)));
+        }
+      }
+    }
+  }
+  Ok(members)
+}
+*/

@@ -2,6 +2,7 @@ use super::*;
 use std::path::Path;
 
 const EXPECTED_FILE: &str = r#"[workspace]
+members = ["check", "vm"]
 
 [workspace.package]
 version = "1.0.0"

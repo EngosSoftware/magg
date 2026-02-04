@@ -56,6 +56,11 @@ pub fn load_workspace(working_dir: &Path) -> Result<Workspace> {
   let Some(version) = version.as_str() else {
     return Err(MaggError::new("'version' is not a string in [workspace.package] table"));
   };
+
+  //---------------------------------------------------------------------------
+  // Collect workspace dependencies
+  //---------------------------------------------------------------------------
+
   // Check if the workspace has dependencies table (required).
   let Some(dependencies_table) = workspace.get("dependencies") else {
     return Err(MaggError::new("missing [workspace.dependencies] table"));
@@ -64,7 +69,6 @@ pub fn load_workspace(working_dir: &Path) -> Result<Workspace> {
   let Some(dependencies_table) = dependencies_table.as_table() else {
     return Err(MaggError::new("[workspace.dependencies] is not a table"));
   };
-  // Collect all dependencies from [workspace.dependencies] table.
   let mut dependencies = vec![];
   for (name, value) in dependencies_table {
     let mut dependency = Dependency {
@@ -86,38 +90,44 @@ pub fn load_workspace(working_dir: &Path) -> Result<Workspace> {
     dependencies.push(dependency);
   }
 
-  // let mut members_globs = vec![];
-  // let mut exclude_globs = vec![];
-  // // Check if the workspace has 'members' attribute (required).
-  // let Some(workspace_members) = workspace.get("members") else {
-  //   return Err(MaggError::new("missing 'members' entry in [workspace] section"));
-  // };
-  // // Check if the workspace 'members' is an array (required).
-  // let Some(workspace_members_array) = workspace_members.as_array() else {
-  //   return Err(MaggError::new("invalid 'members' entry [workspace] section"));
-  // };
-  // // Check if the workspace 'members' array contains only strings (required).
-  // for workspace_member_value in workspace_members_array {
-  //   let Some(workspace_member_string) = workspace_member_value.as_str() else {
-  //     return Err(MaggError::new("invalid value in 'members' attribute in [workspace] section"));
-  //   };
-  //   members_globs.push(workspace_member_string);
-  // }
-  // // Check if the workspace has 'exclude' attribute (optional).
-  // if let Some(workspace_exclude) = workspace.get("exclude") {
-  //   // Check if the workspace 'exclude' is an array (required).
-  //   let Some(workspace_exclude_array) = workspace_exclude.as_array() else {
-  //     return Err(MaggError::new("invalid 'members' entry [workspace] section"));
-  //   };
-  //   // Check if the workspace 'exclude' array contains only strings (required).
-  //   for workspace_exclude_value in workspace_exclude_array {
-  //     let Some(workspace_exclude_string) = workspace_exclude_value.as_str() else {
-  //       return Err(MaggError::new("invalid value in 'exclude' attribute in [workspace] section"));
-  //     };
-  //     exclude_globs.push(workspace_exclude_string);
-  //   }
-  // }
-  // let _members = collect_members(file_name, &working_dir, members_globs, exclude_globs)?;
+  //---------------------------------------------------------------------------
+  // Collect workspace members
+  //---------------------------------------------------------------------------
+
+  let mut members_globs = vec![];
+  let mut exclude_globs = vec![];
+  // Check if the workspace has 'members' attribute (required).
+  let Some(workspace_members) = workspace.get("members") else {
+    return Err(MaggError::new("missing 'members' entry in [workspace] section"));
+  };
+  // Check if the workspace 'members' is an array (required).
+  let Some(workspace_members_array) = workspace_members.as_array() else {
+    return Err(MaggError::new("invalid 'members' entry [workspace] section"));
+  };
+  // Check if the workspace 'members' array contains only strings (required).
+  for workspace_member_value in workspace_members_array {
+    let Some(workspace_member_string) = workspace_member_value.as_str() else {
+      return Err(MaggError::new("invalid value in 'members' attribute in [workspace] section"));
+    };
+    members_globs.push(workspace_member_string);
+  }
+  // Check if the workspace has 'exclude' attribute (optional).
+  if let Some(workspace_exclude) = workspace.get("exclude") {
+    // Check if the workspace 'exclude' is an array (required).
+    let Some(workspace_exclude_array) = workspace_exclude.as_array() else {
+      return Err(MaggError::new("invalid 'members' entry [workspace] section"));
+    };
+    // Check if the workspace 'exclude' array contains only strings (required).
+    for workspace_exclude_value in workspace_exclude_array {
+      let Some(workspace_exclude_string) = workspace_exclude_value.as_str() else {
+        return Err(MaggError::new("invalid value in 'exclude' attribute in [workspace] section"));
+      };
+      exclude_globs.push(workspace_exclude_string);
+    }
+  }
+  //let _members = collect_members(file_name, &working_dir, members_globs, exclude_globs)?;
+
+  // Return the workspace metadata.
   Ok(Workspace {
     manifest: manifest_path,
     version: version.to_string(),

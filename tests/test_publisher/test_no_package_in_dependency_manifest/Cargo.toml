@@ -1,4 +1,5 @@
 [workspace]
+members = ["check"]
 
 [workspace.package]
 version = "1.0.0"

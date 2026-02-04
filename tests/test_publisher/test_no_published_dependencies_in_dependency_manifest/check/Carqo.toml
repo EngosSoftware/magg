@@ -1,0 +1,6 @@
+[package]
+name = "cosmwasm-check"
+version = { workspace = true }
+
+[dependencies]
+anyhow = "1.0.57"

@@ -1,0 +1,6 @@
+[package]
+name = "cosmwasm-vm"
+version = { workspace = true }
+
+[dev-dependencies]
+predicates = "3"

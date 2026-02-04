@@ -1,0 +1,8 @@
+[workspace]
+
+[workspace.package]
+version = "1.0.0"
+
+[workspace.dependencies]
+cosmwasm-check = { path = "./check" }
+cosmwasm-vm = { path = "./vm" }

@@ -2,7 +2,7 @@
 
 use crate::errors::*;
 use crate::utils;
-use antex::{StyledText, Text};
+use antex::{StyledText, auto};
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
@@ -147,7 +147,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
 
   // Ask if the version to be published is the right one.
   println!();
-  println!("Publish version: {}", Text::auto().bold().green().s(publish_version).clear());
+  println!("Publish version: {}", auto().bold().green().s(publish_version).clear());
   if !utils::ask_for_choice("Is this version correct?", accept_all)? {
     return Ok(());
   }
@@ -159,8 +159,8 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   for crate_to_publish in &crates_to_publish {
     println!(
       "{}  {}  {}",
-      Text::auto().bold().blue().s(&crate_to_publish.name).clear().s(&crate_to_publish.padding),
-      Text::auto().bold().green().s('v').s(publish_version).clear(),
+      auto().bold().blue().s(&crate_to_publish.name).clear().s(&crate_to_publish.padding),
+      auto().bold().green().s('v').s(publish_version).clear(),
       crate_to_publish.dir.display()
     );
   }
@@ -173,9 +173,9 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     // Ask if perform dry-run before publishing.
     println!(
       "\n{} {} {} {}",
-      Text::auto().bold().bg_yellow().s("  DRY-RUN  ").clear(),
-      Text::auto().bold().blue().s(&crate_to_publish.name).clear(),
-      Text::auto().bold().green().s('v').s(publish_version).clear(),
+      auto().bold().bg_yellow().s("  DRY-RUN  ").clear(),
+      auto().bold().blue().s(&crate_to_publish.name).clear(),
+      auto().bold().green().s('v').s(publish_version).clear(),
       crate_to_publish.dir.display()
     );
     if utils::ask_for_choice("Perform dry-run before publishing this crate?", accept_all)? {
@@ -188,9 +188,9 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     // Ask if publish the crate.
     println!(
       "\n{} {} {} {}",
-      Text::auto().bold().bg_red().s("  PUBLISH  ").clear(),
-      Text::auto().bold().blue().s(&crate_to_publish.name).clear(),
-      Text::auto().bold().green().s('v').s(publish_version).clear(),
+      auto().bold().bg_red().s("  PUBLISH  ").clear(),
+      auto().bold().blue().s(&crate_to_publish.name).clear(),
+      auto().bold().green().s('v').s(publish_version).clear(),
       crate_to_publish.dir.display()
     );
     if utils::ask_for_choice("Publish this crate?", accept_all)? {

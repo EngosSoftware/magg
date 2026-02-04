@@ -6,6 +6,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("error: missing [workspace] section in the workspace manifest file\n")
+    .stderr("error: missing [workspace] table\n")
     .execute();
 }

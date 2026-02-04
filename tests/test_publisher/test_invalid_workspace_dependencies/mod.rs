@@ -6,6 +6,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("error: [workspace.dependencies] section is not a table\n")
+    .stderr("error: [workspace.dependencies] is not a table\n")
     .execute();
 }

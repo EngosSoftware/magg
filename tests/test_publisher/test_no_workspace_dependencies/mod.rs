@@ -6,6 +6,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("error: missing [workspace.dependencies] section\n")
+    .stderr("error: missing [workspace.dependencies] table\n")
     .execute();
 }

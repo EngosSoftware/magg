@@ -6,6 +6,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("error: missing [workspace.package] section\n")
+    .stderr("error: missing [workspace.package] table\n")
     .execute();
 }

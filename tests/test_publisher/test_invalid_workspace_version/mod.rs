@@ -6,6 +6,6 @@ fn _0001() {
     .arg("--simulation")
     .arg("--accept-all")
     .stdout("")
-    .stderr("error: invalid 'version' entry in [workspace.package] section\n")
+    .stderr("error: 'version' is not a string in [workspace.package] table\n")
     .execute();
 }

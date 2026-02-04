@@ -32,16 +32,14 @@ thiserror = "1.0.26"
 #[test]
 fn _0001() {
   let dir = Path::new(file!()).parent().unwrap();
-  let original = dir.join(Path::new("project_1/Carqo.toml"));
-  let backup = dir.join(Path::new("project_1/Carqo.bak.toml"));
+  let original = dir.join(Path::new("project_1/Cargo.toml"));
+  let backup = dir.join(Path::new("project_1/Cargo.bak.toml"));
   std::fs::copy(&original, &backup).unwrap();
   cli_assert::command!()
     .code(0)
     .arg("publish")
     .arg("--dir")
     .arg("project_1")
-    .arg("--file-name")
-    .arg("Carqo.toml")
     .arg("--simulation")
     .arg("--accept-all")
     .arg("--timeout")

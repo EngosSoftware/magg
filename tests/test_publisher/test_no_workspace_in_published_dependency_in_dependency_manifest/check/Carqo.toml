@@ -1,7 +1,0 @@
-[package]
-name = "cosmwasm-check"
-version = { workspace = true }
-
-[dependencies]
-cosmwasm-vm = { version = "1.0.2" }
-anyhow = "1.0.57"

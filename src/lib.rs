@@ -8,5 +8,6 @@ mod licenses;
 mod publisher;
 mod readme;
 mod utils;
+mod workspace;
 
 pub use cli::do_action;

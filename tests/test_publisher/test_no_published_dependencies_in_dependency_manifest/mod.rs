@@ -14,8 +14,8 @@ cosmwasm-vm = { version = "1.0.0" }
 #[test]
 fn _0001() {
   let dir = Path::new(file!()).parent().unwrap().canonicalize().unwrap();
-  let original = dir.join(Path::new("Carqo.toml"));
-  let backup = dir.join(Path::new("Carqo.bak.toml"));
+  let original = dir.join(Path::new("Cargo.toml"));
+  let backup = dir.join(Path::new("Cargo.bak.toml"));
   std::fs::copy(&original, &backup).unwrap();
 
   let dir = dir.display().to_string();
@@ -47,8 +47,6 @@ Waiting 1 second ·
   cli_assert::command!()
     .code(0)
     .arg("publish")
-    .arg("-f")
-    .arg("Carqo.toml")
     .arg("--simulation")
     .arg("--accept-all")
     .arg("--timeout")

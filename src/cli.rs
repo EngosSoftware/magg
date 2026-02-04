@@ -1,9 +1,9 @@
 use crate::code_of_conduct::get_code_of_conduct;
 use crate::errors::*;
 use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
-use crate::utils::{RUST_MANIFEST_FILE_NAME, SEPARATOR_LINE};
+use crate::utils::SEPARATOR_LINE;
 use crate::{changelog, publisher, readme, utils};
-use antex::{ColorMode, StyledText, Text};
+use antex::{StyledText, Text, auto};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
 
 /// Default timeout in seconds.
@@ -39,8 +39,6 @@ enum Action {
     Vec<String>,
   ),
   Publish(
-    /// Name of the configuration and manifest file for Rust projects (default: Cargo.toml)
-    String,
     /// Path to the workspace manifest file.
     String,
     /// Number of seconds to wait after publishing a crate.
@@ -150,16 +148,6 @@ fn get_matches() -> ArgMatches {
         .about("Publish Rust crates")
         .display_order(5)
         .arg(
-          Arg::new("file-name")
-            .short('f')
-            .long("file-name")
-            .help("Name of the Rust manifest file")
-            .default_value(RUST_MANIFEST_FILE_NAME)
-            .num_args(1)
-            .action(ArgAction::Set)
-            .display_order(1),
-        )
-        .arg(
           Arg::new("dir")
             .short('d')
             .long("dir")
@@ -236,11 +224,10 @@ fn get_cli_action() -> Action {
     }
     Some(("publish", matches)) => {
       let dir = match_string(matches, "dir");
-      let file_name = match_string(matches, "file-name");
       let timeout = match_string(matches, "timeout").parse::<u64>().unwrap_or(DEFAULT_TIMEOUT).clamp(0, 60);
       let accept_all = match_boolean(matches, "accept-all");
       let simulation = match_boolean(matches, "simulation");
-      return Action::Publish(file_name, dir, timeout, accept_all, simulation);
+      return Action::Publish(dir, timeout, accept_all, simulation);
     }
     _ => {}
   }
@@ -249,7 +236,7 @@ fn get_cli_action() -> Action {
 
 pub fn do_action() {
   fn error_message(reason: MaggError) -> Text {
-    Text::new(ColorMode::default()).bold().red().s("error").clear().s(": ").s(reason.to_string())
+    auto().bold().red().s("error").clear().s(": ").s(reason.to_string())
   }
 
   //
@@ -284,9 +271,9 @@ pub fn do_action() {
         }
       }
     }
-    Action::Publish(file_name, dir, timeout, accept_all, simulation) => {
+    Action::Publish(dir, timeout, accept_all, simulation) => {
       // Publish crates.
-      match publisher::publish_crates(&file_name, &dir, timeout, accept_all, simulation) {
+      match publisher::publish_crates(&dir, timeout, accept_all, simulation) {
         Ok(()) => {}
         Err(reason) => {
           eprintln!("{}", error_message(reason));

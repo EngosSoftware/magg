@@ -2,6 +2,7 @@
 
 use crate::errors::*;
 use crate::utils;
+use crate::workspace::load_workspace;
 use antex::{StyledText, auto};
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
@@ -25,28 +26,31 @@ struct CrateMetadata {
   padding: String,
 }
 
-pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool, simulation: bool) -> Result<()> {
-  let file_name = Path::new(file_name);
+pub fn publish_crates(dir: &str, timeout: u64, accept_all: bool, simulation: bool) -> Result<()> {
   let working_dir = utils::canonicalize(Path::new(dir))?;
-  let workspace_manifest = utils::canonicalize(working_dir.join(file_name))?;
+
+  let workspace = load_workspace(&working_dir)?;
+  let workspace_manifest = &workspace.manifest;
+  let publish_version = &workspace.version;
   let mut workspace_maifest_content = utils::read_file(&workspace_manifest)?;
   let workspace_manifest_toml = utils::parse_toml(&workspace_manifest)?;
+
   // Check if the manifest file is a workspace (required).
   let Some(workspace) = workspace_manifest_toml.get("workspace") else {
     return Err(MaggError::new("missing [workspace] section in the workspace manifest file"));
   };
-  // Check if the workspace manifest has a package section (required).
-  let Some(workspace_package) = workspace.get("package") else {
-    return Err(MaggError::new("missing [workspace.package] section"));
-  };
-  // Check if the workspace manifest has defined the version to be published (required).
-  let Some(workspace_package_version) = workspace_package.get("version") else {
-    return Err(MaggError::new("missing 'version' entry in [workspace.package] section"));
-  };
-  // Check if the version is a string (required).
-  let Some(publish_version) = workspace_package_version.as_str() else {
-    return Err(MaggError::new("invalid 'version' entry in [workspace.package] section"));
-  };
+  // // Check if the workspace manifest has a package section (required).
+  // let Some(workspace_package) = workspace.get("package") else {
+  //   return Err(MaggError::new("missing [workspace.package] section"));
+  // };
+  // // Check if the workspace manifest has defined the version to be published (required).
+  // let Some(workspace_package_version) = workspace_package.get("version") else {
+  //   return Err(MaggError::new("missing 'version' entry in [workspace.package] section"));
+  // };
+  // // Check if the version is a string (required).
+  // let Some(publish_version) = workspace_package_version.as_str() else {
+  //   return Err(MaggError::new("invalid 'version' entry in [workspace.package] section"));
+  // };
   // Check if the workspace has dependencies section (required).
   let Some(workspace_dependencies) = workspace.get("dependencies") else {
     return Err(MaggError::new("missing [workspace.dependencies] section"));
@@ -104,7 +108,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       let Some(line_number) = utils::get_line_number(&workspace_maifest_content, &prefix_with_local_path) else {
         return Err(MaggError::new(format!("invalid formatting for dependency '{name}', expected '{}'", prefix_with_local_path)));
       };
-      let prefix_with_version = format!("{} = {{ version = \"{}\"", name, publish_version);
+      let prefix_with_version = format!("{} = {{ version = \"{}\"", name, &publish_version);
       let working_dir = utils::canonicalize(working_dir.join(Path::new(&local_path)))?;
       crates_to_publish.push(CrateMetadata {
         name,
@@ -129,7 +133,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
 
   for crate_to_publish in &crates_to_publish {
     let name = crate_to_publish.name.to_string();
-    let crate_manifest_file = utils::canonicalize(working_dir.join(Path::new(&crate_to_publish.local_path)).join(file_name))?;
+    let crate_manifest_file = utils::canonicalize(working_dir.join(Path::new(&crate_to_publish.local_path)).join(utils::RUST_MANIFEST_NAME))?;
     let crate_manifest_toml = utils::parse_toml(crate_manifest_file)?;
     let Some(crate_package) = crate_manifest_toml.get("package") else {
       return Err(MaggError::new(format!("missing [package] section in manifest for dependency '{name}'")));

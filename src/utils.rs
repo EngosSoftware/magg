@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 pub const SEPARATOR_LINE: &str = "────────────────────────────────────────────────────────────────────────────────";
 
 /// Default name of the Rust manifest file.
-pub const RUST_MANIFEST_FILE_NAME: &str = "Cargo.toml";
+pub const RUST_MANIFEST_NAME: &str = "Cargo.toml";
 
 pub fn read_file(file_name: impl AsRef<Path>) -> Result<String> {
   let path = file_name.as_ref();

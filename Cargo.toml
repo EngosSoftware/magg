@@ -26,6 +26,7 @@ path = "src/main.rs"
 [dependencies]
 antex = "0.1.0-rc.1"
 clap = { version = "4.5.56", features = ["cargo"] }
+glob = "0.3.3"
 regex = "1.12.3"
 time = "0.3.46"
 toml = "0.9.8"

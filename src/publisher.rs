@@ -6,19 +6,19 @@ use antex::{StyledText, auto};
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
-/// A crate dependency defined in the workspace manifest to be published.
+/// A crate metadata.
 #[derive(Default)]
-struct CrateToPublish {
+struct CrateMetadata {
   /// Name of the crate in the workspace manifest to be published.
   name: String,
   /// Local path where the crate is defined.
-  path: String,
+  local_path: String,
   /// Search prefix in the original workspace manifest.
-  prefix_with_path: String,
+  prefix_with_local_path: String,
   /// Published crate dependency.
   prefix_with_version: String,
   /// Working directory for published crate.
-  dir: PathBuf,
+  working_dir: PathBuf,
   /// Number of the line in the workspace manifest where the dependency is placed.
   line_number: usize,
   /// Padding after crate name for aligning columns.
@@ -26,36 +26,67 @@ struct CrateToPublish {
 }
 
 pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool, simulation: bool) -> Result<()> {
-  let file_path = Path::new(file_name);
+  let file_name = Path::new(file_name);
   let working_dir = utils::canonicalize(Path::new(dir))?;
-  let workspace_manifest_file = utils::canonicalize(working_dir.join(file_path))?;
-  let workspace_manifest_path = workspace_manifest_file.as_path();
-  let mut workspace_maifest_content = utils::read_file(workspace_manifest_path)?;
-  let workspace_manifest_toml = utils::parse_toml(workspace_manifest_path)?;
-  // Check if the manifest file is a Rust workspace.
+  let workspace_manifest = utils::canonicalize(working_dir.join(file_name))?;
+  let mut workspace_maifest_content = utils::read_file(&workspace_manifest)?;
+  let workspace_manifest_toml = utils::parse_toml(&workspace_manifest)?;
+  // Check if the manifest file is a workspace (required).
   let Some(workspace) = workspace_manifest_toml.get("workspace") else {
     return Err(MaggError::new("missing [workspace] section in the workspace manifest file"));
   };
-  // Check if the workspace manifest has a package section.
+  // Check if the workspace manifest has a package section (required).
   let Some(workspace_package) = workspace.get("package") else {
     return Err(MaggError::new("missing [workspace.package] section"));
   };
-  // Check if the workspace manifest has defined the version to be published.
+  // Check if the workspace manifest has defined the version to be published (required).
   let Some(workspace_package_version) = workspace_package.get("version") else {
     return Err(MaggError::new("missing 'version' entry in [workspace.package] section"));
   };
-  // Check if the version is a string.
+  // Check if the version is a string (required).
   let Some(publish_version) = workspace_package_version.as_str() else {
     return Err(MaggError::new("invalid 'version' entry in [workspace.package] section"));
   };
-  // Check if the workspace has dependencies section.
+  // Check if the workspace has dependencies section (required).
   let Some(workspace_dependencies) = workspace.get("dependencies") else {
     return Err(MaggError::new("missing [workspace.dependencies] section"));
   };
-  // Check if dependencies section is a table.
+  // Check if dependencies section is a table (required).
   let Some(workspace_dependencies_table) = workspace_dependencies.as_table() else {
     return Err(MaggError::new("[workspace.dependencies] section is not a table"));
   };
+  // let mut members_globs = vec![];
+  // let mut exclude_globs = vec![];
+  // // Check if the workspace has 'members' attribute (required).
+  // let Some(workspace_members) = workspace.get("members") else {
+  //   return Err(MaggError::new("missing 'members' entry in [workspace] section"));
+  // };
+  // // Check if the workspace 'members' is an array (required).
+  // let Some(workspace_members_array) = workspace_members.as_array() else {
+  //   return Err(MaggError::new("invalid 'members' entry [workspace] section"));
+  // };
+  // // Check if the workspace 'members' array contains only strings (required).
+  // for workspace_member_value in workspace_members_array {
+  //   let Some(workspace_member_string) = workspace_member_value.as_str() else {
+  //     return Err(MaggError::new("invalid value in 'members' attribute in [workspace] section"));
+  //   };
+  //   members_globs.push(workspace_member_string);
+  // }
+  // // Check if the workspace has 'exclude' attribute (optional).
+  // if let Some(workspace_exclude) = workspace.get("exclude") {
+  //   // Check if the workspace 'exclude' is an array (required).
+  //   let Some(workspace_exclude_array) = workspace_exclude.as_array() else {
+  //     return Err(MaggError::new("invalid 'members' entry [workspace] section"));
+  //   };
+  //   // Check if the workspace 'exclude' array contains only strings (required).
+  //   for workspace_exclude_value in workspace_exclude_array {
+  //     let Some(workspace_exclude_string) = workspace_exclude_value.as_str() else {
+  //       return Err(MaggError::new("invalid value in 'exclude' attribute in [workspace] section"));
+  //     };
+  //     exclude_globs.push(workspace_exclude_string);
+  //   }
+  // }
+  // let _members = collect_members(file_name, &working_dir, members_globs, exclude_globs)?;
 
   //----------------------------------------------------------
   // Collect crates to publish from [workspace.dependencies]
@@ -68,19 +99,19 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       if value.get("version").is_some() {
         return Err(MaggError::new(format!("dependency '{name}' must not have 'version' attribute set")));
       }
-      let path = utils::strip_quotes(value["path"].as_str().unwrap()).to_string();
-      let prefix_with_path = format!("{} = {{ path = \"{}\"", name, path);
-      let Some(line_number) = utils::get_line_number(&workspace_maifest_content, &prefix_with_path) else {
-        return Err(MaggError::new(format!("invalid formatting for dependency '{name}', expected '{}'", prefix_with_path)));
+      let local_path = utils::strip_quotes(value["path"].as_str().unwrap()).to_string();
+      let prefix_with_local_path = format!("{} = {{ path = \"{}\"", name, local_path);
+      let Some(line_number) = utils::get_line_number(&workspace_maifest_content, &prefix_with_local_path) else {
+        return Err(MaggError::new(format!("invalid formatting for dependency '{name}', expected '{}'", prefix_with_local_path)));
       };
       let prefix_with_version = format!("{} = {{ version = \"{}\"", name, publish_version);
-      let dir = utils::canonicalize(working_dir.join(Path::new(&path)))?;
-      crates_to_publish.push(CrateToPublish {
+      let working_dir = utils::canonicalize(working_dir.join(Path::new(&local_path)))?;
+      crates_to_publish.push(CrateMetadata {
         name,
-        path,
-        prefix_with_path,
+        local_path,
+        prefix_with_local_path,
         prefix_with_version,
-        dir,
+        working_dir,
         line_number,
         ..Default::default()
       });
@@ -98,7 +129,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
 
   for crate_to_publish in &crates_to_publish {
     let name = crate_to_publish.name.to_string();
-    let crate_manifest_file = utils::canonicalize(working_dir.join(Path::new(&crate_to_publish.path)).join(file_path))?;
+    let crate_manifest_file = utils::canonicalize(working_dir.join(Path::new(&crate_to_publish.local_path)).join(file_name))?;
     let crate_manifest_toml = utils::parse_toml(crate_manifest_file)?;
     let Some(crate_package) = crate_manifest_toml.get("package") else {
       return Err(MaggError::new(format!("missing [package] section in manifest for dependency '{name}'")));
@@ -160,7 +191,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       "{}  {}  {}",
       auto().bold().blue().s(&crate_to_publish.name).clear().s(&crate_to_publish.padding),
       auto().bold().green().s('v').s(publish_version).clear(),
-      crate_to_publish.dir.display()
+      crate_to_publish.working_dir.display()
     );
   }
   println!();
@@ -175,13 +206,13 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       auto().bold().bg_yellow().s("  DRY-RUN  ").clear(),
       auto().bold().blue().s(&crate_to_publish.name).clear(),
       auto().bold().green().s('v').s(publish_version).clear(),
-      crate_to_publish.dir.display()
+      crate_to_publish.working_dir.display()
     );
     if utils::ask_for_choice("Perform dry-run before publishing this crate?", accept_all)? {
       if simulation {
-        execute_command("echo", ["simulating <dry-run>"], crate_to_publish.dir.clone())?;
+        execute_command("echo", ["simulating <dry-run>"], crate_to_publish.working_dir.clone())?;
       } else {
-        execute_command("cargo", ["publish", "--dry-run", "--color=always"], crate_to_publish.dir.clone())?;
+        execute_command("cargo", ["publish", "--dry-run", "--color=always"], crate_to_publish.working_dir.clone())?;
       }
     }
     // Ask if publish the crate.
@@ -190,13 +221,13 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       auto().bold().bg_red().s("  PUBLISH  ").clear(),
       auto().bold().blue().s(&crate_to_publish.name).clear(),
       auto().bold().green().s('v').s(publish_version).clear(),
-      crate_to_publish.dir.display()
+      crate_to_publish.working_dir.display()
     );
     if utils::ask_for_choice("Publish this crate?", accept_all)? {
       if simulation {
-        execute_command("echo", ["simulating <publish>"], crate_to_publish.dir.clone())?;
+        execute_command("echo", ["simulating <publish>"], crate_to_publish.working_dir.clone())?;
       } else {
-        execute_command("cargo", ["publish", "--color=always"], crate_to_publish.dir.clone())?;
+        execute_command("cargo", ["publish", "--color=always"], crate_to_publish.working_dir.clone())?;
       }
     }
     // Wait a timeout, just to make sure that the crate is fully published.
@@ -215,15 +246,15 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
       println!();
     }
     // After publishing the crate, replace 'path' with 'version'.
-    workspace_maifest_content = workspace_maifest_content.replace(&crate_to_publish.prefix_with_path, &crate_to_publish.prefix_with_version);
+    workspace_maifest_content = workspace_maifest_content.replace(&crate_to_publish.prefix_with_local_path, &crate_to_publish.prefix_with_version);
     // Save the modified version of the workspace manifest,
     // so other crates will use the published versions of dependencies.
-    utils::write_file(workspace_manifest_path, &workspace_maifest_content)?;
+    utils::write_file(&workspace_manifest, &workspace_maifest_content)?;
   }
   Ok(())
 }
 
-fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &CrateToPublish, crates_to_publish: &[CrateToPublish]) -> Result<()> {
+fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &CrateMetadata, crates_to_publish: &[CrateMetadata]) -> Result<()> {
   // Iterate over all dependencies.
   for (key, value) in dependencies {
     // Iterate over all crates to be published to check if this crate has them as dependencies.
@@ -271,7 +302,7 @@ fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &Cr
   Ok(())
 }
 
-fn update_padding(crates_to_publish: &mut [CrateToPublish]) {
+fn update_padding(crates_to_publish: &mut [CrateMetadata]) {
   let mut max_length = 0;
   for crate_to_publish in crates_to_publish.iter_mut() {
     if crate_to_publish.name.len() > max_length {
@@ -282,6 +313,33 @@ fn update_padding(crates_to_publish: &mut [CrateToPublish]) {
     crate_to_publish.padding = " ".repeat(max_length - crate_to_publish.name.len());
   }
 }
+
+/*
+fn collect_members(file_name: &Path, working_dir: &Path, members_globs: Vec<&str>, exclude_globs: Vec<&str>) -> Result<Vec<CrateMetadata>> {
+  let members = vec![];
+  for members_glob in members_globs {
+    let pattern = working_dir.join(members_glob).to_string_lossy().to_string();
+    let paths = glob(&pattern).map_err(|e| MaggError::new(format!("failed to resolve glob '{}', reason {}", pattern, e)))?;
+    for entry in paths {
+      match entry {
+        Ok(path) => {
+          if path.is_dir() {
+            let crate_manifest_file = path.join(file_name);
+            if crate_manifest_file.exists() {
+              let crate_manifest_toml = utils::parse_toml(&crate_manifest_file)?;
+              println!("m={} {}", path.display(), crate_manifest_file.display());
+            }
+          }
+        }
+        Err(reason) => {
+          return Err(MaggError::new(format!("failed to retrieve glob path, reason: {}", reason)));
+        }
+      }
+    }
+  }
+  Ok(members)
+}
+*/
 
 fn execute_command<S, A, P>(program: S, args: A, dir: P) -> Result<()>
 where

@@ -1,5 +1,6 @@
 use crate::errors::*;
 use crate::utils;
+use cargo_metadata::MetadataCommand;
 use std::path::{Path, PathBuf};
 
 /// Workspace metadata.
@@ -34,6 +35,12 @@ pub struct Dependency {
   pub version: Option<String>,
   /// Local path attribute when present.
   pub path: Option<String>,
+}
+
+#[derive(Default)]
+pub struct Member {
+  /// Package name of the crate.
+  pub name: String,
 }
 
 pub fn load_workspace(working_dir: &Path) -> Result<Workspace> {
@@ -125,7 +132,15 @@ pub fn load_workspace(working_dir: &Path) -> Result<Workspace> {
       exclude_globs.push(workspace_exclude_string);
     }
   }
-  //let _members = collect_members(file_name, &working_dir, members_globs, exclude_globs)?;
+  //let _members = collect_members(&working_dir, members_globs)?;
+
+  let mut cmd = MetadataCommand::new();
+  cmd.manifest_path(&manifest_path);
+  // let result = cmd.exec();
+  // println!("DDD = {:?}", result);
+  // for a in &result.workspace_members {
+  //   println!("{}", a);
+  // }
 
   // Return the workspace metadata.
   Ok(Workspace {
@@ -135,29 +150,52 @@ pub fn load_workspace(working_dir: &Path) -> Result<Workspace> {
   })
 }
 
-/*
-fn collect_members(file_name: &Path, working_dir: &Path, members_globs: Vec<&str>, exclude_globs: Vec<&str>) -> Result<Vec<CrateMetadata>> {
-  let members = vec![];
-  for members_glob in members_globs {
-    let pattern = working_dir.join(members_glob).to_string_lossy().to_string();
-    let paths = glob(&pattern).map_err(|e| MaggError::new(format!("failed to resolve glob '{}', reason {}", pattern, e)))?;
-    for entry in paths {
-      match entry {
-        Ok(path) => {
-          if path.is_dir() {
-            let crate_manifest_file = path.join(file_name);
-            if crate_manifest_file.exists() {
-              let crate_manifest_toml = utils::parse_toml(&crate_manifest_file)?;
-              println!("m={} {}", path.display(), crate_manifest_file.display());
-            }
-          }
-        }
-        Err(reason) => {
-          return Err(MaggError::new(format!("failed to retrieve glob path, reason: {}", reason)));
-        }
-      }
-    }
-  }
-  Ok(members)
-}
-*/
+// fn collect_members(working_dir: &Path, members_globs: Vec<&str>) -> Result<Vec<Member>> {
+//   let members = vec![];
+//   for members_glob in members_globs {
+//     let pattern = working_dir.join(members_glob).to_string_lossy().to_string();
+//     let paths = glob(&pattern).map_err(|e| MaggError::new(format!("failed to resolve glob '{}', reason {}", pattern, e)))?;
+//     for entry in paths {
+//       match entry {
+//         Ok(path) => {
+//           if path.is_dir() {
+//             let crate_manifest_file = path.join(utils::RUST_MANIFEST_NAME);
+//             if crate_manifest_file.exists() {
+//               let crate_manifest_toml = utils::parse_toml(&crate_manifest_file)?;
+//               //println!("m={} {}", path.display(), crate_manifest_file.display());
+//             }
+//           }
+//         }
+//         Err(reason) => {
+//           return Err(MaggError::new(format!("failed to retrieve glob path, reason: {}", reason)));
+//         }
+//       }
+//     }
+//   }
+//   Ok(members)
+// }
+
+// fn paths(working_dir: &Path, members_globs: Vec<&str>) -> Result<Vec<PathBuf>> {
+//   let members = vec![];
+//   for members_glob in members_globs {
+//     let pattern = working_dir.join(members_glob).to_string_lossy().to_string();
+//     let paths = glob(&pattern).map_err(|e| MaggError::new(format!("failed to resolve glob '{}', reason {}", pattern, e)))?;
+//     for entry in paths {
+//       match entry {
+//         Ok(path) => {
+//           if path.is_dir() {
+//             let crate_manifest_file = path.join(utils::RUST_MANIFEST_NAME);
+//             if crate_manifest_file.exists() {
+//               let crate_manifest_toml = utils::parse_toml(&crate_manifest_file)?;
+//               //println!("m={} {}", path.display(), crate_manifest_file.display());
+//             }
+//           }
+//         }
+//         Err(reason) => {
+//           return Err(MaggError::new(format!("failed to retrieve glob path, reason: {}", reason)));
+//         }
+//       }
+//     }
+//   }
+//   Ok(members)
+// }

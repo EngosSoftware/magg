@@ -11,3 +11,4 @@ mod utils;
 mod workspace;
 
 pub use cli::do_action;
+pub use workspace::{Dependency, Member, Workspace, load_workspace};

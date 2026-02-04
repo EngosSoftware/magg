@@ -8,6 +8,18 @@ pub struct Workspace {
   pub manifest: PathBuf,
   /// Version defined in `[workspace.package]` table.
   pub version: String,
+  /// Workspace dependencies.
+  pub dependencies: Vec<Dependency>,
+}
+
+#[derive(Default)]
+pub struct Dependency {
+  /// Name of the dependency.
+  pub name: String,
+  /// Version attribute when present.
+  pub version: Option<String>,
+  /// Local path attribute when present.
+  pub path: Option<String>,
 }
 
 pub fn load_workspace(working_dir: &Path) -> Result<Workspace> {
@@ -31,13 +43,35 @@ pub fn load_workspace(working_dir: &Path) -> Result<Workspace> {
     return Err(MaggError::new("'version' is not a string in [workspace.package] table"));
   };
   // Check if the workspace has dependencies table (required).
-  let Some(dependencies) = workspace.get("dependencies") else {
+  let Some(dependencies_table) = workspace.get("dependencies") else {
     return Err(MaggError::new("missing [workspace.dependencies] table"));
   };
   // Check if dependencies is a table (required).
-  let Some(dependencies) = dependencies.as_table() else {
+  let Some(dependencies_table) = dependencies_table.as_table() else {
     return Err(MaggError::new("[workspace.dependencies] is not a table"));
   };
+  // Collect all dependencies from [workspace.dependencies] table.
+  let mut dependencies = vec![];
+  for (name, value) in dependencies_table {
+    let mut dependency = Dependency {
+      name: name.to_string(),
+      ..Default::default()
+    };
+    if let Some(path) = value.get("path") {
+      let Some(path) = path.as_str() else {
+        return Err(MaggError::new(format!("'path' is not a string for '{}' in [workspace.dependencies] table", name)));
+      };
+      dependency.path = Some(path.to_string());
+    }
+    if let Some(version) = value.get("version") {
+      let Some(version) = version.as_str() else {
+        return Err(MaggError::new(format!("'version' is not a string for '{}' in [workspace.dependencies] table", name)));
+      };
+      dependency.version = Some(version.to_string());
+    }
+    dependencies.push(dependency);
+  }
+
   // let mut members_globs = vec![];
   // let mut exclude_globs = vec![];
   // // Check if the workspace has 'members' attribute (required).
@@ -73,5 +107,6 @@ pub fn load_workspace(working_dir: &Path) -> Result<Workspace> {
   Ok(Workspace {
     manifest: manifest_path,
     version: version.to_string(),
+    dependencies,
   })
 }

@@ -6,8 +6,6 @@ use antex::{StyledText, auto};
 use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 
-type CratesToPublish = Vec<CrateToPublish>;
-
 /// A crate dependency defined in the workspace manifest to be published.
 #[derive(Default)]
 struct CrateToPublish {
@@ -38,7 +36,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   let Some(workspace) = workspace_manifest_toml.get("workspace") else {
     return Err(MaggError::new("missing [workspace] section in the workspace manifest file"));
   };
-  // Check if the workspace manifest has package section.
+  // Check if the workspace manifest has a package section.
   let Some(workspace_package) = workspace.get("package") else {
     return Err(MaggError::new("missing [workspace.package] section"));
   };
@@ -50,11 +48,11 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   let Some(publish_version) = workspace_package_version.as_str() else {
     return Err(MaggError::new("invalid 'version' entry in [workspace.package] section"));
   };
-  // Get dependencies section.
+  // Check if the workspace has dependencies section.
   let Some(workspace_dependencies) = workspace.get("dependencies") else {
     return Err(MaggError::new("missing [workspace.dependencies] section"));
   };
-  // Check is dependencies section is a table.
+  // Check if dependencies section is a table.
   let Some(workspace_dependencies_table) = workspace_dependencies.as_table() else {
     return Err(MaggError::new("[workspace.dependencies] section is not a table"));
   };
@@ -62,7 +60,8 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   //----------------------------------------------------------
   // Collect crates to publish from [workspace.dependencies]
   //----------------------------------------------------------
-  let mut crates_to_publish = CratesToPublish::new();
+
+  let mut crates_to_publish = vec![];
   for (key, value) in workspace_dependencies_table {
     if value.get("path").is_some() {
       let name = key.to_string();
@@ -152,7 +151,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
     return Ok(());
   }
 
-  // List all crates to be publishe with versions and ask if the list is correct.\
+  // List all the crates to be published with versions and ask if the list is correct.
   println!();
   println!("Publish crates:");
 
@@ -224,7 +223,7 @@ pub fn publish_crates(file_name: &str, dir: &str, timeout: u64, accept_all: bool
   Ok(())
 }
 
-fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &CrateToPublish, crates_to_publish: &CratesToPublish) -> Result<()> {
+fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &CrateToPublish, crates_to_publish: &[CrateToPublish]) -> Result<()> {
   // Iterate over all dependencies.
   for (key, value) in dependencies {
     // Iterate over all crates to be published to check if this crate has them as dependencies.
@@ -272,7 +271,7 @@ fn validate_crate_dependencies(dependencies: &toml::Table, crate_to_publish: &Cr
   Ok(())
 }
 
-fn update_padding(crates_to_publish: &mut CratesToPublish) {
+fn update_padding(crates_to_publish: &mut [CrateToPublish]) {
   let mut max_length = 0;
   for crate_to_publish in crates_to_publish.iter_mut() {
     if crate_to_publish.name.len() > max_length {

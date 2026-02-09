@@ -4,6 +4,7 @@
 //! GitHub pull requests and GitHub issues belonging to the same milestone.
 
 use crate::errors::*;
+use crate::utils;
 use crate::utils::SEPARATOR_LINE;
 use regex::Regex;
 use std::collections::{BTreeMap, HashMap};
@@ -299,11 +300,7 @@ fn execute_command(verbose: bool, program: &str, args: &[&str], dir: &str) -> Re
   if verbose {
     println!("{} {}", program, args.join(" "));
   } else {
-    {
-      use std::io::{self, Write};
-      print!("•");
-      io::stdout().flush().unwrap();
-    }
+    utils::step_progress();
   }
   let mut command = std::process::Command::new(program);
   let child = command

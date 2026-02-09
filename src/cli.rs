@@ -2,12 +2,9 @@ use crate::code_of_conduct::get_code_of_conduct;
 use crate::errors::*;
 use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
 use crate::utils::SEPARATOR_LINE;
-use crate::{changelog, publisher, readme, utils};
+use crate::{changelog, readme, utils};
 use antex::{StyledText, Text, auto};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
-
-/// Default timeout in seconds.
-const DEFAULT_TIMEOUT: u64 = 5;
 
 enum Action {
   /// Generate README.md file
@@ -37,16 +34,6 @@ enum Action {
     Vec<String>,
     /// String patterns for excluding pull requests by title.
     Vec<String>,
-  ),
-  Publish(
-    /// Path to the workspace manifest file.
-    String,
-    /// Number of seconds to wait after publishing a crate.
-    u64,
-    /// Flag indicating if all questions should be answered with 'Y'.
-    bool,
-    /// Flag indicating if only simulate publishing crates.
-    bool,
   ),
   /// Do nothing.
   Nothing,
@@ -143,51 +130,6 @@ fn get_matches() -> ArgMatches {
             .display_order(8),
         ),
     )
-    .subcommand(
-      Command::new("publish")
-        .about("Publish Rust crates")
-        .display_order(5)
-        .arg(
-          Arg::new("dir")
-            .short('d')
-            .long("dir")
-            .help("Directory where the workspace manifest file is placed")
-            .default_value(".")
-            .num_args(1)
-            .action(ArgAction::Set)
-            .display_order(2),
-        )
-        .arg(
-          Arg::new("timeout")
-            .short('t')
-            .long("timeout")
-            .help("Number of seconds to wait after publishing a crate")
-            .default_value("5")
-            .num_args(1)
-            .action(ArgAction::Set)
-            .display_order(3),
-        )
-        .arg(
-          Arg::new("accept-all")
-            .short('y')
-            .long("accept-all")
-            .help("Answer all questions with 'Y'")
-            .action(ArgAction::SetTrue)
-            .default_value("false")
-            .default_missing_value("true")
-            .display_order(4),
-        )
-        .arg(
-          Arg::new("simulation")
-            .short('s')
-            .long("simulation")
-            .help("Perform only a simulation, no crates will be published")
-            .action(ArgAction::SetTrue)
-            .default_value("false")
-            .default_missing_value("true")
-            .display_order(5),
-        ),
-    )
     .get_matches()
 }
 
@@ -222,13 +164,6 @@ fn get_cli_action() -> Action {
       let exclude_pr = match_strings(matches, "exclude-pr");
       return Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_commit, exclude_pr);
     }
-    Some(("publish", matches)) => {
-      let dir = match_string(matches, "dir");
-      let timeout = match_string(matches, "timeout").parse::<u64>().unwrap_or(DEFAULT_TIMEOUT).clamp(0, 60);
-      let accept_all = match_boolean(matches, "accept-all");
-      let simulation = match_boolean(matches, "simulation");
-      return Action::Publish(dir, timeout, accept_all, simulation);
-    }
     _ => {}
   }
   Action::Nothing
@@ -236,7 +171,7 @@ fn get_cli_action() -> Action {
 
 pub fn do_action() {
   fn error_message(reason: MaggError) -> Text {
-    auto().bold().red().s("error").clear().s(": ").s(reason.to_string())
+    auto().bold().red().s("error").normal().s(": ").s(reason.to_string())
   }
 
   //
@@ -265,16 +200,6 @@ pub fn do_action() {
           println!("{SEPARATOR_LINE}");
           println!("{}", changelog)
         }
-        Err(reason) => {
-          eprintln!("{}", error_message(reason));
-          std::process::exit(1);
-        }
-      }
-    }
-    Action::Publish(dir, timeout, accept_all, simulation) => {
-      // Publish crates.
-      match publisher::publish_crates(&dir, timeout, accept_all, simulation) {
-        Ok(()) => {}
         Err(reason) => {
           eprintln!("{}", error_message(reason));
           std::process::exit(1);

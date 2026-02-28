@@ -81,6 +81,5 @@ pub fn scaffold_readme(file_name: impl AsRef<Path>) -> Result<String> {
   _ = writeln!(&mut output, "Any contributions to [{package_name}][repository-url] are greatly appreciated.");
   _ = writeln!(&mut output, "All contributions intentionally submitted for inclusion in the work by you,");
   _ = writeln!(&mut output, "shall be dual licensed as above, without any additional terms or conditions.");
-  _ = writeln!(&mut output);
   Ok(output)
 }

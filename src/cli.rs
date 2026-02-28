@@ -171,7 +171,7 @@ fn get_cli_action() -> Action {
 
 pub fn do_action() {
   fn error_message(reason: MaggError) -> Text {
-    auto().bold().red().s("error").normal().s(": ").s(reason.to_string())
+    auto().bold().red().s("error").reset().s(": ").s(reason.to_string())
   }
 
   //

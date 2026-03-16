@@ -91,7 +91,7 @@ fn parse_project_items(input: String) -> Result<Vec<GHProjectItem>> {
   Ok(project_items)
 }
 
-fn parse_labels(mut input: &str) -> Vec<String> {
+fn parse_labels(mut input: &str) -> Vec<GHLabel> {
   input = input.trim();
   if input.is_empty() || input == "<nil>" {
     vec![]
@@ -102,12 +102,6 @@ fn parse_labels(mut input: &str) -> Vec<String> {
     if input.ends_with("]") {
       input = input.strip_suffix("]").unwrap();
     }
-    input.split(" ").map(|s| s.to_string()).collect::<Vec<String>>()
+    input.split(" ").map(GHLabel::from).collect::<Vec<GHLabel>>()
   }
 }
-
-/*
-
-gh project item-list 15 --owner=CosmWasm --limit=2 --format=json --template='{{range .items}}{{printf "%v ||| %s ||| %s ||| %s ||| %s ||| %v\n" .content.number .content.title .content.url .repository .status .labels}}{{end}}'
-
- */

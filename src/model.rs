@@ -26,10 +26,12 @@ pub struct GHProjectItem {
   pub status: String,
   /// Labels.
   pub labels: Vec<GHLabel>,
+  /// Group label.
+  pub group: Option<GHLabel>,
 }
 
 /// GitHub label.
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum GHLabel {
   /// Releases.
   Rel,
@@ -86,5 +88,11 @@ impl Display for GHLabel {
 impl Debug for GHLabel {
   fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
     write!(f, "{}", self)
+  }
+}
+
+impl GHLabel {
+  pub fn is_group(&self) -> bool {
+    matches!(self, GHLabel::Rel | GHLabel::Fea | GHLabel::Fix | GHLabel::Dep | GHLabel::Doc | GHLabel::Res | GHLabel::Sec)
   }
 }

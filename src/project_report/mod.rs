@@ -4,28 +4,28 @@ use crate::utils;
 use std::fmt::Write;
 
 pub fn get_project_report(project_owner: &str, project_name: &str) -> Result<String> {
-  let mut output = String::new();
-  let projects = get_projects(false, &project_owner)?;
+  let projects = get_projects(false, project_owner)?;
   let Some(project) = projects.iter().find(|project| project.title == project_name) else {
     return Err(MaggError::new(format!("Project '{}' not found for owner '{}'", project_name, project_owner)));
   };
-
-  let project_items = get_project_items(false, project_owner, project.number)?;
-
-  let mut count = 0_usize;
-  for project_item in project_items {
-    if project_item.status == "done" {
-      _ = writeln!(
-        &mut output,
-        "{:>6} | {} | {} | {:?}",
-        project_item.number, project_item.title, project_item.url, project_item.labels
-      );
-      count += 1;
-    }
+  if project.closed {
+    return Err(MaggError::new(format!("Project '{}' is closed", project_name)));
   }
-  _ = writeln!(&mut output, "Total count = {}", count);
-
-  Ok(output)
+  let project_items = get_project_items(false, project_owner, project.number)?;
+  let mut report_items = vec![];
+  for project_item in project_items.iter().filter(|i| i.status == "done") {
+    let groups = project_item.labels.iter().filter(|l| l.is_group()).collect::<Vec<&GHLabel>>();
+    if groups.is_empty() {
+      return Err(MaggError::new(format!("Item is not assigned to any group: {}", project_item.url)));
+    }
+    if groups.len() > 1 {
+      return Err(MaggError::new(format!("Item is assigned to multiple groups: {}", project_item.url)));
+    }
+    let mut report_item = project_item.clone();
+    report_item.group = Some(groups[0].clone());
+    report_items.push(report_item);
+  }
+  Ok(get_report(&report_items))
 }
 
 /// Retrieves projects for specified owner.
@@ -86,6 +86,7 @@ fn parse_project_items(input: String) -> Result<Vec<GHProjectItem>> {
       repository: columns[3].to_string(),
       status: columns[4].to_lowercase(),
       labels: parse_labels(&columns[5]),
+      group: None,
     });
   }
   Ok(project_items)
@@ -104,4 +105,20 @@ fn parse_labels(mut input: &str) -> Vec<GHLabel> {
     }
     input.split(" ").map(GHLabel::from).collect::<Vec<GHLabel>>()
   }
+}
+
+fn get_report(report_items: &[GHProjectItem]) -> String {
+  let mut output = String::new();
+  let groups: [GHLabel; 7] = [GHLabel::Rel, GHLabel::Fea, GHLabel::Fix, GHLabel::Dep, GHLabel::Doc, GHLabel::Res, GHLabel::Sec];
+  for group in &groups {
+    _ = writeln!(&mut output, "{}", group);
+    for report_item in report_items {
+      if let Some(item_group) = &report_item.group
+        && item_group == group
+      {
+        _ = writeln!(&mut output, " - {}", report_item.url)
+      }
+    }
+  }
+  output
 }

@@ -8,3 +8,20 @@ pub struct GHProject {
   /// Closed flag.
   pub closed: bool,
 }
+
+/// GitHub project item.
+#[derive(Default, Clone)]
+pub struct GHProjectItem {
+  /// Item number.
+  pub number: usize,
+  /// Item title.
+  pub title: String,
+  /// Item URL.
+  pub url: String,
+  /// Repository.
+  pub repository: String,
+  /// Status.
+  pub status: String,
+  /// Labels.
+  pub labels: Vec<String>,
+}

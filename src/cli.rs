@@ -243,7 +243,7 @@ pub fn do_action() {
     }
     Action::ProjectReport(project_owner, project_name) => {
       // Generates a report of the project.
-      match get_project_report(project_owner, project_name) {
+      match get_project_report(&project_owner, &project_name) {
         Ok(report) => {
           println!("\n{}", report)
         }

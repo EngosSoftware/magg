@@ -25,7 +25,7 @@ pub fn get_project_report(project_owner: &str, project_name: &str) -> Result<Str
     report_item.group = Some(groups[0].clone());
     report_items.push(report_item);
   }
-  Ok(get_report(&report_items))
+  Ok(get_report(report_items))
 }
 
 /// Retrieves projects for specified owner.
@@ -107,12 +107,14 @@ fn parse_labels(mut input: &str) -> Vec<GHLabel> {
   }
 }
 
-fn get_report(report_items: &[GHProjectItem]) -> String {
+fn get_report(mut report_items: Vec<GHProjectItem>) -> String {
+  report_items.sort_by_key(|i| i.repository.clone());
+  println!("\nTotal count = {}", report_items.len());
   let mut output = String::new();
   let groups: [GHLabel; 7] = [GHLabel::Rel, GHLabel::Fea, GHLabel::Fix, GHLabel::Dep, GHLabel::Doc, GHLabel::Res, GHLabel::Sec];
   for group in &groups {
     _ = writeln!(&mut output, "{}", group);
-    for report_item in report_items {
+    for report_item in report_items.iter().rev() {
       if let Some(item_group) = &report_item.group
         && item_group == group
       {

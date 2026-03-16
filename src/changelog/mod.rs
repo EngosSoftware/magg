@@ -201,7 +201,7 @@ pub fn get_changelog(
 
 fn parse_issues(input: String) -> Result<Vec<Issue>> {
   let mut issues = vec![];
-  let rows = parse_columns(input, 3)?;
+  let rows = utils::parse_columns(input, 3)?;
   for columns in rows {
     issues.push(Issue {
       number: columns[0].to_string(),
@@ -225,7 +225,7 @@ fn get_issues(verbose: bool, milestone: &str, repository: &str) -> Result<Vec<Is
     "--json=number,title,url",
     r#"--template='{{range .}}{{printf "%v ||| %s ||| %s\n" .number .title .url}}{{end}}'"#,
   ];
-  let stdout = execute_command(verbose, "gh", args, ".")?;
+  let stdout = utils::execute_command(verbose, "gh", args, ".")?;
   parse_issues(stdout)
 }
 
@@ -240,13 +240,13 @@ fn get_pull_request_commits(verbose: bool, number: &str, repository: &str) -> Re
     "--json=commits",
     r#"--jq=.commits[]|"\(.oid) ||| \(.messageHeadline)""#,
   ];
-  let stdout = execute_command(verbose, "gh", args, ".")?;
+  let stdout = utils::execute_command(verbose, "gh", args, ".")?;
   parse_commits(stdout)
 }
 
 fn parse_pull_requests(verbose: bool, input: String, repository: &str) -> Result<Vec<PullRequest>> {
   let mut pull_requests = vec![];
-  let rows = parse_columns(input, 3)?;
+  let rows = utils::parse_columns(input, 3)?;
   for columns in rows {
     let number = columns[0].to_string();
     let commits = get_pull_request_commits(verbose, &number, repository)?;
@@ -273,13 +273,13 @@ fn get_pull_requests(verbose: bool, milestone: &str, repository: &str) -> Result
     "--json=number,title,url",
     r#"--template='{{range .}}{{printf "%v ||| %s ||| %s\n" .number .title .url}}{{end}}'"#,
   ];
-  let stdout = execute_command(verbose, "gh", args, ".")?;
+  let stdout = utils::execute_command(verbose, "gh", args, ".")?;
   parse_pull_requests(verbose, stdout, repository)
 }
 
 fn parse_commits(input: String) -> Result<Vec<Commit>> {
   let mut commits = vec![];
-  let rows = parse_columns(input, 2)?;
+  let rows = utils::parse_columns(input, 2)?;
   for columns in rows {
     commits.push(Commit {
       hash: columns[0].to_string(),
@@ -292,59 +292,6 @@ fn parse_commits(input: String) -> Result<Vec<Commit>> {
 fn get_commits(verbose: bool, dir: &str, start_revision: &str, end_revision: &str) -> Result<Vec<Commit>> {
   let revisions = format!("{}...{}", start_revision, end_revision);
   let args = &["log", r#"--format="%H ||| %s""#, revisions.as_str(), "--"];
-  let stdout = execute_command(verbose, "git", args, dir)?;
+  let stdout = utils::execute_command(verbose, "git", args, dir)?;
   parse_commits(stdout)
-}
-
-fn execute_command(verbose: bool, program: &str, args: &[&str], dir: &str) -> Result<String> {
-  if verbose {
-    println!("{} {}", program, args.join(" "));
-  } else {
-    utils::step_progress();
-  }
-  let mut command = std::process::Command::new(program);
-  let child = command
-    .args(args)
-    .current_dir(dir)
-    .stdin(std::process::Stdio::piped())
-    .stdout(std::process::Stdio::piped())
-    .stderr(std::process::Stdio::piped())
-    .spawn()
-    .map_err(|e| error_spawn_command(program, e.to_string()))?;
-  let output = child.wait_with_output().map_err(|e| error_obtain_output(e.to_string()))?;
-  let stdout = String::from_utf8_lossy(&output.stdout).to_string();
-  let stderr = String::from_utf8_lossy(&output.stderr).to_string();
-  let status = output.status;
-  if status.success() {
-    Ok(stdout)
-  } else {
-    Err(error_execute_command(status, stdout, stderr))
-  }
-}
-
-fn parse_columns(input: String, col_count: usize) -> Result<Vec<Vec<String>>> {
-  let mut rows = vec![];
-  for mut line in input.lines().map(|line| line.trim()) {
-    if line.starts_with("\"") {
-      line = line.strip_prefix("\"").unwrap();
-    }
-    if line.starts_with("'") {
-      line = line.strip_prefix("'").unwrap();
-    }
-    if line.ends_with("\"") {
-      line = line.strip_suffix("\"").unwrap();
-    }
-    if line.ends_with("'") {
-      line = line.strip_suffix("'").unwrap();
-    }
-    line = line.trim();
-    if !line.is_empty() {
-      let columns = line.split(" ||| ").map(|s| s.to_string()).collect::<Vec<String>>();
-      if columns.len() != col_count {
-        return Err(MaggError::new(format!("invalid number of columns, expected: {col_count}, actual: {}", columns.len())));
-      }
-      rows.push(columns);
-    }
-  }
-  Ok(rows)
 }

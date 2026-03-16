@@ -1,6 +1,7 @@
 use crate::code_of_conduct::get_code_of_conduct;
 use crate::errors::*;
 use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
+use crate::project_report::get_project_report;
 use crate::utils::SEPARATOR_LINE;
 use crate::{changelog, readme, utils};
 use antex::{StyledText, Text, auto};
@@ -34,6 +35,12 @@ enum Action {
     Vec<String>,
     /// String patterns for excluding pull requests by title.
     Vec<String>,
+  ),
+  ProjectReport(
+    /// Owner name of the project.
+    String,
+    /// Project name.
+    String,
   ),
   /// Do nothing.
   Nothing,
@@ -130,6 +137,29 @@ fn get_matches() -> ArgMatches {
             .display_order(8),
         ),
     )
+    .subcommand(
+      Command::new("project-report")
+        .about("Generates project report")
+        .display_order(5)
+        .arg(
+          Arg::new("owner")
+            .short('o')
+            .long("owner")
+            .help("Project owner")
+            .action(ArgAction::Set)
+            .required(true)
+            .display_order(1),
+        )
+        .arg(
+          Arg::new("name")
+            .short('n')
+            .long("name")
+            .help("Project name")
+            .action(ArgAction::Set)
+            .required(true)
+            .display_order(2),
+        ),
+    )
     .get_matches()
 }
 
@@ -163,6 +193,11 @@ fn get_cli_action() -> Action {
       let exclude_commit = match_strings(matches, "exclude-commit");
       let exclude_pr = match_strings(matches, "exclude-pr");
       return Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_commit, exclude_pr);
+    }
+    Some(("project-report", matches)) => {
+      let project_owner = match_string(matches, "owner");
+      let project_name = match_string(matches, "name");
+      return Action::ProjectReport(project_owner, project_name);
     }
     _ => {}
   }
@@ -201,7 +236,19 @@ pub fn do_action() {
           println!("{}", changelog)
         }
         Err(reason) => {
-          eprintln!("{}", error_message(reason));
+          eprintln!("\n{}", error_message(reason));
+          std::process::exit(1);
+        }
+      }
+    }
+    Action::ProjectReport(project_owner, project_name) => {
+      // Generates a report of the project.
+      match get_project_report(project_owner, project_name) {
+        Ok(report) => {
+          println!("\n{}", report)
+        }
+        Err(reason) => {
+          eprintln!("\n{}", error_message(reason));
           std::process::exit(1);
         }
       }

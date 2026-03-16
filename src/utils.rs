@@ -30,3 +30,57 @@ pub fn step_progress() {
   print!("·");
   io::stdout().flush().unwrap();
 }
+
+/// Executes a command with arguments and returns the content od stdout.
+pub fn execute_command(verbose: bool, program: &str, args: &[&str], dir: &str) -> Result<String> {
+  if verbose {
+    println!("{} {}", program, args.join(" "));
+  } else {
+    step_progress();
+  }
+  let mut command = std::process::Command::new(program);
+  let child = command
+    .args(args)
+    .current_dir(dir)
+    .stdin(std::process::Stdio::piped())
+    .stdout(std::process::Stdio::piped())
+    .stderr(std::process::Stdio::piped())
+    .spawn()
+    .map_err(|e| error_spawn_command(program, e.to_string()))?;
+  let output = child.wait_with_output().map_err(|e| error_obtain_output(e.to_string()))?;
+  let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+  let stderr = String::from_utf8_lossy(&output.stderr).to_string();
+  let status = output.status;
+  if status.success() {
+    Ok(stdout)
+  } else {
+    Err(error_execute_command(status, stdout, stderr))
+  }
+}
+
+pub fn parse_columns(input: String, col_count: usize) -> Result<Vec<Vec<String>>> {
+  let mut rows = vec![];
+  for mut line in input.lines().map(|line| line.trim()) {
+    if line.starts_with("\"") {
+      line = line.strip_prefix("\"").unwrap();
+    }
+    if line.starts_with("'") {
+      line = line.strip_prefix("'").unwrap();
+    }
+    if line.ends_with("\"") {
+      line = line.strip_suffix("\"").unwrap();
+    }
+    if line.ends_with("'") {
+      line = line.strip_suffix("'").unwrap();
+    }
+    line = line.trim();
+    if !line.is_empty() {
+      let columns = line.split(" ||| ").map(|s| s.to_string()).collect::<Vec<String>>();
+      if columns.len() != col_count {
+        return Err(MaggError::new(format!("invalid number of columns, expected: {col_count}, actual: {}", columns.len())));
+      }
+      rows.push(columns);
+    }
+  }
+  Ok(rows)
+}

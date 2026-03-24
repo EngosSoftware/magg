@@ -75,8 +75,8 @@ impl Display for GHLabel {
       match self {
         GHLabel::Rel => "g:rel - Releases",
         GHLabel::Fea => "g:fea - New features",
-        GHLabel::Fix => "g:fix - Bug fixes",
-        GHLabel::Dep => "g:dep - Dependency upgrades and improvements",
+        GHLabel::Fix => "g:fix - Improvements and bug fixes",
+        GHLabel::Dep => "g:dep - Dependency upgrades",
         GHLabel::Doc => "g:doc - Documentation and website updates",
         GHLabel::Res => "g:res - Research",
         GHLabel::Sec => "g:sec - Security updates",

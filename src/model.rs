@@ -38,9 +38,11 @@ pub enum GHLabel {
   Rel,
   /// New features.
   Fea,
+  /// Improvements.
+  Imp,
   /// Bug fixes.
   Fix,
-  /// Dependency upgrades and improvements.
+  /// Dependency upgrades.
   Dep,
   /// Documentation and website updates.
   Doc,
@@ -57,6 +59,7 @@ impl From<&str> for GHLabel {
     match value {
       "g:rel" => GHLabel::Rel,
       "g:fea" => GHLabel::Fea,
+      "g:imp" => GHLabel::Imp,
       "g:fix" => GHLabel::Fix,
       "g:dep" => GHLabel::Dep,
       "g:doc" => GHLabel::Doc,
@@ -75,7 +78,8 @@ impl Display for GHLabel {
       match self {
         GHLabel::Rel => "g:rel - Releases",
         GHLabel::Fea => "g:fea - New features",
-        GHLabel::Fix => "g:fix - Improvements and bug fixes",
+        GHLabel::Imp => "g:imp - Improvements and refactoring",
+        GHLabel::Fix => "g:fix - Bug fixes",
         GHLabel::Dep => "g:dep - Dependency upgrades",
         GHLabel::Doc => "g:doc - Documentation and website updates",
         GHLabel::Res => "g:res - Research",
@@ -94,6 +98,22 @@ impl Debug for GHLabel {
 
 impl GHLabel {
   pub fn is_group(&self) -> bool {
-    matches!(self, GHLabel::Rel | GHLabel::Fea | GHLabel::Fix | GHLabel::Dep | GHLabel::Doc | GHLabel::Res | GHLabel::Sec)
+    matches!(
+      self,
+      GHLabel::Rel | GHLabel::Fea | GHLabel::Imp | GHLabel::Fix | GHLabel::Dep | GHLabel::Doc | GHLabel::Res | GHLabel::Sec
+    )
+  }
+
+  pub fn groups() -> Vec<GHLabel> {
+    vec![
+      GHLabel::Rel,
+      GHLabel::Fea,
+      GHLabel::Imp,
+      GHLabel::Fix,
+      GHLabel::Dep,
+      GHLabel::Doc,
+      GHLabel::Res,
+      GHLabel::Sec,
+    ]
   }
 }

@@ -111,8 +111,7 @@ fn get_report(mut report_items: Vec<GHProjectItem>) -> String {
   report_items.sort_by_key(|i| i.repository.clone());
   println!("\nTotal count = {}", report_items.len());
   let mut output = String::new();
-  let groups: [GHLabel; 7] = [GHLabel::Rel, GHLabel::Fea, GHLabel::Fix, GHLabel::Dep, GHLabel::Doc, GHLabel::Res, GHLabel::Sec];
-  for group in &groups {
+  for group in &GHLabel::groups() {
     _ = writeln!(&mut output, "{}", group);
     let mut items_in_group = vec![];
     for report_item in report_items.iter().rev() {
@@ -120,7 +119,6 @@ fn get_report(mut report_items: Vec<GHProjectItem>) -> String {
         && item_group == group
       {
         items_in_group.push(report_item);
-        //_ = writeln!(&mut output, " - {}", report_item.url)
       }
     }
     items_in_group.sort_by(|a, b| {

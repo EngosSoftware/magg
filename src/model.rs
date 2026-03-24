@@ -17,6 +17,7 @@ pub struct GHProjectItem {
   /// Item number.
   pub number: usize,
   /// Item title.
+  #[allow(unused)]
   pub title: String,
   /// Item URL.
   pub url: String,
@@ -39,7 +40,7 @@ pub enum GHLabel {
   Fea,
   /// Bug fixes.
   Fix,
-  /// Dependency upgrades.
+  /// Dependency upgrades and improvements.
   Dep,
   /// Documentation and website updates.
   Doc,
@@ -72,13 +73,13 @@ impl Display for GHLabel {
       f,
       "{}",
       match self {
-        GHLabel::Rel => "g:rel",
-        GHLabel::Fea => "g:fea",
-        GHLabel::Fix => "g:fix",
-        GHLabel::Dep => "g:dep",
-        GHLabel::Doc => "g:doc",
-        GHLabel::Res => "g:res",
-        GHLabel::Sec => "g:sec",
+        GHLabel::Rel => "g:rel - Releases",
+        GHLabel::Fea => "g:fea - New features",
+        GHLabel::Fix => "g:fix - Bug fixes",
+        GHLabel::Dep => "g:dep - Dependency upgrades and improvements",
+        GHLabel::Doc => "g:doc - Documentation and website updates",
+        GHLabel::Res => "g:res - Research",
+        GHLabel::Sec => "g:sec - Security updates",
         GHLabel::Custom(other) => other,
       }
     )

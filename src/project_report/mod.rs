@@ -114,13 +114,33 @@ fn get_report(mut report_items: Vec<GHProjectItem>) -> String {
   let groups: [GHLabel; 7] = [GHLabel::Rel, GHLabel::Fea, GHLabel::Fix, GHLabel::Dep, GHLabel::Doc, GHLabel::Res, GHLabel::Sec];
   for group in &groups {
     _ = writeln!(&mut output, "{}", group);
+    let mut items_in_group = vec![];
     for report_item in report_items.iter().rev() {
       if let Some(item_group) = &report_item.group
         && item_group == group
       {
-        _ = writeln!(&mut output, " - {}", report_item.url)
+        items_in_group.push(report_item);
+        //_ = writeln!(&mut output, " - {}", report_item.url)
       }
+    }
+    items_in_group.sort_by(|a, b| {
+      let repository_index_a = repository_index(&a.repository);
+      let repository_index_b = repository_index(&b.repository);
+      repository_index_a.cmp(&repository_index_b).then(a.number.cmp(&b.number))
+    });
+    for item in items_in_group {
+      _ = writeln!(&mut output, " - {}", item.url)
     }
   }
   output
+}
+
+fn repository_index(repository: &str) -> usize {
+  const KEYS: [&str; 7] = ["wasmd", "wasmvm", "cosmwasm", "cw-storage-plus", "cw-plus", "advisories", "maintainers"];
+  for (i, key) in KEYS.iter().enumerate() {
+    if repository.contains(key) {
+      return i;
+    }
+  }
+  panic!("no sorting key for repository: '{}'", repository);
 }

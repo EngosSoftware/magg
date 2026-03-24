@@ -38,7 +38,7 @@ pub enum GHLabel {
   Rel,
   /// New features.
   Fea,
-  /// Improvements.
+  /// Improvements and refactoring.
   Imp,
   /// Bug fixes.
   Fix,

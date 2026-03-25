@@ -14,18 +14,18 @@ pub fn get_apache_2() -> String {
 
 pub fn get_apache_notice() -> String {
   APACHE_NOTICE
-    .replace("[START_YEAR]", START_YEAR)
-    .replace("[END_YEAR]", &get_year())
-    .replace("[COPYRIGHT_OWNER]", COPYRIGHT_OWNER)
+    .replace("{{START_YEAR}}", START_YEAR)
+    .replace("{{END_YEAR}}", &end_year())
+    .replace("{{COPYRIGHT_OWNER}}", COPYRIGHT_OWNER)
 }
 
 pub fn get_mit() -> String {
   MIT
-    .replace("[START_YEAR]", START_YEAR)
-    .replace("[END_YEAR]", &get_year())
-    .replace("[COPYRIGHT_OWNER]", COPYRIGHT_OWNER)
+    .replace("{{START_YEAR}}", START_YEAR)
+    .replace("{{END_YEAR}}", &end_year())
+    .replace("{{COPYRIGHT_OWNER}}", COPYRIGHT_OWNER)
 }
 
-fn get_year() -> String {
+fn end_year() -> String {
   format!("{}", OffsetDateTime::now_utc().year())
 }

@@ -4,5 +4,5 @@ const CODE_OF_CONDUCT: &str = include_str!("CODE_OF_CONDUCT");
 const MAIL: &str = "[depta@engos.de](mailto:depta@engos.de)";
 
 pub fn get_code_of_conduct() -> String {
-  CODE_OF_CONDUCT.replace("::MAIL::", MAIL)
+  CODE_OF_CONDUCT.replace("{{MAIL}}", MAIL)
 }

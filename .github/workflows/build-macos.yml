@@ -5,8 +5,7 @@ on:
   push:
     branches:
       - main
-      - release/**
-      - develop/**
+      - release/*
   pull_request:
 
 jobs:

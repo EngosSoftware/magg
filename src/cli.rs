@@ -237,6 +237,9 @@ pub fn do_action() {
     }
     Action::Workflows => {
       utils::write_file(".github/workflows/build-linux.yml", &workflows::get_build_linux()).unwrap();
+      utils::write_file(".github/workflows/build-macos.yml", &workflows::get_build_macos()).unwrap();
+      utils::write_file(".github/workflows/build-macos-arm64.yml", &workflows::get_build_macos_arm64()).unwrap();
+      utils::write_file(".github/workflows/build-windows.yml", &workflows::get_build_windows()).unwrap();
     }
     Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_commit, exclude_pr) => {
       match changelog::get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir, exclude_commit, exclude_pr) {

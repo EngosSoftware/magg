@@ -9,5 +9,6 @@ mod model;
 mod project_report;
 mod readme;
 mod utils;
+mod workflows;
 
 pub use cli::do_action;

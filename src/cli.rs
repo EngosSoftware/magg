@@ -3,6 +3,7 @@ use crate::errors::*;
 use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
 use crate::project_report::get_project_report;
 use crate::utils::SEPARATOR_LINE;
+use crate::workflows;
 use crate::{changelog, readme, utils};
 use antex::{StyledText, Text, auto};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
@@ -17,6 +18,8 @@ enum Action {
   Licenses,
   /// Generate code of conduct file.
   CodeOfConduct,
+  /// Generate workflows files.
+  Workflows,
   /// Generate changelog.
   Changelog(
     /// Start revision.
@@ -62,10 +65,11 @@ fn get_matches() -> ArgMatches {
     )
     .subcommand(Command::new("licenses").about("Generates MIT and Apache 2.0 license files").display_order(2))
     .subcommand(Command::new("code-of-conduct").about("Generates code of conduct file").display_order(3))
+    .subcommand(Command::new("workflows").about("Generates GitHub workflows").display_order(4))
     .subcommand(
       Command::new("changelog")
         .about("Generates changelog")
-        .display_order(4)
+        .display_order(5)
         .arg(
           Arg::new("start-revision")
             .short('s')
@@ -140,7 +144,7 @@ fn get_matches() -> ArgMatches {
     .subcommand(
       Command::new("project-report")
         .about("Generates project report")
-        .display_order(5)
+        .display_order(6)
         .arg(
           Arg::new("owner")
             .short('o')
@@ -182,6 +186,9 @@ fn get_cli_action() -> Action {
     }
     Some(("code-of-conduct", _matches)) => {
       return Action::CodeOfConduct;
+    }
+    Some(("workflows", _matches)) => {
+      return Action::Workflows;
     }
     Some(("changelog", matches)) => {
       let start_revision = match_string(matches, "start-revision");
@@ -227,6 +234,9 @@ pub fn do_action() {
     }
     Action::CodeOfConduct => {
       utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct()).unwrap();
+    }
+    Action::Workflows => {
+      utils::write_file(".github/workflows/build-linux.yml", &workflows::get_build_linux()).unwrap();
     }
     Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_commit, exclude_pr) => {
       match changelog::get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir, exclude_commit, exclude_pr) {

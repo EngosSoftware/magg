@@ -12,6 +12,8 @@ pub fn read_file(file_name: impl AsRef<Path>) -> Result<String> {
 
 pub fn write_file(file_name: impl AsRef<Path>, contents: &str) -> Result<()> {
   let file_path = file_name.as_ref();
+  let parent = file_path.parent().ok_or(MaggError::new(format!("failed to retrieve path for: {}", file_path.display())))?;
+  std::fs::create_dir_all(parent).map_err(|e| MaggError::new(format!("failed to create paths for: {}, reason: {}", file_path.display(), e)))?;
   std::fs::write(file_path, contents).map_err(|e| MaggError::new(format!("failed to write file {}, reason: {}", file_path.display(), e)))
 }
 

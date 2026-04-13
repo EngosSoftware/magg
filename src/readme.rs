@@ -100,11 +100,15 @@ pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Res
   let repository_url = utils::get_repository(&parsed_toml)
     .strip_suffix(".git")
     .expect("repository name does not end with '.git' suffix");
+  // Write links to repository and organization.
+  _ = writeln!(&mut output, "[dsntk] | [ÐecisionToolkit]");
+  _ = writeln!(&mut output);
   // Write the name of the package.
   _ = writeln!(&mut output, "### {}", package_name);
   _ = writeln!(&mut output);
   // Write badges.
   _ = writeln!(&mut output, "[![crates.io][crates-badge]][crates-url]");
+  _ = writeln!(&mut output, "[![docs][docs-badge]][docs-url]");
   _ = writeln!(&mut output, "[![coverage][cov-badge]][cov-url]{TWO_SPACES}");
   _ = writeln!(&mut output, "![build Linux][build-badge-linux]");
   _ = writeln!(&mut output, "![build Windows][build-badge-windows]");
@@ -118,6 +122,8 @@ pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Res
   // Write links to badges and files.
   _ = writeln!(&mut output, "[crates-badge]: https://img.shields.io/crates/v/{package_name}.svg");
   _ = writeln!(&mut output, "[crates-url]: https://crates.io/crates/{package_name}");
+  _ = writeln!(&mut output, "[docs-badge]: https://docs.rs/{package_name}/badge.svg");
+  _ = writeln!(&mut output, "[docs-url]: https://crates.io/crates/{package_name}");
   _ = writeln!(&mut output, "[cov-badge]: https://img.shields.io/badge/coverage-0%25-21b577.svg");
   _ = writeln!(&mut output, "[cov-url]: https://crates.io/crates/coverio");
   _ = writeln!(&mut output, "[build-badge-linux]: {repository_url}/actions/workflows/build-linux.yml/badge.svg");
@@ -138,6 +144,8 @@ pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Res
   _ = writeln!(&mut output, "[es-badge]: https://img.shields.io/badge/at-Engos_Software-{ENGOS_COLOR}.svg");
   _ = writeln!(&mut output, "[es-url]: https://engos.de");
   _ = writeln!(&mut output, "[repository-url]: {repository_url}");
+  _ = writeln!(&mut output, "[ÐecisionToolkit]: https://github.com/DecisionToolkit");
+  _ = writeln!(&mut output, "[dsntk]: https://crates.io/crates/dsntk");
   // Write the content.
   _ = writeln!(&mut output);
   _ = write!(&mut output, "{body}");
@@ -158,7 +166,7 @@ pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Res
   // Write contribution section.
   _ = writeln!(&mut output, "## Contribution");
   _ = writeln!(&mut output);
-  _ = writeln!(&mut output, "Any contributions to [{package_name}][repository-url] are greatly appreciated.");
+  _ = writeln!(&mut output, "Any contributions to **[ÐecisionToolkit]** are greatly appreciated.");
   _ = writeln!(&mut output, "All contributions intentionally submitted for inclusion in the work by you,");
   _ = writeln!(&mut output, "shall be dual licensed as above, without any additional terms or conditions.");
   Ok(output)

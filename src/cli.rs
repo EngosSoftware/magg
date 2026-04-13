@@ -244,7 +244,7 @@ pub fn do_action() {
     },
     Action::ReadmeForDecisionToolkitCrate(file_name) => match readme::get_readme_for_decision_toolkit_crate(file_name) {
       Ok(contents) => {
-        utils::write_file("README-1.md", &contents).unwrap();
+        utils::write_file("README.md", &contents).unwrap();
       }
       Err(reason) => {
         eprintln!("{}", error_message(reason));

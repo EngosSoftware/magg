@@ -97,9 +97,7 @@ pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Res
   let body = read_file(file_name)?;
   let parsed_toml = utils::parse_toml("Cargo.toml")?;
   let package_name = utils::get_package_name(&parsed_toml);
-  let repository_url = utils::get_repository(&parsed_toml)
-    .strip_suffix(".git")
-    .expect("repository name does not end with '.git' suffix");
+  let repository_url = "https://github.com/DecisionToolkit/dsntk";
   // Write links to repository and organization.
   _ = writeln!(&mut output, "[dsntk] | [ÐecisionToolkit]");
   _ = writeln!(&mut output);

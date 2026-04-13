@@ -9,9 +9,14 @@ use antex::{StyledText, Text, auto};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
 
 enum Action {
-  /// Generate README.md file
-  Readme(
-    /// Name of the file containing the body text of scaffolded README.md file.
+  /// Generate README.md file for regular crate.
+  ReadmeForRegularCrate(
+    /// Name of the file containing the body text of README.md file.
+    String,
+  ),
+  /// Generate README.md file for crate in ÐecisionToolkit project.
+  ReadmeForDecisionToolkitCrate(
+    /// Name of the file containing the body text of README.md file.
     String,
   ),
   /// Generate license files.
@@ -56,20 +61,27 @@ fn get_matches() -> ArgMatches {
     .disable_version_flag(true)
     // handle the version flag in a custom way
     .arg(Arg::new("version").short('V').long("version").help("Print version").action(ArgAction::SetTrue))
-    // Generate README.md file.
+    // Generate README.md file for regular crate.
     .subcommand(
       Command::new("readme")
-        .about("Generates README.md file")
+        .about("Generates README.md file for regular crate")
         .display_order(1)
         .arg(arg!(<README_BODY>).help("File containing the body of the scaffolded README.md").required(true).index(1)),
     )
-    .subcommand(Command::new("licenses").about("Generates MIT and Apache 2.0 license files").display_order(2))
-    .subcommand(Command::new("code-of-conduct").about("Generates code of conduct file").display_order(3))
-    .subcommand(Command::new("workflows").about("Generates GitHub workflows").display_order(4))
+    // Generate README.md file for a crate in ÐecisionToolkit project.
+    .subcommand(
+      Command::new("readme-decision-toolkit")
+        .about("Generates README.md file for crate in ÐecisionToolkit project")
+        .display_order(2)
+        .arg(arg!(<README_BODY>).help("File containing the body of the scaffolded README.md").required(true).index(1)),
+    )
+    .subcommand(Command::new("licenses").about("Generates MIT and Apache 2.0 license files").display_order(3))
+    .subcommand(Command::new("code-of-conduct").about("Generates code of conduct file").display_order(4))
+    .subcommand(Command::new("workflows").about("Generates GitHub workflows").display_order(5))
     .subcommand(
       Command::new("changelog")
         .about("Generates changelog")
-        .display_order(5)
+        .display_order(6)
         .arg(
           Arg::new("start-revision")
             .short('s')
@@ -144,7 +156,7 @@ fn get_matches() -> ArgMatches {
     .subcommand(
       Command::new("project-report")
         .about("Generates project report")
-        .display_order(6)
+        .display_order(7)
         .arg(
           Arg::new("owner")
             .short('o')
@@ -179,7 +191,10 @@ fn get_cli_action() -> Action {
   }
   match matches.subcommand() {
     Some(("readme", matches)) => {
-      return Action::Readme(match_string(matches, "README_BODY"));
+      return Action::ReadmeForRegularCrate(match_string(matches, "README_BODY"));
+    }
+    Some(("readme-decision-toolkit", matches)) => {
+      return Action::ReadmeForDecisionToolkitCrate(match_string(matches, "README_BODY"));
     }
     Some(("licenses", _matches)) => {
       return Action::Licenses;
@@ -218,9 +233,18 @@ pub fn do_action() {
 
   //
   match get_cli_action() {
-    Action::Readme(file_name) => match readme::scaffold_readme(file_name) {
+    Action::ReadmeForRegularCrate(file_name) => match readme::get_readme_for_regular_crate(file_name) {
       Ok(contents) => {
         utils::write_file("README.md", &contents).unwrap();
+      }
+      Err(reason) => {
+        eprintln!("{}", error_message(reason));
+        std::process::exit(1);
+      }
+    },
+    Action::ReadmeForDecisionToolkitCrate(file_name) => match readme::get_readme_for_decision_toolkit_crate(file_name) {
+      Ok(contents) => {
+        utils::write_file("README-1.md", &contents).unwrap();
       }
       Err(reason) => {
         eprintln!("{}", error_message(reason));

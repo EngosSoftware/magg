@@ -70,7 +70,7 @@ fn get_matches() -> ArgMatches {
     )
     // Generate README.md file for a crate in ÐecisionToolkit project.
     .subcommand(
-      Command::new("readme-decision-toolkit")
+      Command::new("readme-dt")
         .about("Generates README.md file for crate in ÐecisionToolkit project")
         .display_order(2)
         .arg(arg!(<README_BODY>).help("File containing the body of the scaffolded README.md").required(true).index(1)),
@@ -193,7 +193,7 @@ fn get_cli_action() -> Action {
     Some(("readme", matches)) => {
       return Action::ReadmeForRegularCrate(match_string(matches, "README_BODY"));
     }
-    Some(("readme-decision-toolkit", matches)) => {
+    Some(("readme-dt", matches)) => {
       return Action::ReadmeForDecisionToolkitCrate(match_string(matches, "README_BODY"));
     }
     Some(("licenses", _matches)) => {

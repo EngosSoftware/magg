@@ -7,14 +7,14 @@ fn short() {
 Usage: magg||EXE|| [COMMAND]
 
 Commands:
-  readme                   Generates README.md file for regular crate
-  readme-decision-toolkit  Generates README.md file for crate in ÐecisionToolkit project
-  licenses                 Generates MIT and Apache 2.0 license files
-  code-of-conduct          Generates code of conduct file
-  workflows                Generates GitHub workflows
-  changelog                Generates changelog
-  project-report           Generates project report
-  help                     Print this message or the help of the given subcommand(s)
+  readme           Generates README.md file for regular crate
+  readme-dt        Generates README.md file for crate in ÐecisionToolkit project
+  licenses         Generates MIT and Apache 2.0 license files
+  code-of-conduct  Generates code of conduct file
+  workflows        Generates GitHub workflows
+  changelog        Generates changelog
+  project-report   Generates project report
+  help             Print this message or the help of the given subcommand(s)
 
 Options:
   -V, --version  Print version

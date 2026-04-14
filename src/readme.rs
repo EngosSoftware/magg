@@ -27,16 +27,18 @@ pub fn get_readme_for_regular_crate(file_name: impl AsRef<Path>) -> Result<Strin
   let repository_url = utils::get_repository(&parsed_toml)
     .strip_suffix(".git")
     .expect("repository name does not end with '.git' suffix");
+  let workflows = format!("{repository_url}/actions/workflows");
   // Write the name of the package.
   _ = writeln!(&mut output, "### {}", package_name);
   _ = writeln!(&mut output);
   // Write badges.
   _ = writeln!(&mut output, "[![crates.io][crates-badge]][crates-url]");
   _ = writeln!(&mut output, "[![coverage][cov-badge]][cov-url]{TWO_SPACES}");
-  _ = writeln!(&mut output, "![build Linux][build-badge-linux]");
-  _ = writeln!(&mut output, "![build Windows][build-badge-windows]");
-  _ = writeln!(&mut output, "![build macOs][build-badge-macos]");
-  _ = writeln!(&mut output, "![build macOs arm64][build-badge-macos-arm64]{TWO_SPACES}");
+  _ = writeln!(&mut output, "![build-linux-gnu][build-badge-linux-gnu]");
+  _ = writeln!(&mut output, "![build-linux-musl][build-badge-linux-musl]{TWO_SPACES}");
+  _ = writeln!(&mut output, "![build-macOS][build-badge-macos]");
+  _ = writeln!(&mut output, "![build-macOS-aarch64][build-badge-macos-arm64]");
+  _ = writeln!(&mut output, "![build-windows][build-badge-windows]{TWO_SPACES}");
   _ = writeln!(&mut output, "[![mit-license][mit-badge]][mit-license-url]");
   _ = writeln!(&mut output, "[![apache-license][apache-badge]][apache-license-url]");
   _ = writeln!(&mut output, "[![cc][cc-badge]][cc-url]{TWO_SPACES}");
@@ -48,10 +50,11 @@ pub fn get_readme_for_regular_crate(file_name: impl AsRef<Path>) -> Result<Strin
   _ = writeln!(&mut output, "[crates-url]: https://crates.io/crates/{package_name}");
   _ = writeln!(&mut output, "[cov-badge]: https://img.shields.io/badge/coverage-0%25-21b577.svg");
   _ = writeln!(&mut output, "[cov-url]: https://crates.io/crates/coverio");
-  _ = writeln!(&mut output, "[build-badge-linux]: {repository_url}/actions/workflows/build-linux.yml/badge.svg");
-  _ = writeln!(&mut output, "[build-badge-windows]: {repository_url}/actions/workflows/build-windows.yml/badge.svg");
-  _ = writeln!(&mut output, "[build-badge-macos]: {repository_url}/actions/workflows/build-macos.yml/badge.svg");
-  _ = writeln!(&mut output, "[build-badge-macos-arm64]: {repository_url}/actions/workflows/build-macos-arm64.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-linux-gnu]: {workflows}/build-linux-gnu.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-linux-musl]: {workflows}/build-linux-musl.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-macos]: {workflows}/build-macos.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-macos-aarch64]: {workflows}/build-macos-aarch64.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-windows]: {workflows}/build-windows.yml/badge.svg");
   _ = writeln!(&mut output, "[mit-badge]: https://img.shields.io/badge/License-MIT-{LICENSE_COLOR}.svg");
   _ = writeln!(&mut output, "[mit-url]: https://opensource.org/licenses/MIT");
   _ = writeln!(&mut output, "[mit-license-url]: {repository_url}/blob/main/LICENSE-MIT");
@@ -99,6 +102,7 @@ pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Res
   let parsed_toml = utils::parse_toml("Cargo.toml")?;
   let package_name = utils::get_package_name(&parsed_toml);
   let repository_url = "https://github.com/DecisionToolkit/dsntk";
+  let workflows = format!("{repository_url}/actions/workflows");
   // Write links to repository and organization.
   _ = writeln!(&mut output, "[dsntk] | [ÐecisionToolkit]");
   _ = writeln!(&mut output);
@@ -109,10 +113,11 @@ pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Res
   _ = writeln!(&mut output, "[![crates.io][crates-badge]][crates-url]");
   _ = writeln!(&mut output, "[![docs][docs-badge]][docs-url]");
   _ = writeln!(&mut output, "[![coverage][cov-badge]][cov-url]{TWO_SPACES}");
-  _ = writeln!(&mut output, "![build Linux][build-badge-linux]");
-  _ = writeln!(&mut output, "![build Windows][build-badge-windows]");
-  _ = writeln!(&mut output, "![build macOs][build-badge-macos]");
-  _ = writeln!(&mut output, "![build macOs arm64][build-badge-macos-arm64]{TWO_SPACES}");
+  _ = writeln!(&mut output, "![build-linux-gnu][build-badge-linux-gnu]");
+  _ = writeln!(&mut output, "![build-linux-musl][build-badge-linux-musl]{TWO_SPACES}");
+  _ = writeln!(&mut output, "![build-macos][build-badge-macos]");
+  _ = writeln!(&mut output, "![build-macos-aarch64][build-badge-macos-aarch64]{TWO_SPACES}");
+  _ = writeln!(&mut output, "![build Windows][build-badge-windows]{TWO_SPACES}");
   _ = writeln!(&mut output, "[![mit-license][mit-badge]][mit-license-url]");
   _ = writeln!(&mut output, "[![apache-license][apache-badge]][apache-license-url]");
   _ = writeln!(&mut output, "[![cc][cc-badge]][cc-url]{TWO_SPACES}");
@@ -124,10 +129,11 @@ pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Res
   _ = writeln!(&mut output, "[docs-url]: https://crates.io/crates/{package_name}");
   _ = writeln!(&mut output, "[cov-badge]: https://img.shields.io/badge/coverage-0%25-21b577.svg");
   _ = writeln!(&mut output, "[cov-url]: https://crates.io/crates/coverio");
-  _ = writeln!(&mut output, "[build-badge-linux]: {repository_url}/actions/workflows/build-linux.yml/badge.svg");
-  _ = writeln!(&mut output, "[build-badge-windows]: {repository_url}/actions/workflows/build-windows.yml/badge.svg");
-  _ = writeln!(&mut output, "[build-badge-macos]: {repository_url}/actions/workflows/build-macos.yml/badge.svg");
-  _ = writeln!(&mut output, "[build-badge-macos-arm64]: {repository_url}/actions/workflows/build-macos-arm64.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-linux-gnu]: {workflows}/build-linux-gnu.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-linux-musl]: {workflows}/build-linux-musl.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-macos]: {workflows}/build-macos.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-macos-aarch64]: {workflows}/build-macos-aarch64.yml/badge.svg");
+  _ = writeln!(&mut output, "[build-badge-windows]: {workflows}/build-windows.yml/badge.svg");
   _ = writeln!(&mut output, "[mit-badge]: https://img.shields.io/badge/License-MIT-{LICENSE_COLOR}.svg");
   _ = writeln!(&mut output, "[mit-url]: https://opensource.org/licenses/MIT");
   _ = writeln!(&mut output, "[mit-license-url]: {repository_url}/blob/main/LICENSE-MIT");

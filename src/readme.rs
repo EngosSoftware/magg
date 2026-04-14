@@ -41,7 +41,8 @@ pub fn get_readme_for_regular_crate(file_name: impl AsRef<Path>) -> Result<Strin
   _ = writeln!(&mut output, "[![apache-license][apache-badge]][apache-license-url]");
   _ = writeln!(&mut output, "[![cc][cc-badge]][cc-url]{TWO_SPACES}");
   _ = writeln!(&mut output, "[![mbh][mbh-badge]][mbh-url]");
-  _ = writeln!(&mut output, "[![es][es-badge]][es-url]\n");
+  _ = writeln!(&mut output, "[![es][es-badge]][es-url]");
+  _ = writeln!(&mut output);
   // Write links to badges and files.
   _ = writeln!(&mut output, "[crates-badge]: https://img.shields.io/crates/v/{package_name}.svg");
   _ = writeln!(&mut output, "[crates-url]: https://crates.io/crates/{package_name}");
@@ -65,8 +66,8 @@ pub fn get_readme_for_regular_crate(file_name: impl AsRef<Path>) -> Result<Strin
   _ = writeln!(&mut output, "[es-badge]: https://img.shields.io/badge/at-Engos_Software-{ENGOS_COLOR}.svg");
   _ = writeln!(&mut output, "[es-url]: https://engos.de");
   _ = writeln!(&mut output, "[repository-url]: {repository_url}");
-  // Write the content.
   _ = writeln!(&mut output);
+  // Write the content.
   _ = write!(&mut output, "{body}");
   _ = writeln!(&mut output);
   // Write license section.
@@ -115,6 +116,7 @@ pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Res
   _ = writeln!(&mut output, "[![mit-license][mit-badge]][mit-license-url]");
   _ = writeln!(&mut output, "[![apache-license][apache-badge]][apache-license-url]");
   _ = writeln!(&mut output, "[![cc][cc-badge]][cc-url]{TWO_SPACES}");
+  _ = writeln!(&mut output);
   // Write links to badges and files.
   _ = writeln!(&mut output, "[crates-badge]: https://img.shields.io/crates/v/{package_name}.svg");
   _ = writeln!(&mut output, "[crates-url]: https://crates.io/crates/{package_name}");
@@ -138,8 +140,8 @@ pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Res
   _ = writeln!(&mut output, "[repository-url]: {repository_url}");
   _ = writeln!(&mut output, "[ÐecisionToolkit]: https://github.com/DecisionToolkit");
   _ = writeln!(&mut output, "[dsntk]: https://crates.io/crates/dsntk");
-  // Write the content.
   _ = writeln!(&mut output);
+  // Write the content.
   _ = write!(&mut output, "{body}");
   _ = writeln!(&mut output);
   // Write license section.

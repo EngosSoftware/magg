@@ -3,8 +3,8 @@ use crate::errors::*;
 use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
 use crate::project_report::get_project_report;
 use crate::utils::SEPARATOR_LINE;
-use crate::workflows;
-use crate::{changelog, readme, utils};
+use crate::{changelog, utils};
+use crate::{readme, workflows};
 use antex::{StyledText, Text, auto};
 use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
 

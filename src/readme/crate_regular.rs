@@ -17,15 +17,15 @@ pub fn get_readme_for_regular_crate(file_name: impl AsRef<Path>) -> Result<Strin
   _ = writeln!(&mut output);
   // Write badges.
   _ = writeln!(&mut output, "[![crates.io][crates-badge]][crates-url]");
-  _ = writeln!(&mut output, "[![coverage][cov-badge]][cov-url]{TWO_SPACES}");
+  _ = writeln!(&mut output, "[![coverage][cov-badge]][cov-url]");
   _ = writeln!(&mut output, "![build-linux-gnu][build-badge-linux-gnu]");
-  _ = writeln!(&mut output, "![build-linux-musl][build-badge-linux-musl]{TWO_SPACES}");
+  _ = writeln!(&mut output, "![build-linux-musl][build-badge-linux-musl]");
   _ = writeln!(&mut output, "![build-macOS][build-badge-macos]");
   _ = writeln!(&mut output, "![build-macOS-aarch64][build-badge-macos-arm64]");
-  _ = writeln!(&mut output, "![build-windows][build-badge-windows]{TWO_SPACES}");
+  _ = writeln!(&mut output, "![build-windows][build-badge-windows]");
   _ = writeln!(&mut output, "[![mit-license][mit-badge]][mit-license-url]");
   _ = writeln!(&mut output, "[![apache-license][apache-badge]][apache-license-url]");
-  _ = writeln!(&mut output, "[![cc][cc-badge]][cc-url]{TWO_SPACES}");
+  _ = writeln!(&mut output, "[![cc][cc-badge]][cc-url]");
   _ = writeln!(&mut output, "[![mbh][mbh-badge]][mbh-url]");
   _ = writeln!(&mut output, "[![es][es-badge]][es-url]");
   _ = writeln!(&mut output);

@@ -6,9 +6,6 @@ use crate::utils;
 use std::fmt::Write;
 use std::path::Path;
 
-/// Two consecutive spaces.
-const TWO_SPACES: &str = "  ";
-
 /// Color of the license badge.
 const LICENSE_COLOR: &str = "4169E1";
 

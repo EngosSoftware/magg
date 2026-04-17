@@ -48,7 +48,7 @@ pub fn get_readme_for_regular_crate(file_name: impl AsRef<Path>) -> Result<Strin
   _ = writeln!(&mut output, "[apache-notice-url]: {repository_url}/blob/main/NOTICE");
   _ = writeln!(&mut output, "[cc-badge]: https://img.shields.io/badge/Contributor%20Covenant-2.1-{LICENSE_COLOR}.svg");
   _ = writeln!(&mut output, "[cc-url]: {repository_url}/blob/main/CODE_OF_CONDUCT.md");
-  _ = writeln!(&mut output, "[mbh-badge]: https://img.shields.io/badge/Made_by_a-HUMAN-{HUMAN_COLOR}.svg");
+  _ = writeln!(&mut output, "[mbh-badge]: https://img.shields.io/badge/Made_by-HUMAN-{HUMAN_COLOR}.svg");
   _ = writeln!(&mut output, "[mbh-url]: https://github.com/DariuszDepta");
   _ = writeln!(&mut output, "[es-badge]: https://img.shields.io/badge/at-Engos_Software-{ENGOS_COLOR}.svg");
   _ = writeln!(&mut output, "[es-url]: https://engos.de");

@@ -7,7 +7,7 @@ use std::fmt::Write;
 use std::path::Path;
 
 /// Color of the license badge.
-const LICENSE_COLOR: &str = "4169E1";
+const LICENSE_COLOR: &str = "9370DB";
 
 /// Color of the human badge.
 const HUMAN_COLOR: &str = "DC143C";

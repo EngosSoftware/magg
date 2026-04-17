@@ -10,7 +10,7 @@ use std::path::Path;
 const LICENSE_COLOR: &str = "9370DB";
 
 /// Color of the human badge.
-const HUMAN_COLOR: &str = "DC143C";
+const HUMAN_COLOR: &str = "A0522D";
 
 /// Color of the company badge.
 const ENGOS_COLOR: &str = "4782C4";

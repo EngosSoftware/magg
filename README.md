@@ -31,7 +31,7 @@
 [apache-notice-url]: https://github.com/EngosSoftware/magg/blob/main/NOTICE
 [cc-badge]: https://img.shields.io/badge/Contributor%20Covenant-2.1-9370DB.svg
 [cc-url]: https://github.com/EngosSoftware/magg/blob/main/CODE_OF_CONDUCT.md
-[mbh-badge]: https://img.shields.io/badge/Made_by-HUMAN-A0522D.svg
+[mbh-badge]: https://img.shields.io/badge/Made_by-HUMAN-D2B48C.svg
 [mbh-url]: https://github.com/DariuszDepta
 [es-badge]: https://img.shields.io/badge/at-Engos_Software-4782C4.svg
 [es-url]: https://engos.de

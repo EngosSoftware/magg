@@ -20,8 +20,8 @@ pub fn get_readme_for_regular_crate(file_name: impl AsRef<Path>) -> Result<Strin
   _ = writeln!(&mut output, "[![coverage][cov-badge]][cov-url]");
   _ = writeln!(&mut output, "![build-linux-gnu][build-badge-linux-gnu]");
   _ = writeln!(&mut output, "![build-linux-musl][build-badge-linux-musl]");
-  _ = writeln!(&mut output, "![build-macOS][build-badge-macos]");
-  _ = writeln!(&mut output, "![build-macOS-aarch64][build-badge-macos-aarch64]");
+  _ = writeln!(&mut output, "![build-macos][build-badge-macos]");
+  _ = writeln!(&mut output, "![build-macos-aarch64][build-badge-macos-aarch64]");
   _ = writeln!(&mut output, "![build-windows][build-badge-windows]");
   _ = writeln!(&mut output, "[![mit-license][mit-badge]][mit-license-url]");
   _ = writeln!(&mut output, "[![apache-license][apache-badge]][apache-license-url]");

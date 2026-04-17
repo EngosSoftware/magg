@@ -48,3 +48,4 @@
    - Change back the directory to the workspace.
    - Replace `path` attribute with `version` attribute in workspace `Cargo.toml`.
 4. Validate updated workspace `Cargo.toml`.
+.

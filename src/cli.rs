@@ -260,9 +260,10 @@ pub fn do_action() {
       utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct()).unwrap();
     }
     Action::Workflows => {
-      utils::write_file(".github/workflows/build-linux.yml", &workflows::get_build_linux()).unwrap();
+      utils::write_file(".github/workflows/build-linux-gnu.yml", &workflows::get_build_linux_gnu()).unwrap();
+      utils::write_file(".github/workflows/build-linux-musl.yml", &workflows::get_build_linux_musl()).unwrap();
       utils::write_file(".github/workflows/build-macos.yml", &workflows::get_build_macos()).unwrap();
-      utils::write_file(".github/workflows/build-macos-arm64.yml", &workflows::get_build_macos_arm64()).unwrap();
+      utils::write_file(".github/workflows/build-macos-aarch64.yml", &workflows::get_build_macos_aarch64()).unwrap();
       utils::write_file(".github/workflows/build-windows.yml", &workflows::get_build_windows()).unwrap();
     }
     Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_commit, exclude_pr) => {

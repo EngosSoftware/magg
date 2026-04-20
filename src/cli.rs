@@ -6,17 +6,21 @@ use crate::utils::SEPARATOR_LINE;
 use crate::{changelog, utils};
 use crate::{readme, workflows};
 use antex::{StyledText, Text, auto};
-use clap::{Arg, ArgAction, ArgMatches, Command, arg, command, crate_version};
+use clap::{Arg, ArgAction, ArgMatches, Command, command, crate_version};
 
 enum Action {
-  /// Generate README.md file for regular crate.
+  /// Generate README file for regular crate.
   ReadmeForRegularCrate(
-    /// Name of the file containing the body text of README.md file.
+    /// Name of the file containing the body text of README file.
+    String,
+    /// Scaffolded README file name.
     String,
   ),
-  /// Generate README.md file for crate in ÐecisionToolkit project.
+  /// Generate README file for crate in ÐecisionToolkit project.
   ReadmeForDecisionToolkitCrate(
-    /// Name of the file containing the body text of README.md file.
+    /// Name of the file containing the body text of README file.
+    String,
+    /// Scaffolded README file name.
     String,
   ),
   /// Generate license files.
@@ -61,19 +65,53 @@ fn get_matches() -> ArgMatches {
     .disable_version_flag(true)
     // handle the version flag in a custom way
     .arg(Arg::new("version").short('V').long("version").help("Print version").action(ArgAction::SetTrue))
-    // Generate README.md file for regular crate.
+    // Generate README file for regular crate.
     .subcommand(
       Command::new("readme")
-        .about("Generates README.md file for regular crate")
+        .about("Generates README file for regular crate")
         .display_order(1)
-        .arg(arg!(<README_BODY>).help("File containing the body of the scaffolded README.md").required(true).index(1)),
+        .arg(
+          Arg::new("input-file")
+            .short('f')
+            .long("input-file")
+            .help("File containing the body of the scaffolded README")
+            .action(ArgAction::Set)
+            .default_value("docs/README.md")
+            .display_order(1),
+        )
+        .arg(
+          Arg::new("output-file")
+            .short('o')
+            .long("output-file")
+            .help("Scaffolded README file name")
+            .action(ArgAction::Set)
+            .default_value("README.md")
+            .display_order(1),
+        ),
     )
-    // Generate README.md file for a crate in ÐecisionToolkit project.
+    // Generate README file for a crate in ÐecisionToolkit project.
     .subcommand(
       Command::new("readme-dt")
-        .about("Generates README.md file for crate in ÐecisionToolkit project")
+        .about("Generates README file for crate in ÐecisionToolkit project")
         .display_order(2)
-        .arg(arg!(<README_BODY>).help("File containing the body of the scaffolded README.md").required(true).index(1)),
+        .arg(
+          Arg::new("input-file")
+            .short('f')
+            .long("input-file")
+            .help("File containing the body of the scaffolded README")
+            .action(ArgAction::Set)
+            .default_value("docs/README.md")
+            .display_order(1),
+        )
+        .arg(
+          Arg::new("output-file")
+            .short('o')
+            .long("output-file")
+            .help("Scaffolded README file name")
+            .action(ArgAction::Set)
+            .default_value("README.md")
+            .display_order(1),
+        ),
     )
     .subcommand(Command::new("licenses").about("Generates MIT and Apache 2.0 license files").display_order(3))
     .subcommand(Command::new("code-of-conduct").about("Generates code of conduct file").display_order(4))
@@ -191,10 +229,14 @@ fn get_cli_action() -> Action {
   }
   match matches.subcommand() {
     Some(("readme", matches)) => {
-      return Action::ReadmeForRegularCrate(match_string(matches, "README_BODY"));
+      let input_file = match_string(matches, "input-file");
+      let output_file = match_string(matches, "output-file");
+      return Action::ReadmeForRegularCrate(input_file, output_file);
     }
     Some(("readme-dt", matches)) => {
-      return Action::ReadmeForDecisionToolkitCrate(match_string(matches, "README_BODY"));
+      let input_file = match_string(matches, "input-file");
+      let output_file = match_string(matches, "output-file");
+      return Action::ReadmeForDecisionToolkitCrate(input_file, output_file);
     }
     Some(("licenses", _matches)) => {
       return Action::Licenses;
@@ -231,20 +273,19 @@ pub fn do_action() {
     auto().bold().red().s("error").reset().s(": ").s(reason.to_string())
   }
 
-  //
   match get_cli_action() {
-    Action::ReadmeForRegularCrate(file_name) => match readme::get_readme_for_regular_crate(file_name) {
+    Action::ReadmeForRegularCrate(input_file, output_file) => match readme::get_readme_for_regular_crate(input_file) {
       Ok(contents) => {
-        utils::write_file("README.md", &contents).unwrap();
+        utils::write_file(output_file, &contents).unwrap();
       }
       Err(reason) => {
         eprintln!("{}", error_message(reason));
         std::process::exit(1);
       }
     },
-    Action::ReadmeForDecisionToolkitCrate(file_name) => match readme::get_readme_for_decision_toolkit_crate(file_name) {
+    Action::ReadmeForDecisionToolkitCrate(input_file, output_file) => match readme::get_readme_for_decision_toolkit_crate(input_file) {
       Ok(contents) => {
-        utils::write_file("README.md", &contents).unwrap();
+        utils::write_file(output_file, &contents).unwrap();
       }
       Err(reason) => {
         eprintln!("{}", error_message(reason));

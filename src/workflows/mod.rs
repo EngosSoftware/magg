@@ -2,11 +2,11 @@
 const CHECKOUT_VERSION: &str = "v6";
 const UPLOAD_ARTIFACT_VERSION: &str = "v7";
 
-const BUILD_LINUX_GNU: &str = include_str!("BUILD-LINUX-GNU.txt");
-const BUILD_LINUX_MUSL: &str = include_str!("BUILD-LINUX-MUSL.txt");
-const BUILD_MACOS: &str = include_str!("BUILD-MACOS.txt");
-const BUILD_MACOS_AARCH64: &str = include_str!("BUILD-MACOS-AARCH64.txt");
-const BUILD_WINDOWS: &str = include_str!("BUILD-WINDOWS.txt");
+const BUILD_LINUX_GNU: &str = include_str!("build-linux-gnu.txt");
+const BUILD_LINUX_MUSL: &str = include_str!("build-linux-musl.txt");
+const BUILD_MACOS: &str = include_str!("build-macos.txt");
+const BUILD_MACOS_AARCH64: &str = include_str!("build-macos-aarch64.txt");
+const BUILD_WINDOWS: &str = include_str!("build-windows.txt");
 
 /// Returns the content of the GitHub workflow for GNU/Linux x86_64 platform.
 pub fn get_build_linux_gnu() -> String {

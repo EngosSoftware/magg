@@ -1,4 +1,4 @@
-#![doc = include_str!("../docs/README.md")]
+#![doc = include_str!("../docs/lib.rs.md")]
 
 mod changelog;
 mod cli;

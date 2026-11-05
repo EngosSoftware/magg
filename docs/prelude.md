@@ -1,4 +1,4 @@
-# Sophisticated tooling for Rust developers
+# Opinionated tools for Rust devs
 
 ## Overview
 

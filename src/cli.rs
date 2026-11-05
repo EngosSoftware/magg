@@ -76,7 +76,7 @@ fn get_matches() -> ArgMatches {
             .long("input-file")
             .help("File containing the body of the scaffolded README")
             .action(ArgAction::Set)
-            .default_value("docs/README.md")
+            .default_value("docs/prelude.md")
             .display_order(1),
         )
         .arg(
@@ -100,7 +100,7 @@ fn get_matches() -> ArgMatches {
             .long("input-file")
             .help("File containing the body of the scaffolded README")
             .action(ArgAction::Set)
-            .default_value("docs/README.md")
+            .default_value("docs/prelude.md")
             .display_order(1),
         )
         .arg(

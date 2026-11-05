@@ -13,7 +13,7 @@
 [docs-badge]: https://docs.rs/magg/badge.svg
 [docs-url]: https://docs.rs/magg
 [cov-badge]: https://img.shields.io/badge/coverage-0%25-21B577.svg
-[license-badge]: https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-9370DB.svg
+[license-badge]: https://img.shields.io/badge/license-MIT_OR_Apache--2.0-9370DB.svg
 [human-badge]: https://img.shields.io/badge/made_by-HUMAN-F5DEB3.svg
 
 # Opinionated tools for Rust devs

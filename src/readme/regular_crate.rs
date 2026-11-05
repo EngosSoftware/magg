@@ -30,7 +30,7 @@ pub fn get_readme_for_regular_crate(file_name: impl AsRef<Path>) -> Result<Strin
   _ = writeln!(&mut output, "[docs-badge]: https://docs.rs/{package_name}/badge.svg");
   _ = writeln!(&mut output, "[docs-url]: https://docs.rs/{package_name}");
   _ = writeln!(&mut output, "[cov-badge]: https://img.shields.io/badge/coverage-0%25-21B577.svg");
-  _ = writeln!(&mut output, "[license-badge]: https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-{LICENSE_COLOR}.svg");
+  _ = writeln!(&mut output, "[license-badge]: https://img.shields.io/badge/license-MIT_OR_Apache--2.0-{LICENSE_COLOR}.svg");
   _ = writeln!(&mut output, "[human-badge]: https://img.shields.io/badge/made_by-HUMAN-{HUMAN_COLOR}.svg");
   _ = writeln!(&mut output);
   // Write the body content.

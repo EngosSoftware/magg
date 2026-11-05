@@ -1,6 +1,6 @@
 use crate::code_of_conduct::get_code_of_conduct;
 use crate::errors::*;
-use crate::licenses::{get_apache_2, get_apache_notice, get_mit};
+use crate::licenses::{get_apache_license, get_apache_notice, get_mit_license};
 use crate::project_report::get_project_report;
 use crate::utils::SEPARATOR_LINE;
 use crate::{changelog, utils};
@@ -293,9 +293,9 @@ pub fn do_action() {
       }
     },
     Action::Licenses => {
-      utils::write_file("LICENSE", &get_apache_2()).unwrap();
+      utils::write_file("LICENSE-APACHE", &get_apache_license()).unwrap();
       utils::write_file("NOTICE", &get_apache_notice()).unwrap();
-      utils::write_file("LICENSE-MIT", &get_mit()).unwrap();
+      utils::write_file("LICENSE-MIT", &get_mit_license()).unwrap();
     }
     Action::CodeOfConduct => {
       utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct()).unwrap();

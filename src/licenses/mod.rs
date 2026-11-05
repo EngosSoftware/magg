@@ -1,29 +1,32 @@
-//! License generator
+//! # License generator
 
 use time::OffsetDateTime;
 
-const APACHE_2: &str = include_str!("apache-2.txt");
+const APACHE_LICENSE: &str = include_str!("apache-license.txt");
 const APACHE_NOTICE: &str = include_str!("apache-notice.txt");
-const MIT: &str = include_str!("mit.txt");
-const START_YEAR: &str = "2015";
+const MIT_LICENSE: &str = include_str!("mit-license.txt");
 const COPYRIGHT_OWNER: &str = "Dariusz Depta";
 
-pub fn get_apache_2() -> String {
-  APACHE_2.to_string()
+pub fn get_apache_license() -> String {
+  APACHE_LICENSE.to_string()
 }
 
 pub fn get_apache_notice() -> String {
   APACHE_NOTICE
-    .replace("{{START-YEAR}}", START_YEAR)
+    .replace("{{START-YEAR}}", start_year())
     .replace("{{END-YEAR}}", &end_year())
     .replace("{{COPYRIGHT-OWNER}}", COPYRIGHT_OWNER)
 }
 
-pub fn get_mit() -> String {
-  MIT
-    .replace("{{START-YEAR}}", START_YEAR)
+pub fn get_mit_license() -> String {
+  MIT_LICENSE
+    .replace("{{START-YEAR}}", start_year())
     .replace("{{END-YEAR}}", &end_year())
     .replace("{{COPYRIGHT-OWNER}}", COPYRIGHT_OWNER)
+}
+
+const fn start_year() -> &'static str {
+  "2015"
 }
 
 fn end_year() -> String {

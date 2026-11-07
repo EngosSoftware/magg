@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn short() {
-  let expected = r#"Sophisticated tooling for Rust developers
+    let expected = r#"Sophisticated tooling for Rust developers
 
 Usage: magg||EXE|| [COMMAND]
 
@@ -20,5 +20,10 @@ Options:
   -V, --version  Print version
   -h, --help     Print help
 "#;
-  cli_assert::command!().arg("-h").code(0).stdout(normalize_exe(expected)).stderr("").execute();
+    cli_assert::command!()
+        .arg("-h")
+        .code(0)
+        .stdout(normalize_exe(expected))
+        .stderr("")
+        .execute();
 }

@@ -3,6 +3,7 @@
 mod changelog;
 mod cli;
 mod code_of_conduct;
+mod crates_list;
 mod errors;
 mod licenses;
 mod model;

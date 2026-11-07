@@ -10,32 +10,32 @@ const BUILD_WINDOWS: &str = include_str!("build-windows.txt");
 
 /// Returns the content of the GitHub workflow for GNU/Linux x86_64 platform.
 pub fn get_build_linux_gnu() -> String {
-  replace_variables(BUILD_LINUX_GNU)
+    replace_variables(BUILD_LINUX_GNU)
 }
 
 /// Returns the content of the GitHub workflow for Linux musl x86_64 platform.
 pub fn get_build_linux_musl() -> String {
-  replace_variables(BUILD_LINUX_MUSL)
+    replace_variables(BUILD_LINUX_MUSL)
 }
 
 /// Returns the content of the GitHub workflow for macOS x86_64 platform.
 pub fn get_build_macos() -> String {
-  replace_variables(BUILD_MACOS)
+    replace_variables(BUILD_MACOS)
 }
 
 /// Returns the content of the GitHub workflow for macOS aarch64 platform.
 pub fn get_build_macos_aarch64() -> String {
-  replace_variables(BUILD_MACOS_AARCH64)
+    replace_variables(BUILD_MACOS_AARCH64)
 }
 
 /// Returns the content of the GitHub workflow for Windows x86_64 platform.
 pub fn get_build_windows() -> String {
-  replace_variables(BUILD_WINDOWS)
+    replace_variables(BUILD_WINDOWS)
 }
 
 /// Replaces all variables in specified input.
 fn replace_variables(input: &str) -> String {
-  input
-    .replace("{{CHECKOUT-VERSION}}", CHECKOUT_VERSION)
-    .replace("{{UPLOAD-ARTIFACT-VERSION}}", UPLOAD_ARTIFACT_VERSION)
+    input
+        .replace("{{CHECKOUT-VERSION}}", CHECKOUT_VERSION)
+        .replace("{{UPLOAD-ARTIFACT-VERSION}}", UPLOAD_ARTIFACT_VERSION)
 }

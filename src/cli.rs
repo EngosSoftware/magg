@@ -9,58 +9,58 @@ use antex::{StyledText, Text, auto};
 use clap::{Arg, ArgAction, ArgMatches, Command, command, crate_version};
 
 enum Action {
-  /// Generate README file for regular crate.
-  ReadmeForRegularCrate(
-    /// Name of the file containing the body text of README file.
-    String,
-    /// Scaffolded README file name.
-    String,
-  ),
-  /// Generate README file for crate in ÐecisionToolkit project.
-  ReadmeForDecisionToolkitCrate(
-    /// Name of the file containing the body text of README file.
-    String,
-    /// Scaffolded README file name.
-    String,
-  ),
-  /// Generate license files.
-  Licenses,
-  /// Generate code of conduct file.
-  CodeOfConduct,
-  /// Generate workflows files.
-  Workflows,
-  /// Generate changelog.
-  Changelog(
-    /// Start revision.
-    String,
-    /// End revision.
-    String,
-    /// Milestone.
-    String,
-    /// Organization/Repository name.
-    String,
-    /// Current directory.
-    String,
-    /// Verbose flag.
-    bool,
-    /// String patterns for excluding commits by subject.
-    Vec<String>,
-    /// String patterns for excluding pull requests by title.
-    Vec<String>,
-  ),
-  ProjectReport(
-    /// Owner name of the project.
-    String,
-    /// Project name.
-    String,
-  ),
-  /// Do nothing.
-  Nothing,
+    /// Generate README file for regular crate.
+    ReadmeForRegularCrate(
+        /// Name of the file containing the body text of README file.
+        String,
+        /// Scaffolded README file name.
+        String,
+    ),
+    /// Generate README file for crate in ÐecisionToolkit project.
+    ReadmeForDecisionToolkitCrate(
+        /// Name of the file containing the body text of README file.
+        String,
+        /// Scaffolded README file name.
+        String,
+    ),
+    /// Generate license files.
+    Licenses,
+    /// Generate code of conduct file.
+    CodeOfConduct,
+    /// Generate workflows files.
+    Workflows,
+    /// Generate changelog.
+    Changelog(
+        /// Start revision.
+        String,
+        /// End revision.
+        String,
+        /// Milestone.
+        String,
+        /// Organization/Repository name.
+        String,
+        /// Current directory.
+        String,
+        /// Verbose flag.
+        bool,
+        /// String patterns for excluding commits by subject.
+        Vec<String>,
+        /// String patterns for excluding pull requests by title.
+        Vec<String>,
+    ),
+    ProjectReport(
+        /// Owner name of the project.
+        String,
+        /// Project name.
+        String,
+    ),
+    /// Do nothing.
+    Nothing,
 }
 
 /// Parses CLI argument matches.
 fn get_matches() -> ArgMatches {
-  command!()
+    command!()
     // disable the built-in version flag
     .disable_version_flag(true)
     // handle the version flag in a custom way
@@ -220,135 +220,197 @@ fn get_matches() -> ArgMatches {
 /// Checks the list of arguments passed from the command line
 /// and returns an action related to a valid argument.
 fn get_cli_action() -> Action {
-  let matches = get_matches();
-  // Replaces the built-in version flag with the custom handler.
-  if matches.get_flag("version") {
-    // Displays only the version number, without the name of the crate.
-    println!("{}", crate_version!());
-    return Action::Nothing;
-  }
-  match matches.subcommand() {
-    Some(("readme", matches)) => {
-      let input_file = match_string(matches, "input-file");
-      let output_file = match_string(matches, "output-file");
-      return Action::ReadmeForRegularCrate(input_file, output_file);
+    let matches = get_matches();
+    // Replaces the built-in version flag with the custom handler.
+    if matches.get_flag("version") {
+        // Displays only the version number, without the name of the crate.
+        println!("{}", crate_version!());
+        return Action::Nothing;
     }
-    Some(("readme-dt", matches)) => {
-      let input_file = match_string(matches, "input-file");
-      let output_file = match_string(matches, "output-file");
-      return Action::ReadmeForDecisionToolkitCrate(input_file, output_file);
+    match matches.subcommand() {
+        Some(("readme", matches)) => {
+            let input_file = match_string(matches, "input-file");
+            let output_file = match_string(matches, "output-file");
+            return Action::ReadmeForRegularCrate(input_file, output_file);
+        }
+        Some(("readme-dt", matches)) => {
+            let input_file = match_string(matches, "input-file");
+            let output_file = match_string(matches, "output-file");
+            return Action::ReadmeForDecisionToolkitCrate(input_file, output_file);
+        }
+        Some(("licenses", _matches)) => {
+            return Action::Licenses;
+        }
+        Some(("code-of-conduct", _matches)) => {
+            return Action::CodeOfConduct;
+        }
+        Some(("workflows", _matches)) => {
+            return Action::Workflows;
+        }
+        Some(("changelog", matches)) => {
+            let start_revision = match_string(matches, "start-revision");
+            let end_revision = match_string(matches, "end-revision");
+            let milestone = match_string(matches, "milestone");
+            let repository = match_string(matches, "repository");
+            let dir = match_string(matches, "directory");
+            let verbose = match_boolean(matches, "verbose");
+            let exclude_commit = match_strings(matches, "exclude-commit");
+            let exclude_pr = match_strings(matches, "exclude-pr");
+            return Action::Changelog(
+                start_revision,
+                end_revision,
+                milestone,
+                repository,
+                dir,
+                verbose,
+                exclude_commit,
+                exclude_pr,
+            );
+        }
+        Some(("project-report", matches)) => {
+            let project_owner = match_string(matches, "owner");
+            let project_name = match_string(matches, "name");
+            return Action::ProjectReport(project_owner, project_name);
+        }
+        _ => {}
     }
-    Some(("licenses", _matches)) => {
-      return Action::Licenses;
-    }
-    Some(("code-of-conduct", _matches)) => {
-      return Action::CodeOfConduct;
-    }
-    Some(("workflows", _matches)) => {
-      return Action::Workflows;
-    }
-    Some(("changelog", matches)) => {
-      let start_revision = match_string(matches, "start-revision");
-      let end_revision = match_string(matches, "end-revision");
-      let milestone = match_string(matches, "milestone");
-      let repository = match_string(matches, "repository");
-      let dir = match_string(matches, "directory");
-      let verbose = match_boolean(matches, "verbose");
-      let exclude_commit = match_strings(matches, "exclude-commit");
-      let exclude_pr = match_strings(matches, "exclude-pr");
-      return Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_commit, exclude_pr);
-    }
-    Some(("project-report", matches)) => {
-      let project_owner = match_string(matches, "owner");
-      let project_name = match_string(matches, "name");
-      return Action::ProjectReport(project_owner, project_name);
-    }
-    _ => {}
-  }
-  Action::Nothing
+    Action::Nothing
 }
 
 pub fn do_action() {
-  fn error_message(reason: MaggError) -> Text {
-    auto().bold().red().s("error").reset().s(": ").s(reason.to_string())
-  }
+    // Utility function for building an error message.
+    fn error_message(reason: MaggError) -> Text {
+        auto()
+            .bold()
+            .red()
+            .s("error")
+            .reset()
+            .s(": ")
+            .s(reason.to_string())
+    }
 
-  match get_cli_action() {
-    Action::ReadmeForRegularCrate(input_file, output_file) => match readme::get_readme_for_regular_crate(input_file) {
-      Ok(contents) => {
-        utils::write_file(output_file, &contents).unwrap();
-      }
-      Err(reason) => {
-        eprintln!("{}", error_message(reason));
-        std::process::exit(1);
-      }
-    },
-    Action::ReadmeForDecisionToolkitCrate(input_file, output_file) => match readme::get_readme_for_decision_toolkit_crate(input_file) {
-      Ok(contents) => {
-        utils::write_file(output_file, &contents).unwrap();
-      }
-      Err(reason) => {
-        eprintln!("{}", error_message(reason));
-        std::process::exit(1);
-      }
-    },
-    Action::Licenses => {
-      utils::write_file("LICENSE-APACHE", &get_apache_license()).unwrap();
-      utils::write_file("NOTICE", &get_apache_notice()).unwrap();
-      utils::write_file("LICENSE-MIT", &get_mit_license()).unwrap();
-    }
-    Action::CodeOfConduct => {
-      utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct()).unwrap();
-    }
-    Action::Workflows => {
-      utils::write_file(".github/workflows/build-linux-gnu.yml", &workflows::get_build_linux_gnu()).unwrap();
-      utils::write_file(".github/workflows/build-linux-musl.yml", &workflows::get_build_linux_musl()).unwrap();
-      utils::write_file(".github/workflows/build-macos.yml", &workflows::get_build_macos()).unwrap();
-      utils::write_file(".github/workflows/build-macos-aarch64.yml", &workflows::get_build_macos_aarch64()).unwrap();
-      utils::write_file(".github/workflows/build-windows.yml", &workflows::get_build_windows()).unwrap();
-    }
-    Action::Changelog(start_revision, end_revision, milestone, repository, dir, verbose, exclude_commit, exclude_pr) => {
-      match changelog::get_changelog(verbose, &start_revision, &end_revision, &milestone, &repository, &dir, exclude_commit, exclude_pr) {
-        Ok(changelog) => {
-          println!("\nCHANGELOG");
-          println!("{SEPARATOR_LINE}");
-          println!("{}", changelog)
+    match get_cli_action() {
+        Action::ReadmeForRegularCrate(input_file, output_file) => {
+            match readme::get_readme_for_regular_crate(input_file) {
+                Ok(contents) => {
+                    utils::write_file(output_file, &contents).unwrap();
+                }
+                Err(reason) => {
+                    eprintln!("{}", error_message(reason));
+                    std::process::exit(1);
+                }
+            }
         }
-        Err(reason) => {
-          eprintln!("\n{}", error_message(reason));
-          std::process::exit(1);
+        Action::ReadmeForDecisionToolkitCrate(input_file, output_file) => {
+            match readme::get_readme_for_decision_toolkit_crate(input_file) {
+                Ok(contents) => {
+                    utils::write_file(output_file, &contents).unwrap();
+                }
+                Err(reason) => {
+                    eprintln!("{}", error_message(reason));
+                    std::process::exit(1);
+                }
+            }
         }
-      }
-    }
-    Action::ProjectReport(project_owner, project_name) => {
-      // Generates a report of the project.
-      match get_project_report(&project_owner, &project_name) {
-        Ok(report) => {
-          println!("\n{}", report)
+        Action::Licenses => {
+            utils::write_file("LICENSE-APACHE", &get_apache_license()).unwrap();
+            utils::write_file("NOTICE", &get_apache_notice()).unwrap();
+            utils::write_file("LICENSE-MIT", &get_mit_license()).unwrap();
         }
-        Err(reason) => {
-          eprintln!("\n{}", error_message(reason));
-          std::process::exit(1);
+        Action::CodeOfConduct => {
+            utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct()).unwrap();
         }
-      }
+        Action::Workflows => {
+            utils::write_file(
+                ".github/workflows/build-linux-gnu.yml",
+                &workflows::get_build_linux_gnu(),
+            )
+            .unwrap();
+            utils::write_file(
+                ".github/workflows/build-linux-musl.yml",
+                &workflows::get_build_linux_musl(),
+            )
+            .unwrap();
+            utils::write_file(
+                ".github/workflows/build-macos.yml",
+                &workflows::get_build_macos(),
+            )
+            .unwrap();
+            utils::write_file(
+                ".github/workflows/build-macos-aarch64.yml",
+                &workflows::get_build_macos_aarch64(),
+            )
+            .unwrap();
+            utils::write_file(
+                ".github/workflows/build-windows.yml",
+                &workflows::get_build_windows(),
+            )
+            .unwrap();
+        }
+        Action::Changelog(
+            start_revision,
+            end_revision,
+            milestone,
+            repository,
+            dir,
+            verbose,
+            exclude_commit,
+            exclude_pr,
+        ) => {
+            match changelog::get_changelog(
+                verbose,
+                &start_revision,
+                &end_revision,
+                &milestone,
+                &repository,
+                &dir,
+                exclude_commit,
+                exclude_pr,
+            ) {
+                Ok(changelog) => {
+                    println!("\nCHANGELOG");
+                    println!("{SEPARATOR_LINE}");
+                    println!("{}", changelog)
+                }
+                Err(reason) => {
+                    eprintln!("\n{}", error_message(reason));
+                    std::process::exit(1);
+                }
+            }
+        }
+        Action::ProjectReport(project_owner, project_name) => {
+            // Generates a report of the project.
+            match get_project_report(&project_owner, &project_name) {
+                Ok(report) => {
+                    println!("\n{}", report)
+                }
+                Err(reason) => {
+                    eprintln!("\n{}", error_message(reason));
+                    std::process::exit(1);
+                }
+            }
+        }
+        Action::Nothing => {
+            // No specific action was requested.
+        }
     }
-    Action::Nothing => {
-      // No specific action was requested.
-    }
-  }
 }
 
 /// Matches a mandatory string argument.
 fn match_string(matches: &ArgMatches, name: &str) -> String {
-  matches.get_one::<String>(name).unwrap().trim().to_string()
+    matches.get_one::<String>(name).unwrap().trim().to_string()
 }
 
 /// Matches a mandatory boolean argument.
 fn match_boolean(matches: &ArgMatches, name: &str) -> bool {
-  matches.get_flag(name)
+    matches.get_flag(name)
 }
 
 /// Matches an optional repeatable string argument.
 fn match_strings(matches: &ArgMatches, name: &str) -> Vec<String> {
-  matches.get_many(name).unwrap_or_default().cloned().collect()
+    matches
+        .get_many(name)
+        .unwrap_or_default()
+        .cloned()
+        .collect()
 }

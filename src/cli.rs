@@ -1,4 +1,5 @@
 use crate::code_of_conduct::get_code_of_conduct;
+use crate::config::load_config;
 use crate::errors::*;
 use crate::licenses::{get_apache_license, get_apache_notice, get_mit_license};
 use crate::project_report::get_project_report;
@@ -289,6 +290,8 @@ pub fn do_action() {
             .s(reason.to_string())
     }
 
+    let config = load_config();
+
     match get_cli_action() {
         Action::ReadmeForRegularCrate(input_file, output_file) => {
             match readme::get_readme_for_regular_crate(input_file) {
@@ -318,7 +321,11 @@ pub fn do_action() {
             utils::write_file("LICENSE-MIT", &get_mit_license()).unwrap();
         }
         Action::CodeOfConduct => {
-            utils::write_file("CODE_OF_CONDUCT.md", &get_code_of_conduct()).unwrap();
+            utils::write_file(
+                "CODE_OF_CONDUCT.md",
+                &get_code_of_conduct(&config.emails.code_of_conduct),
+            )
+            .unwrap();
         }
         Action::Workflows => {
             utils::write_file(

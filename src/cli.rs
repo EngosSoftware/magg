@@ -410,13 +410,13 @@ pub fn do_action() {
             let crates = crate_list::get_crates(&config.crates_io.id);
             for c in crates {
                 println!(
-                    "  {:25}v{} | {} | {}",
+                    "{} | v{} | {} | {}",
                     c.name, c.max_version, c.description, c.repository
                 );
             }
         }
         Action::Nothing => {
-            // No specific action was requested.
+            // No action was requested.
         }
     }
 }

@@ -2,7 +2,7 @@
       `cargo install task-commander`
 
 .vars
-  .RUST_TOOLCHAIN +stable
+  .RUST_TOOLCHAIN +1.88.0
 
 .tasks
 
@@ -17,7 +17,7 @@
 
   .clippy
     .desc Runs clippy for all targets
-    .cmd cargo +stable clippy --all-targets
+    .cmd cargo {{RUST_TOOLCHAIN}} clippy --all-targets
 
   .cov
     .desc Generates code coverage report in text format

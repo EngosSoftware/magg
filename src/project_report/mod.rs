@@ -10,14 +10,12 @@ pub fn get_project_report(project_owner: &str, project_name: &str) -> Result<Str
         .find(|project| project.title == project_name)
     else {
         return Err(MaggError::new(format!(
-            "Project '{}' not found for owner '{}'",
-            project_name, project_owner
+            "Project '{project_name}' not found for owner '{project_owner}'",
         )));
     };
     if project.closed {
         return Err(MaggError::new(format!(
-            "Project '{}' is closed",
-            project_name
+            "Project '{project_name}' is closed",
         )));
     }
     let project_items = get_project_items(false, project_owner, project.number)?;
@@ -49,7 +47,7 @@ pub fn get_project_report(project_owner: &str, project_name: &str) -> Result<Str
 
 /// Retrieves projects for specified owner.
 fn get_projects(verbose: bool, project_owner: &str) -> Result<Vec<GHProject>> {
-    let owner = format!("--owner={}", project_owner);
+    let owner = format!("--owner={project_owner}");
     let args = &[
         "project",
         "list",
@@ -82,8 +80,8 @@ fn get_project_items(
     project_owner: &str,
     project_number: usize,
 ) -> Result<Vec<GHProjectItem>> {
-    let project_number = format!("{}", project_number);
-    let owner = format!("--owner={}", project_owner);
+    let project_number = format!("{project_number}");
+    let owner = format!("--owner={project_owner}");
     let args = &[
         "project",
         "item-list",
@@ -138,7 +136,7 @@ fn get_report(mut report_items: Vec<GHProjectItem>) -> String {
     println!("\nTotal count = {}", report_items.len());
     let mut output = String::new();
     for group in &GHLabel::groups() {
-        _ = writeln!(&mut output, "{}", group);
+        _ = writeln!(&mut output, "{group}");
         let mut items_in_group = vec![];
         for report_item in report_items.iter().rev() {
             if let Some(item_group) = &report_item.group
@@ -176,5 +174,5 @@ fn repository_index(repository: &str) -> usize {
             return i;
         }
     }
-    panic!("no sorting key for repository: '{}'", repository);
+    panic!("no sorting key for repository: '{repository}'");
 }

@@ -386,7 +386,7 @@ pub fn do_action() {
                 Ok(changelog) => {
                     println!("\nCHANGELOG");
                     println!("{SEPARATOR_LINE}");
-                    println!("{}", changelog)
+                    println!("{changelog}")
                 }
                 Err(reason) => {
                     eprintln!("\n{}", error_message(reason));
@@ -398,7 +398,7 @@ pub fn do_action() {
             // Generates a report of the project.
             match get_project_report(&project_owner, &project_name) {
                 Ok(report) => {
-                    println!("\n{}", report)
+                    println!("\n{report}")
                 }
                 Err(reason) => {
                     eprintln!("\n{}", error_message(reason));

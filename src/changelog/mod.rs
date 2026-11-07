@@ -224,7 +224,7 @@ pub fn get_changelog(
     if !warnings.is_empty() {
         let _ = writeln!(&mut changelog, "\nWARNINGS:");
         for warning in warnings.values().rev() {
-            let _ = writeln!(&mut changelog, "{}", warning);
+            let _ = writeln!(&mut changelog, "{warning}");
         }
     }
     Ok(changelog)
@@ -244,8 +244,8 @@ fn parse_issues(input: String) -> Result<Vec<Issue>> {
 }
 
 fn get_issues(verbose: bool, milestone: &str, repository: &str) -> Result<Vec<Issue>> {
-    let search = format!(r#"--search=milestone:{}"#, milestone);
-    let repo = format!("--repo={}", repository);
+    let search = format!("--search=milestone:{milestone}");
+    let repo = format!("--repo={repository}");
     let args = &[
         "issue",
         "list",
@@ -262,7 +262,7 @@ fn get_issues(verbose: bool, milestone: &str, repository: &str) -> Result<Vec<Is
 
 fn get_pull_request_commits(verbose: bool, number: &str, repository: &str) -> Result<Vec<Commit>> {
     // gh pr view 661 --repo=cosmwasm/wasmvm --json=commits --jq='.commits[] | "\(.oid) ||| \(.messageHeadline)"'
-    let repo = format!("--repo={}", repository);
+    let repo = format!("--repo={repository}");
     let args = &[
         "pr",
         "view",
@@ -292,8 +292,8 @@ fn parse_pull_requests(verbose: bool, input: String, repository: &str) -> Result
 }
 
 fn get_pull_requests(verbose: bool, milestone: &str, repository: &str) -> Result<Vec<PullRequest>> {
-    let search = format!(r#"--search=milestone:{}"#, milestone);
-    let repo = format!("--repo={}", repository);
+    let search = format!(r#"--search=milestone:{milestone}"#);
+    let repo = format!("--repo={repository}");
     let args = &[
         "pr",
         "list",
@@ -326,7 +326,7 @@ fn get_commits(
     start_revision: &str,
     end_revision: &str,
 ) -> Result<Vec<Commit>> {
-    let revisions = format!("{}...{}", start_revision, end_revision);
+    let revisions = format!("{start_revision}...{end_revision}");
     let args = &["log", r#"--format="%H ||| %s""#, revisions.as_str(), "--"];
     let stdout = utils::execute_command(verbose, "git", args, dir)?;
     parse_commits(stdout)

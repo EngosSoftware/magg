@@ -24,7 +24,7 @@ impl MaggError {
     }
 }
 
-pub fn error_read_file(file_name: impl AsRef<Path>, reason: impl ToString) -> MaggError {
+pub fn err_read_file(file_name: impl AsRef<Path>, reason: impl ToString) -> MaggError {
     MaggError::new(format!(
         "failed to read file: {}, with reason: {}",
         file_name.as_ref().display(),
@@ -32,7 +32,7 @@ pub fn error_read_file(file_name: impl AsRef<Path>, reason: impl ToString) -> Ma
     ))
 }
 
-pub fn error_spawn_command(program: impl AsRef<str>, reason: impl AsRef<str>) -> MaggError {
+pub fn err_spawn_command(program: impl AsRef<str>, reason: impl AsRef<str>) -> MaggError {
     MaggError::new(format!(
         "failed to spawn command: {}, with reason: {}",
         program.as_ref(),
@@ -40,14 +40,14 @@ pub fn error_spawn_command(program: impl AsRef<str>, reason: impl AsRef<str>) ->
     ))
 }
 
-pub fn error_obtain_output(reason: impl AsRef<str>) -> MaggError {
+pub fn err_obtain_output(reason: impl AsRef<str>) -> MaggError {
     MaggError::new(format!(
         "failed to obtain command output with reason: {}",
         reason.as_ref()
     ))
 }
 
-pub fn error_execute_command(
+pub fn err_execute_command(
     status: ExitStatus,
     stdout: impl AsRef<str>,
     stderr: impl AsRef<str>,

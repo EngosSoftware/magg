@@ -1,0 +1,95 @@
+.note To use these task definitions, run:
+      `cargo install task-commander`
+
+.vars
+  .RUST_TOOLCHAIN +stable
+
+.tasks
+
+  .build
+    .desc Builds in debug mode
+    .cmd cargo {{RUST_TOOLCHAIN}} build
+
+  .clean
+    .desc Cleans all targets
+    .cmd cargo +stable clean
+    .cmd rm -rf ./manual/book
+
+  .clippy
+    .desc Runs clippy for all targets
+    .cmd cargo +stable clippy --all-targets
+
+  .cov
+    .desc Generates code coverage report in text format
+    .cmd cargo +stable llvm-cov clean
+    .cmd cargo +stable llvm-cov --no-cfg-coverage
+
+  .cov-html
+    .desc Generates code coverage report in HTML format
+    .cmd cargo +stable llvm-cov clean
+    .cmd cargo +stable llvm-cov --no-cfg-coverage --html
+
+  .cov-html-open
+    .desc Generates code coverage report in HTML format
+    .cmd cargo +stable llvm-cov clean
+    .cmd cargo +stable llvm-cov --no-cfg-coverage --html --open
+
+  .cov-badge
+    .desc Generates the detailed code coverage badge
+    .cmd cargo +stable llvm-cov clean
+    .cmd cargo +stable llvm-cov --no-cfg-coverage --json --summary-only | coverio -c --tag cov-badge
+
+  .doc
+    .desc Generates documentation
+    .cmd cargo +stable doc
+
+  .doc-private
+    .desc Generates documentation
+    .cmd cargo +stable doc --document-private-items
+
+  .doc-open
+    .desc Generates documentation and opens in browser
+    .cmd cargo +stable doc --open
+
+  .doc-private-open
+    .desc Generates documentation and opens in browser
+    .cmd cargo +stable doc --open --document-private-items
+
+  .fmt
+    .desc Runs code formatter
+    .cmd cargo +nightly fmt
+
+  .install
+    .desc Builds and installs release version from local sources
+    .cmd cargo +stable install magg --release --path . --force
+
+  .manual
+    .desc Builds the manual from its markdown files
+    .cmd mdbook build
+      .dir manual
+
+  .pedantic
+    .desc Runs pedantic linter
+    .cmd cargo {{RUST_TOOLCHAIN}} clippy --all-targets -- -D warnings -W clippy::pedantic -W clippy::nursery
+
+  .readme
+    .desc Regenerates README.md file
+    .cmd magg readme docs/README.md
+      - .task cov-badge
+
+  .serve
+    .desc Serves the manual locally and rebuilds on changes
+    .cmd mdbook serve
+      .dir manual
+
+  .test
+    .desc Runs tests in debug mode
+    .cmd cargo +stable test
+
+  .testn
+    .desc Runs tests in debug mode
+    .cmd cargo +stable nextest run
+
+  .uninstall
+    .desc Uninstalls previously installed local version
+    .cmd cargo +stable uninstall magg

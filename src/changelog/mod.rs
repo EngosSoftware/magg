@@ -232,7 +232,7 @@ pub fn get_changelog(
 
 fn parse_issues(input: String) -> Result<Vec<Issue>> {
     let mut issues = vec![];
-    let rows = utils::parse_columns(input, 3)?;
+    let rows = utils::parse_columns(&input, 3)?;
     for columns in rows {
         issues.push(Issue {
             number: columns[0].to_string(),
@@ -277,7 +277,7 @@ fn get_pull_request_commits(verbose: bool, number: &str, repository: &str) -> Re
 
 fn parse_pull_requests(verbose: bool, input: String, repository: &str) -> Result<Vec<PullRequest>> {
     let mut pull_requests = vec![];
-    let rows = utils::parse_columns(input, 3)?;
+    let rows = utils::parse_columns(&input, 3)?;
     for columns in rows {
         let number = columns[0].to_string();
         let commits = get_pull_request_commits(verbose, &number, repository)?;
@@ -310,7 +310,7 @@ fn get_pull_requests(verbose: bool, milestone: &str, repository: &str) -> Result
 
 fn parse_commits(input: String) -> Result<Vec<Commit>> {
     let mut commits = vec![];
-    let rows = utils::parse_columns(input, 2)?;
+    let rows = utils::parse_columns(&input, 2)?;
     for columns in rows {
         commits.push(Commit {
             hash: columns[0].to_string(),

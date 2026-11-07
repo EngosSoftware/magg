@@ -65,7 +65,7 @@ fn get_projects(verbose: bool, project_owner: &str) -> Result<Vec<GHProject>> {
 /// Parses project details.
 fn parse_projects(input: String) -> Result<Vec<GHProject>> {
     let mut projects = vec![];
-    let rows = utils::parse_columns(input, 3)?;
+    let rows = utils::parse_columns(&input, 3)?;
     for columns in rows {
         projects.push(GHProject {
             number: columns[0].to_string().parse().unwrap(),
@@ -100,7 +100,7 @@ fn get_project_items(
 /// Parses project item details.
 fn parse_project_items(input: String) -> Result<Vec<GHProjectItem>> {
     let mut project_items = vec![];
-    let rows = utils::parse_columns(input, 6)?;
+    let rows = utils::parse_columns(&input, 6)?;
     for columns in rows {
         project_items.push(GHProjectItem {
             number: columns[0].to_string().parse().unwrap(),

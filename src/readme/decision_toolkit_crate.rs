@@ -1,6 +1,6 @@
-//! # `README.md` file generator for crates in ÐecisionToolkit project.
+//! # `README.md` file generator for crates in `ÐecisionToolkit` project.
 
-use super::*;
+use super::{LICENSE_COLOR, Path, Result, Write, utils};
 
 /// Creates a `README.md` file for a crate in ÐecisionToolkit project.
 pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Result<String> {
@@ -14,7 +14,7 @@ pub fn get_readme_for_decision_toolkit_crate(file_name: impl AsRef<Path>) -> Res
     _ = writeln!(&mut output, "[dsntk] | [ÐecisionToolkit]");
     _ = writeln!(&mut output);
     // Write the name of the package.
-    _ = writeln!(&mut output, "### {}", package_name);
+    _ = writeln!(&mut output, "package_name");
     _ = writeln!(&mut output);
     // Write badges.
     _ = writeln!(&mut output, "[![crates.io][crates-badge]][crates-url]");

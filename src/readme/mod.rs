@@ -1,7 +1,7 @@
 mod decision_toolkit_crate;
 mod regular_crate;
 
-use crate::errors::*;
+use crate::errors::Result;
 use crate::utils;
 use std::fmt::Write;
 use std::path::Path;

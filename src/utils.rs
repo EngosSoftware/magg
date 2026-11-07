@@ -1,4 +1,6 @@
-use crate::errors::*;
+use crate::errors::{
+    MaggError, Result, err_execute_command, err_obtain_output, err_read_file, err_spawn_command,
+};
 use std::io::{self, Write};
 use std::path::Path;
 
@@ -14,15 +16,17 @@ pub const SEPARATOR_LINE: &str =
 
 pub fn read_file(file_name: impl AsRef<Path>) -> Result<String> {
     let path = file_name.as_ref();
-    std::fs::read_to_string(path).map_err(|e| error_read_file(path, e))
+    std::fs::read_to_string(path).map_err(|e| err_read_file(path, e))
 }
 
 pub fn write_file(file_name: impl AsRef<Path>, contents: &str) -> Result<()> {
     let file_path = file_name.as_ref();
-    let parent = file_path.parent().ok_or(MaggError::new(format!(
-        "failed to retrieve path for: {}",
-        file_path.display()
-    )))?;
+    let parent = file_path.parent().ok_or_else(|| {
+        MaggError::new(format!(
+            "failed to retrieve path for: {}",
+            file_path.display()
+        ))
+    })?;
     std::fs::create_dir_all(parent).map_err(|e| {
         MaggError::new(format!(
             "failed to create paths for: {}, reason: {}",
@@ -74,40 +78,40 @@ pub fn execute_command(verbose: bool, program: &str, args: &[&str], dir: &str) -
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
         .spawn()
-        .map_err(|e| error_spawn_command(program, e.to_string()))?;
+        .map_err(|e| err_spawn_command(program, e.to_string()))?;
     let output = child
         .wait_with_output()
-        .map_err(|e| error_obtain_output(e.to_string()))?;
+        .map_err(|e| err_obtain_output(e.to_string()))?;
     let stdout = String::from_utf8_lossy(&output.stdout).to_string();
     let stderr = String::from_utf8_lossy(&output.stderr).to_string();
     let status = output.status;
     if status.success() {
         Ok(stdout)
     } else {
-        Err(error_execute_command(status, stdout, stderr))
+        Err(err_execute_command(status, stdout, stderr))
     }
 }
 
-pub fn parse_columns(input: String, col_count: usize) -> Result<Vec<Vec<String>>> {
+pub fn parse_columns(input: &str, col_count: usize) -> Result<Vec<Vec<String>>> {
     let mut rows = vec![];
-    for mut line in input.lines().map(|line| line.trim()) {
-        if line.starts_with("\"") {
+    for mut line in input.lines().map(str::trim) {
+        if line.starts_with('\"') {
             line = line.strip_prefix("\"").unwrap();
         }
-        if line.starts_with("'") {
+        if line.starts_with('\'') {
             line = line.strip_prefix("'").unwrap();
         }
-        if line.ends_with("\"") {
+        if line.ends_with('\"') {
             line = line.strip_suffix("\"").unwrap();
         }
-        if line.ends_with("'") {
+        if line.ends_with('\'') {
             line = line.strip_suffix("'").unwrap();
         }
         line = line.trim();
         if !line.is_empty() {
             let columns = line
                 .split(" ||| ")
-                .map(|s| s.to_string())
+                .map(ToString::to_string)
                 .collect::<Vec<String>>();
             if columns.len() != col_count {
                 return Err(MaggError::new(format!(

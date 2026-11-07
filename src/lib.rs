@@ -4,7 +4,7 @@ mod changelog;
 mod cli;
 mod code_of_conduct;
 mod config;
-mod crates_list;
+mod crate_list;
 mod errors;
 mod licenses;
 mod model;

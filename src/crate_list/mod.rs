@@ -14,10 +14,10 @@ struct CratesResponse {
 
 #[derive(Deserialize)]
 pub struct Crate {
-    name: String,
-    max_version: String,
-    description: String,
-    repository: String,
+    pub name: String,
+    pub max_version: String,
+    pub description: String,
+    pub repository: String,
 }
 
 #[derive(Deserialize)]
@@ -25,7 +25,7 @@ struct Meta {
     next_page: Option<String>,
 }
 
-pub fn list_crates(user_id: usize) -> Vec<Crate> {
+pub fn get_crates(id: &str) -> Vec<Crate> {
     let user_agent = format!(
         "{0}/{1} (https://crates.io/{0})",
         utils::CREATE_NAME,
@@ -36,7 +36,7 @@ pub fn list_crates(user_id: usize) -> Vec<Crate> {
         .build()
         .unwrap();
     let page_size = 100;
-    let mut url = format!("{URL_CRATES}?user_id={user_id}&per_page={page_size}");
+    let mut url = format!("{URL_CRATES}?user_id={id}&per_page={page_size}");
     let mut crates = vec![];
     loop {
         let resp: CratesResponse = client.get(url).send().unwrap().json().unwrap();

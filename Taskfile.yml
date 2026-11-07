@@ -42,7 +42,7 @@ tasks:
     desc: Generates the detailed code coverage badge
     cmds:
       - cmd: cargo +stable llvm-cov clean
-      - cmd: cargo +stable llvm-cov --no-cfg-coverage --json --summary-only | coverio -l coverage -c --tag cov-badge
+      - cmd: cargo +stable llvm-cov --no-cfg-coverage --json --summary-only | coverio -c --tag cov-badge
 
   doc:
     desc: Generates documentation

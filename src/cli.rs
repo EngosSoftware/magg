@@ -4,7 +4,7 @@ use crate::errors::*;
 use crate::licenses::{get_apache_license, get_apache_notice, get_mit_license};
 use crate::project_report::get_project_report;
 use crate::utils::SEPARATOR_LINE;
-use crate::{changelog, utils};
+use crate::{changelog, crate_list, utils};
 use crate::{readme, workflows};
 use antex::{StyledText, Text, auto};
 use clap::{Arg, ArgAction, ArgMatches, Command, command, crate_version};
@@ -55,6 +55,8 @@ enum Action {
         /// Project name.
         String,
     ),
+    /// Generate a list of owned crates.
+    Crates,
     /// Do nothing.
     Nothing,
 }
@@ -62,160 +64,162 @@ enum Action {
 /// Parses CLI argument matches.
 fn get_matches() -> ArgMatches {
     command!()
-    // disable the built-in version flag
-    .disable_version_flag(true)
-    // handle the version flag in a custom way
-    .arg(Arg::new("version").short('V').long("version").help("Print version").action(ArgAction::SetTrue))
-    // Generate README file for regular crate.
-    .subcommand(
-      Command::new("readme")
-        .about("Generates README file for regular crate")
-        .display_order(1)
-        .arg(
-          Arg::new("input-file")
-            .short('f')
-            .long("input-file")
-            .help("File containing the body of the scaffolded README")
-            .action(ArgAction::Set)
-            .default_value("docs/prelude.md")
-            .display_order(1),
+        // disable the built-in version flag
+        .disable_version_flag(true)
+        // handle the version flag in a custom way
+        .arg(Arg::new("version").short('V').long("version").help("Print version").action(ArgAction::SetTrue))
+        // Generate README file for regular crate.
+        .subcommand(
+            Command::new("readme")
+                .about("Generates README file for regular crate")
+                .display_order(1)
+                .arg(
+                    Arg::new("input-file")
+                        .short('f')
+                        .long("input-file")
+                        .help("File containing the body of the scaffolded README")
+                        .action(ArgAction::Set)
+                        .default_value("docs/prelude.md")
+                        .display_order(1),
+                )
+                .arg(
+                    Arg::new("output-file")
+                        .short('o')
+                        .long("output-file")
+                        .help("Scaffolded README file name")
+                        .action(ArgAction::Set)
+                        .default_value("README.md")
+                        .display_order(1),
+                ),
         )
-        .arg(
-          Arg::new("output-file")
-            .short('o')
-            .long("output-file")
-            .help("Scaffolded README file name")
-            .action(ArgAction::Set)
-            .default_value("README.md")
-            .display_order(1),
-        ),
-    )
-    // Generate README file for a crate in ÐecisionToolkit project.
-    .subcommand(
-      Command::new("readme-dt")
-        .about("Generates README file for crate in ÐecisionToolkit project")
-        .display_order(2)
-        .arg(
-          Arg::new("input-file")
-            .short('f')
-            .long("input-file")
-            .help("File containing the body of the scaffolded README")
-            .action(ArgAction::Set)
-            .default_value("docs/prelude.md")
-            .display_order(1),
+        // Generate README file for a crate in ÐecisionToolkit project.
+        .subcommand(
+            Command::new("readme-dt")
+                .about("Generates README file for crate in ÐecisionToolkit project")
+                .display_order(2)
+                .arg(
+                    Arg::new("input-file")
+                        .short('f')
+                        .long("input-file")
+                        .help("File containing the body of the scaffolded README")
+                        .action(ArgAction::Set)
+                        .default_value("docs/prelude.md")
+                        .display_order(1),
+                )
+                .arg(
+                    Arg::new("output-file")
+                        .short('o')
+                        .long("output-file")
+                        .help("Scaffolded README file name")
+                        .action(ArgAction::Set)
+                        .default_value("README.md")
+                        .display_order(1),
+                ),
         )
-        .arg(
-          Arg::new("output-file")
-            .short('o')
-            .long("output-file")
-            .help("Scaffolded README file name")
-            .action(ArgAction::Set)
-            .default_value("README.md")
-            .display_order(1),
-        ),
-    )
-    .subcommand(Command::new("licenses").about("Generates MIT and Apache 2.0 license files").display_order(3))
-    .subcommand(Command::new("code-of-conduct").about("Generates code of conduct file").display_order(4))
-    .subcommand(Command::new("workflows").about("Generates GitHub workflows").display_order(5))
-    .subcommand(
-      Command::new("changelog")
-        .about("Generates changelog")
-        .display_order(6)
-        .arg(
-          Arg::new("start-revision")
-            .short('s')
-            .long("start")
-            .help("Start revision for searching commits")
-            .action(ArgAction::Set)
-            .required(true)
-            .display_order(1),
+        .subcommand(Command::new("licenses").about("Generates MIT and Apache 2.0 license files").display_order(3))
+        .subcommand(Command::new("code-of-conduct").about("Generates code of conduct file").display_order(4))
+        .subcommand(Command::new("workflows").about("Generates GitHub workflows").display_order(5))
+
+        .subcommand(
+            Command::new("changelog")
+                .about("Generates changelog")
+                .display_order(6)
+                .arg(
+                    Arg::new("start-revision")
+                        .short('s')
+                        .long("start")
+                        .help("Start revision for searching commits")
+                        .action(ArgAction::Set)
+                        .required(true)
+                        .display_order(1),
+                )
+                .arg(
+                    Arg::new("end-revision")
+                        .short('e')
+                        .long("end")
+                        .help("End revision for searching commits")
+                        .action(ArgAction::Set)
+                        .required(true)
+                        .display_order(2),
+                )
+                .arg(
+                    Arg::new("milestone")
+                        .short('m')
+                        .long("milestone")
+                        .help("GitHub milestone name for searching issues and pull requests")
+                        .action(ArgAction::Set)
+                        .required(true)
+                        .display_order(3),
+                )
+                .arg(
+                    Arg::new("repository")
+                        .short('r')
+                        .long("repo")
+                        .help("GitHub organization/repository name for searching issues and pull requests")
+                        .action(ArgAction::Set)
+                        .required(true)
+                        .display_order(4),
+                )
+                .arg(
+                    Arg::new("directory")
+                        .short('d')
+                        .long("dir")
+                        .help("Directory of a Git repository for searching commits")
+                        .action(ArgAction::Set)
+                        .default_value(".")
+                        .default_missing_value(".")
+                        .num_args(0..=1)
+                        .display_order(5),
+                )
+                .arg(
+                    Arg::new("verbose")
+                        .long("verbose")
+                        .help("Set this flag to display more detailed report")
+                        .action(ArgAction::SetTrue)
+                        .default_value("false")
+                        .default_missing_value("true")
+                        .display_order(6),
+                )
+                .arg(
+                    Arg::new("exclude-commit")
+                        .long("exclude-commit")
+                        .help("Exclude commits that contain this text in subject")
+                        .action(ArgAction::Append)
+                        .display_order(7),
+                )
+                .arg(
+                    Arg::new("exclude-pr")
+                        .long("exclude-pr")
+                        .help("Exclude pull requests that contain this text in title")
+                        .action(ArgAction::Append)
+                        .display_order(8),
+                ),
         )
-        .arg(
-          Arg::new("end-revision")
-            .short('e')
-            .long("end")
-            .help("End revision for searching commits")
-            .action(ArgAction::Set)
-            .required(true)
-            .display_order(2),
+        .subcommand(
+            Command::new("project-report")
+                .about("Generates project report")
+                .display_order(7)
+                .arg(
+                    Arg::new("owner")
+                        .short('o')
+                        .long("owner")
+                        .help("Project owner")
+                        .action(ArgAction::Set)
+                        .required(true)
+                        .display_order(1),
+                )
+                .arg(
+                    Arg::new("name")
+                        .short('n')
+                        .long("name")
+                        .help("Project name")
+                        .action(ArgAction::Set)
+                        .required(true)
+                        .display_order(2),
+                ),
         )
-        .arg(
-          Arg::new("milestone")
-            .short('m')
-            .long("milestone")
-            .help("GitHub milestone name for searching issues and pull requests")
-            .action(ArgAction::Set)
-            .required(true)
-            .display_order(3),
-        )
-        .arg(
-          Arg::new("repository")
-            .short('r')
-            .long("repo")
-            .help("GitHub organization/repository name for searching issues and pull requests")
-            .action(ArgAction::Set)
-            .required(true)
-            .display_order(4),
-        )
-        .arg(
-          Arg::new("directory")
-            .short('d')
-            .long("dir")
-            .help("Directory of a Git repository for searching commits")
-            .action(ArgAction::Set)
-            .default_value(".")
-            .default_missing_value(".")
-            .num_args(0..=1)
-            .display_order(5),
-        )
-        .arg(
-          Arg::new("verbose")
-            .long("verbose")
-            .help("Set this flag to display more detailed report")
-            .action(ArgAction::SetTrue)
-            .default_value("false")
-            .default_missing_value("true")
-            .display_order(6),
-        )
-        .arg(
-          Arg::new("exclude-commit")
-            .long("exclude-commit")
-            .help("Exclude commits that contain this text in subject")
-            .action(ArgAction::Append)
-            .display_order(7),
-        )
-        .arg(
-          Arg::new("exclude-pr")
-            .long("exclude-pr")
-            .help("Exclude pull requests that contain this text in title")
-            .action(ArgAction::Append)
-            .display_order(8),
-        ),
-    )
-    .subcommand(
-      Command::new("project-report")
-        .about("Generates project report")
-        .display_order(7)
-        .arg(
-          Arg::new("owner")
-            .short('o')
-            .long("owner")
-            .help("Project owner")
-            .action(ArgAction::Set)
-            .required(true)
-            .display_order(1),
-        )
-        .arg(
-          Arg::new("name")
-            .short('n')
-            .long("name")
-            .help("Project name")
-            .action(ArgAction::Set)
-            .required(true)
-            .display_order(2),
-        ),
-    )
-    .get_matches()
+        .subcommand(Command::new("crates").about("Generates list of owned crates").display_order(8))
+        .get_matches()
 }
 
 /// Checks the list of arguments passed from the command line
@@ -273,6 +277,9 @@ fn get_cli_action() -> Action {
             let project_name = match_string(matches, "name");
             return Action::ProjectReport(project_owner, project_name);
         }
+        Some(("crates", _matches)) => {
+            return Action::Crates;
+        }
         _ => {}
     }
     Action::Nothing
@@ -290,6 +297,7 @@ pub fn do_action() {
             .s(reason.to_string())
     }
 
+    // Load configuration from file.
     let config = load_config();
 
     match get_cli_action() {
@@ -396,6 +404,15 @@ pub fn do_action() {
                     eprintln!("\n{}", error_message(reason));
                     std::process::exit(1);
                 }
+            }
+        }
+        Action::Crates => {
+            let crates = crate_list::get_crates(&config.crates_io.id);
+            for c in crates {
+                println!(
+                    "  {:25}v{} | {} | {}",
+                    c.name, c.max_version, c.description, c.repository
+                );
             }
         }
         Action::Nothing => {

@@ -14,6 +14,7 @@ Commands:
   workflows        Generates GitHub workflows
   changelog        Generates changelog
   project-report   Generates project report
+  crates           Generates list of owned crates
   help             Print this message or the help of the given subcommand(s)
 
 Options:

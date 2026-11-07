@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn short() {
-    let expected = r#"Sophisticated tooling for Rust developers
+    let expected = r#"Opinionated tools for Rust devs
 
 Usage: magg||EXE|| [COMMAND]
 

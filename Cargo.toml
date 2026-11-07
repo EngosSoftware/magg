@@ -1,27 +1,20 @@
 [package]
 name = "magg"
 authors = ["Dariusz Depta <depta@engos.de>"]
-description = "Sophisticated tooling for Rust developers"
+description = "Opinionated tools for Rust devs"
 repository = "https://github.com/EngosSoftware/magg.git"
-version = "0.4.3"
+version = "0.4.4-dev"
 license = "MIT OR Apache-2.0"
 edition = "2024"
-exclude = [
-    "rustfmt.toml",
-    "Taskfile.yml",
-    ".github/",
-    ".gitignore",
-    "CODE_OF_CONDUCT.md",
-    "manual/"
+include = [
+    "src/**",
+    "tests/**",
+    "docs/*.rs.md",
+    "Cargo.lock",
+    "Cargo.toml",
+    "LICENSE*",
+    "README.md"
 ]
-
-[lib]
-name = "magg"
-path = "src/lib.rs"
-
-[[bin]]
-name = "magg"
-path = "src/main.rs"
 
 [dependencies]
 antex = "0.2.3"

@@ -1,20 +1,24 @@
 use std::path::Path;
 
+#[derive(Default)]
 pub struct ConfigEmails {
     /// Email address to be used in code of conduct file.
     pub code_of_conduct: String,
 }
 
+#[derive(Default)]
 pub struct ConfigLicenses {
     /// Copyright owner to be placed in licenses.
     pub copyright_owner: String,
 }
 
+#[derive(Default)]
 pub struct ConfigCratesIo {
     /// Account id on crates.io.
     pub id: String,
 }
 
+#[derive(Default)]
 pub struct Config {
     pub licenses: ConfigLicenses,
     pub emails: ConfigEmails,
@@ -22,9 +26,12 @@ pub struct Config {
 }
 
 pub fn load_config() -> Config {
-    let home_dir = std::env::home_dir().expect("opening user's home directory failed");
-    let content = std::fs::read_to_string(Path::new(&home_dir).join(".magg"))
-        .expect("reading configuration file failed");
+    let Some(home_dir) = std::env::home_dir() else {
+        return Config::default();
+    };
+    let Ok(content) = std::fs::read_to_string(Path::new(&home_dir).join(".magg")) else {
+        return Config::default();
+    };
     let doc = diml::parse(&content).unwrap();
 
     let licenses = doc.first_with_name("licenses").unwrap();

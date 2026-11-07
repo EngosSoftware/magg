@@ -84,7 +84,7 @@
 
   .test
     .desc Runs tests in debug mode
-    .cmd cargo +stable test
+    .cmd cargo {{RUST_TOOLCHAIN}} test
 
   .testn
     .desc Runs tests in debug mode

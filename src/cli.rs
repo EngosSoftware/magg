@@ -316,9 +316,10 @@ pub fn do_action() {
             }
         }
         Action::Licenses => {
+            let copyright_owner = &config.licenses.copyright_owner;
             utils::write_file("LICENSE-APACHE", &get_apache_license()).unwrap();
-            utils::write_file("NOTICE", &get_apache_notice()).unwrap();
-            utils::write_file("LICENSE-MIT", &get_mit_license()).unwrap();
+            utils::write_file("NOTICE", &get_apache_notice(copyright_owner)).unwrap();
+            utils::write_file("LICENSE-MIT", &get_mit_license(copyright_owner)).unwrap();
         }
         Action::CodeOfConduct => {
             utils::write_file(
